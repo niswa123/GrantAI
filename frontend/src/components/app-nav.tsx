@@ -1,0 +1,128 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import { useState } from "react";
+import { LayoutDashboard, Calculator, FileOutput, Settings } from "lucide-react";
+
+const navItems = [
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "New Calculation",
+    href: "/input",
+    icon: Calculator,
+  },
+  {
+    name: "Results",
+    href: "/result",
+    icon: FileOutput,
+  },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: Settings,
+  },
+];
+
+export function AppNav() {
+  const pathname = usePathname();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+  });
+
+  return (
+    <motion.nav
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+        isScrolled ? "top-4 w-[95%] max-w-5xl" : "top-6 w-[98%] max-w-5xl"
+      }`}
+    >
+      <div
+        className={`glass rounded-full flex items-center justify-between transition-all duration-500 ease-out ${
+          isScrolled
+            ? "px-4 py-2 bg-slate-950/80 backdrop-blur-xl border-white/10"
+            : "px-6 py-3 bg-slate-900/30 backdrop-blur-md border-white/5"
+        }`}
+      >
+        {/* Logo */}
+        <Link
+          href="/dashboard"
+          className={`${
+            isScrolled ? "text-lg" : "text-xl"
+          } font-bold tracking-tighter flex items-center gap-2 transition-all hover:scale-105 duration-300`}
+        >
+          <div className="w-8 h-8 rounded-[10px] bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-4 h-4 text-cyan-400"
+            >
+              <path d="m12 3-8 4v10l8 4 8-4V7z"></path>
+              <path d="m12 11 8-4"></path>
+              <path d="m12 11-8-4"></path>
+              <path d="m12 11v10"></path>
+            </svg>
+          </div>
+          <span className="text-white">GrantAI</span>
+        </Link>
+
+        {/* Navigation Links */}
+        <div className="hidden lg:flex items-center gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 text-sm font-medium ${
+                  isActive
+                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="font-semibold">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Mobile links */}
+        <div className="flex lg:hidden items-center gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`p-2.5 rounded-full transition-all duration-300 ${
+                  isActive
+                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </motion.nav>
+  );
+}

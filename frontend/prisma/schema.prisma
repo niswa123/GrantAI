@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String          @id @default(uuid()) @db.Uuid
+  email             String          @unique @db.VarChar
+  password_hash     String          @db.VarChar
+  display_name      String?         @db.VarChar
+  avatar_url        String?         @db.Text
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
+  
+  companies         Company[]       // Owned companies
+  company_members   CompanyMember[] // Companies they are members of
+  audit_logs        AuditLog[]
+
+  @@map("users")
+}
+
+model Company {
+  id                  String         @id @default(uuid()) @db.Uuid
+  user_id             String         @db.Uuid // Owner
+  name                String         @db.VarChar
+  country             String         @db.VarChar
+  registration_number String?        @db.VarChar
+  vat_number          String?        @db.VarChar
+  city                String?        @db.VarChar
+  address             String?        @db.Text
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
+
+  user                User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  claims              Claim[]
+  members             CompanyMember[]
+
+  @@map("companies")
+}
+
+model CompanyMember {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  company_id String   @db.Uuid
+  role       String   @default("Viewer") @db.VarChar // Admin, Editor, Viewer
+  status     String   @default("Pending") @db.VarChar // Active, Pending
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  company    Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, company_id])
+  @@map("company_members")
+}
+
+model Claim {
+  id                  String   @id @default(uuid()) @db.Uuid
+  company_id          String?  @db.Uuid
+  
+  // Input Data
+  description         String   @db.Text
+  total_salary_cost   Decimal  @db.Decimal
+  total_dev_cost      Decimal  @db.Decimal
+  
+  // Result Data
+  estimated_rd_amount Decimal? @db.Decimal
+  rd_score            Float?
+  claim_text          String?  @db.Text
+  status              String   @default("Draft") @db.VarChar
+  fy_year             String   @default("2024") @db.VarChar
+  
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  company             Company?  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  audit_logs          AuditLog[]
+
+  @@map("claims")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  claim_id   String   @db.Uuid
+  user_id    String?  @db.Uuid
+  action     String   @db.VarChar
+  details    String?  @db.Text
+  created_at DateTime @default(now())
+
+  claim      Claim    @relation(fields: [claim_id], references: [id], onDelete: Cascade)
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
