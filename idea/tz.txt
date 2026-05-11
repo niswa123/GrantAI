@@ -1,539 +1,204 @@
-Окей, вот **полное ТЗ уровня “можно садиться и писать продукт”**. Структура — как в реальных продуктовых командах: архитектура, модели данных, API, бизнес-логика, очереди, интеграции, ошибки, метрики.
+⚙️ MVP GRANTAI (РЕАЛЬНАЯ ВЕРСИЯ ДЛЯ ЗАПУСКА)
+🎯 Цель MVP
 
----
+Не система и не архитектура.
 
-# ТЕХНИЧЕСКОЕ ЗАДАНИЕ (ПОЛНОЕ)
+👉 Цель MVP:
 
-## Проект: GrantAI (MVP → Production-ready foundation)
+пользователь вводит данные → получает оценку денег → получает черновик заявки
 
----
+ВСЁ.
 
-# 1. ЦЕЛЬ СИСТЕМЫ
+🧱 1. АРХИТЕКТУРА (УПРОЩЁННАЯ В 10 РАЗ)
 
-Система должна позволять пользователю:
+❌ убираем:
 
-1. Создать компанию
-2. Внести проекты и расходы
-3. Получить расчёт R&D tax credits
-4. Сгенерировать заявку
-5. Отслеживать статус
+очереди (BullMQ)
+workers
+microservices
+Redis (на старте не нужен)
+сложный RBAC
+✅ Остаётся:
 
----
+Frontend + Backend монолит
 
-# 2. АРХИТЕКТУРА
-
-## 2.1 Общая схема
-
-Frontend (Next.js)
+Next.js (frontend + API routes)
 ↓
-Backend API (Node.js / NestJS)
+PostgreSQL (Supabase / Neon)
 ↓
-PostgreSQL
+OpenAI API (или любой LLM)
 
-Дополнительно:
+👉 всё
 
-* Redis (кэш + очереди)
-* Worker (для фоновых задач)
-* LLM API (генерация текста)
-
----
-
-## 2.2 Компоненты
-
-### 1. API сервер
-
-* авторизация
-* CRUD операции
-* запуск анализа
-
-### 2. Worker
-
-* генерация текста (LLM)
-* расчёты
-* фоновые задачи
-
-### 3. База данных
-
-* хранение всех сущностей
-
----
-
-# 3. СХЕМА БАЗЫ ДАННЫХ
-
-## 3.1 Users
-
-```
-id (uuid, pk)
-email (varchar, unique)
-password_hash (varchar)
-created_at (timestamp)
-updated_at (timestamp)
-```
-
----
-
-## 3.2 Companies
-
-```
-id (uuid, pk)
-user_id (uuid, fk -> users.id)
-name (varchar)
-country (varchar)
-industry (varchar)
-created_at
-updated_at
-```
-
----
-
-## 3.3 Projects
-
-```
-id (uuid, pk)
-company_id (uuid, fk)
-title (varchar)
-description (text)
-is_rd (boolean)
-rd_score (float)
-created_at
-updated_at
-```
-
----
-
-## 3.4 Expenses
-
-```
-id (uuid, pk)
-company_id (uuid, fk)
-type (varchar) // salary, contractor, tools
-amount (numeric)
-currency (varchar)
-date (date)
-description (text)
-is_rd_related (boolean)
-created_at
-```
-
----
-
-## 3.5 Claims
-
-```
-id (uuid, pk)
-company_id (uuid, fk)
-estimated_amount (numeric)
-rd_expenses_total (numeric)
-status (varchar) // draft, generated, submitted, approved, rejected
-generated_text (text)
-created_at
-updated_at
-```
-
----
-
-## 3.6 AnalysisRuns
-
-```
-id (uuid, pk)
-company_id (uuid)
-rd_score (float)
-estimated_amount (numeric)
-details (jsonb)
-created_at
-```
-
----
-
-# 4. API СПЕЦИФИКАЦИЯ
-
-## 4.1 AUTH
-
-### POST /auth/register
-
-```
-input:
+🧠 2. ДАННЫЕ (УПРОЩЁННАЯ МОДЕЛЬ)
+Users
+id
+email
+password
+Company
+id
+user_id
+name
+country
+InputData (ВАЖНО — вместо Projects + Expenses)
 {
-  email: string,
-  password: string
+  company_id,
+  description: string,
+  total_salary_cost: number,
+  total_dev_cost: number
 }
-```
 
-### POST /auth/login
+👉 ты НЕ строишь бухгалтерию
 
-```
-response:
+Result
 {
-  access_token: string
-}
-```
-
----
-
-## 4.2 COMPANY
-
-### POST /company
-
-```
-{
-  name,
-  country,
-  industry
-}
-```
-
-### GET /company
-
----
-
-## 4.3 PROJECTS
-
-### POST /projects
-
-```
-{
-  title,
-  description
-}
-```
-
-### GET /projects
-
-### PATCH /projects/:id
-
-### DELETE /projects/:id
-
----
-
-## 4.4 EXPENSES
-
-### POST /expenses
-
-```
-{
-  type,
-  amount,
-  currency,
-  date,
-  description
-}
-```
-
-### GET /expenses
-
-### DELETE /expenses/:id
-
----
-
-## 4.5 ANALYSIS
-
-### POST /analysis/run
-
-Асинхронный запуск:
-
-```
-response:
-{
-  job_id
-}
-```
-
----
-
-### GET /analysis/:id
-
-```
-response:
-{
+  estimated_rd_amount,
   rd_score,
-  estimated_amount,
-  breakdown: {
-    rd_expenses,
-    non_rd_expenses
-  }
+  claim_text
 }
-```
+🚀 3. ОСНОВНОЙ ФЛОУ (MVP)
+Шаг 1
 
----
+User создаёт компанию
 
-## 4.6 CLAIMS
+Шаг 2
 
-### POST /claims/generate
+Вводит:
 
-```
-input:
-{
-  company_id
-}
-```
+описание проекта
+расходы (2 поля максимум)
+Шаг 3
 
-→ ставит задачу в очередь
+Жмёт:
 
----
+👉 “Calculate R&D”
 
-### GET /claims
+Шаг 4
 
----
+Backend:
 
-### GET /claims/:id
+простая формула
+LLM текст
+Шаг 5
 
----
+Показываешь:
 
-### POST /claims/:id/submit
+“€X можно вернуть”
+“вот текст заявки”
+🧮 4. БИЗНЕС-ЛОГИКА (УЛЬТРА УПРОЩЁННАЯ)
 
----
+❌ никаких project scoring систем
 
-# 5. БИЗНЕС-ЛОГИКА
+Формула:
+rd_amount = total_salary_cost * 0.25
 
-## 5.1 Определение R&D проектов
+или
 
-Простейшая версия:
-
-```
-keywords = ["algorithm", "ai", "system", "platform", "data", "model"]
-
-if description contains keywords:
-  is_rd = true
-  rd_score = 0.6–0.9
+rd_amount = (total_salary_cost + total_dev_cost) * 0.2
+RD score:
+if description contains ["build", "platform", "AI", "system"]:
+    score = 0.7
 else:
-  rd_score = 0.1–0.3
-```
+    score = 0.3
 
----
+👉 ВСЁ. никаких усложнений
 
-## 5.2 Определение R&D расходов
+🤖 5. LLM (ТОЛЬКО 1 ВЫЗОВ)
+Prompt:
+You are an R&D tax assistant.
 
-```
-if expense.type in ["salary", "contractor"]:
-  is_rd_related = true
-else:
-  false
-```
+Write a short justification for R&D tax credit based on:
 
----
+Company description:
+{description}
 
-## 5.3 Расчёт суммы
+Make it formal, 8–12 sentences.
+Focus on technical uncertainty and innovation.
 
-```
-rd_expenses_total = sum(expenses where is_rd_related = true)
+👉 один API вызов = один результат
 
-estimated_amount = rd_expenses_total * 0.2
-```
+🖥️ 6. FRONTEND (3 ЭКРАНА)
+1. Dashboard
+“Estimated R&D refund: €X”
+2. Input page
+description
+salary cost
+dev cost
+button
+3. Result page
+number
+generated text
+“Download PDF” (optional)
+❌ ЧТО УБРАНО ПОЛНОСТЬЮ
+проекты
+expenses система
+анализ runs
+очереди
+интеграции GitHub
+multi-country logic
+роли пользователей
+сложная архитектура
+claim lifecycle
+🧪 7. ЧТО ТЫ ТЕСТИРУЕШЬ НА САМОМ ДЕЛЕ
 
-(коэффициент конфигурируемый)
+Не продукт.
 
----
+Ты тестируешь:
 
-## 5.4 Расчёт rd_score компании
+“люди верят числу и тексту настолько, что хотят использовать это для денег”
 
-```
-rd_score = average(project.rd_score)
-```
+📊 8. МЕТРИКА MVP
 
----
+Смотришь только:
 
-# 6. ФОНОВЫЕ ЗАДАЧИ (QUEUE)
+% людей, которые дошли до результата
+% которые сказали “хочу подать”
+% которые вернулись
+🚀 9. ПЛАН 7–10 ДНЕЙ
+День 1
 
-Использовать: BullMQ / Redis
+Next.js + DB
 
----
+День 2
 
-## 6.1 Job: ANALYSIS_RUN
+форма ввода
 
-Шаги:
+День 3
 
-1. загрузить проекты
-2. классифицировать R&D
-3. загрузить расходы
-4. рассчитать сумму
-5. сохранить результат
+формула расчёта
 
----
+День 4
 
-## 6.2 Job: CLAIM_GENERATION
+LLM генерация текста
 
-Шаги:
+День 5
 
-1. собрать:
+result page
 
-   * проекты
-   * расходы
-2. сформировать prompt
-3. вызвать LLM API
-4. сохранить текст в Claims
+День 6–7
 
----
+первые пользователи (10–20 компаний)
 
-# 7. LLM ИНТЕГРАЦИЯ
+🧠 СУТЬ ЭТОГО MVP
 
-## 7.1 Prompt
+Ты НЕ строишь систему налогов.
 
-```
-Ты эксперт по R&D tax credits.
+Ты строишь:
 
-На основе:
-- списка проектов
-- описаний
-- расходов
+“калькулятор денег + генератор обоснования”
 
-Сгенерируй:
-1. описание R&D деятельности
-2. обоснование новизны
-3. технические сложности
+💥 ЧЕСТНЫЙ ИНСАЙТ
 
-Пиши формально, без воды.
-```
+90% твоего изначального ТЗ — это:
 
----
+преждевременная инженерия
 
-## 7.2 Ограничения
+Она убивает скорость и проверку идеи.
 
-* max tokens
-* retry при ошибке
-* логирование ответов
+🧨 ЕСЛИ ОЧЕНЬ КОРОТКО
 
----
+👉 Было:
+“финансовая платформа с автоматизацией”
 
-# 8. FRONTEND
-
-## 8.1 Страницы
-
-### /login
-
----
-
-### /dashboard
-
-* estimated amount
-* статус заявок
-
----
-
-### /company
-
----
-
-### /projects
-
-* список + форма
-
----
-
-### /expenses
-
----
-
-### /analysis
-
-* кнопка "Запустить анализ"
-* результат
-
----
-
-### /claims
-
-* список
-* просмотр текста
-
----
-
-## 8.2 Состояние
-
-* React Query / SWR
-* хранение токена
-
----
-
-# 9. БЕЗОПАСНОСТЬ
-
-* bcrypt (hash)
-* JWT (access token)
-* rate limit (basic)
-* валидация DTO
-
----
-
-# 10. ЛОГИРОВАНИЕ
-
-* все ошибки в лог
-* все LLM ответы логируются
-* audit: кто что создал
-
----
-
-# 11. ОШИБКИ
-
-Стандарт:
-
-```
-{
-  error: string,
-  message: string
-}
-```
-
----
-
-# 12. МЕТРИКИ (обязательно)
-
-Собирать:
-
-* количество регистраций
-* сколько запустили analysis
-* сколько сгенерировали claim
-* conversion: analysis → claim
-
----
-
-# 13. ТЕСТЫ
-
-Минимум:
-
-* auth
-* calculation logic
-* claim generation
-
----
-
-# 14. DEPLOY
-
-* Docker (backend)
-* env variables:
-
-  * DB_URL
-  * JWT_SECRET
-  * LLM_API_KEY
-
----
-
-# 15. ROADMAP ПОСЛЕ MVP
-
-1. GitHub интеграция
-2. авто-детект задач
-3. multi-country logic
-4. реальная подача
-
----
-
-# 16. ГЛАВНОЕ ДЛЯ РАЗРАБОТЧИКА
-
-* логика должна быть простой и расширяемой
-* все коэффициенты — в конфиге
-* код без хардкода страны
-
----
-
-# 17. КРИТЕРИЙ ГОТОВНОСТИ
-
-Система готова, если:
-
-* пользователь прошёл весь путь
-* получил расчёт
-* сгенерировал заявку
-
----
-
-Если хочешь следующий уровень — могу:
-
-* накинуть структуру репозитория (как в реальном стартапе)
-* или дать готовые файлы backend (чтобы ты просто запустил и начал тестировать)
+👉 Стало:
+“форма → число → текст → интерес”
