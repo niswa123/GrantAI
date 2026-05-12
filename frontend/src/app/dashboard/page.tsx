@@ -230,16 +230,16 @@ export default function DashboardPage() {
                 value={`${effectiveRoi}%`}
                 sub="of total dev spend"
                 icon={TrendingUp}
-                color="text-violet-400"
-                glow="shadow-[0_0_20px_rgba(139,92,246,0.1)]"
+                color="text-emerald-400"
+                glow="shadow-[0_0_20px_rgba(52,211,153,0.1)]"
               />
               <StatCard
                 label="R&D Projects"
                 value={rdProjects}
                 sub={`of ${filtered.length} total`}
                 icon={BarChart3}
-                color="text-emerald-400"
-                glow="shadow-[0_0_20px_rgba(52,211,153,0.1)]"
+                color="text-violet-400"
+                glow="shadow-[0_0_20px_rgba(139,92,246,0.1)]"
               />
               {riskyCount > 0 ? (
                 <StatCard
