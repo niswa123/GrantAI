@@ -332,8 +332,8 @@ export function AppHeader() {
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 10));
 
-  // Don't render on the landing page
-  if (pathname === "/") return null;
+  // Don't render on the landing, login, or register pages
+  if (pathname === "/" || pathname === "/login" || pathname === "/register") return null;
 
   return (
     <motion.header
