@@ -9,9 +9,9 @@
  */
 
 const KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions";
-const MAX_RETRIES = 3;
-const BASE_DELAY_MS = 1000;
-const TIMEOUT_MS = 30_000;
+const MAX_RETRIES = 2;
+const BASE_DELAY_MS = 500;
+const TIMEOUT_MS = 15_000;
 
 export class LlmApiError extends Error {
   constructor(

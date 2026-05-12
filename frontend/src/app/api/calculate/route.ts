@@ -21,6 +21,9 @@ import prisma from "@/lib/prisma";
 import { runRdPipeline } from "@/lib/rd-engine/pipeline";
 import { computeCredit } from "@/lib/rd-engine/credit-calculator";
 
+// Allow up to 60s for this AI-heavy route (Vercel Hobby max)
+export const maxDuration = 60;
+
 // ─── Input Validation ───────────────────────────────────────────────────────
 
 function validateInput(body: unknown): {
