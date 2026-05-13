@@ -50,6 +50,9 @@ const PROVIDERS = [
   },
 ];
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isRealUuid = (id: string) => UUID_REGEX.test(id);
+
 export default function IntegrationsPage() {
   const { activeWorkspace } = useWorkspace();
   const searchParams = useSearchParams();
@@ -60,6 +63,9 @@ export default function IntegrationsPage() {
   
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // True only when the workspace provider has finished hydrating from DB
+  const hasRealId = isRealUuid(activeWorkspace?.id ?? "");
+
   useEffect(() => {
     // Show toast from OAuth redirects
     const error = searchParams?.get("error");
@@ -69,7 +75,11 @@ export default function IntegrationsPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!activeWorkspace?.id) return;
+    // Wait until we have a real UUID from the DB (not mock ws_1)
+    if (!hasRealId) {
+      setLoading(false);
+      return;
+    }
 
     async function fetchIntegrations() {
       setLoading(true);
@@ -87,10 +97,10 @@ export default function IntegrationsPage() {
     }
 
     fetchIntegrations();
-  }, [activeWorkspace?.id]);
+  }, [activeWorkspace?.id, hasRealId]);
 
   const handleConnect = (providerId: string) => {
-    if (!activeWorkspace?.id) return;
+    if (!hasRealId) return;
     setActionLoading(providerId);
     window.location.href = `/api/integrations/${providerId}/connect?companyId=${activeWorkspace.id}`;
   };
@@ -219,11 +229,12 @@ export default function IntegrationsPage() {
                   ) : (
                     <button
                       onClick={() => handleConnect(provider.id)}
-                      disabled={isLoading}
-                      className="flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50"
+                      disabled={isLoading || !hasRealId}
+                      title={!hasRealId ? "Loading workspace..." : undefined}
+                      className="flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
-                      Connect
+                      {hasRealId ? "Connect" : "Loading..."}
                     </button>
                   )}
                 </div>

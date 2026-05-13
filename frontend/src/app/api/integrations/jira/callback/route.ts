@@ -34,6 +34,8 @@ export async function GET(request: Request) {
     userId = decoded.userId;
     companyId = decoded.companyId;
     if (!userId || !companyId) throw new Error();
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(companyId)) throw new Error("Invalid companyId format");
   } catch {
     return NextResponse.redirect(`${settingsUrl}?error=invalid_state`);
   }

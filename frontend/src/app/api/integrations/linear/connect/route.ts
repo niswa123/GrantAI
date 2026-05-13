@@ -25,6 +25,14 @@ export async function GET(request: Request) {
     );
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(companyId)) {
+    return NextResponse.json(
+      { error: "Invalid companyId. Please reload the page." },
+      { status: 400 }
+    );
+  }
+
   const clientId = process.env.LINEAR_CLIENT_ID;
   if (!clientId) {
     return NextResponse.json(

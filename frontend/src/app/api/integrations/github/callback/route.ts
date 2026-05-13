@@ -36,6 +36,9 @@ export async function GET(request: Request) {
     userId = decoded.userId;
     companyId = decoded.companyId;
     if (!userId || !companyId) throw new Error("Missing fields in state");
+    // Reject mock IDs like ws_1 that Prisma cannot parse as UUID
+    const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_REGEX.test(companyId)) throw new Error("Invalid companyId format");
   } catch {
     return NextResponse.redirect(`${settingsUrl}?error=invalid_state`);
   }
