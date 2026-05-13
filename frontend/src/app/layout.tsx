@@ -6,6 +6,7 @@ import { QueryProvider } from "@/providers/query-provider";
 import { WorkspaceProvider } from "@/providers/workspace-provider";
 import { SessionProvider } from "@/providers/session-provider";
 import { AppHeader } from "@/components/app-header";
+import { MainLayout } from "@/components/main-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,9 +53,9 @@ export default function RootLayout({
             <QueryProvider>
               <WorkspaceProvider>
                 <AppHeader />
-                <main className="flex-1 pt-14">
+                <MainLayout>
                   {children}
-                </main>
+                </MainLayout>
               </WorkspaceProvider>
             </QueryProvider>
           </SessionProvider>

@@ -10,6 +10,8 @@ export interface Workspace {
   country: string;
   initials: string;
   color: string; // tailwind bg color class for the avatar
+  defaultHourlyRate?: number;
+  taxCreditRate?: number;
 }
 
 interface WorkspaceContextType {
@@ -32,6 +34,8 @@ const DEFAULT_WORKSPACES: Workspace[] = [
     country: "Netherlands",
     initials: "M",
     color: "bg-violet-500",
+    defaultHourlyRate: 50.0,
+    taxCreditRate: 0.14,
   },
 ];
 
@@ -121,7 +125,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const updateWorkspace = useCallback(async (id: string, data: Partial<Workspace>) => {
     if (status === "authenticated") {
-      const res = await updateCompany(id, data.name || "", data.country || "");
+      const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate);
       if (res.success && res.company) {
         setWorkspaces((prev) => prev.map(w => w.id === id ? res.company! : w));
         setActiveWorkspaceState((prev) => prev.id === id ? res.company! : prev);

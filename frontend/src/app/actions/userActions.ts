@@ -20,10 +20,14 @@ export async function getUserProfile() {
   const userId = await requireSession();
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, display_name: true, avatar_url: true },
+    select: { email: true, display_name: true, avatar_url: true, name: true, image: true },
   });
   if (!user) return null;
-  return { email: user.email, displayName: user.display_name || '', avatarUrl: user.avatar_url || '' };
+  return { 
+    email: user.email, 
+    displayName: user.display_name || user.name || '', 
+    avatarUrl: user.avatar_url || user.image || '' 
+  };
 }
 
 // ── Update display name, email, and/or avatar ──────────────────────────────

@@ -21,6 +21,8 @@ interface WorkspaceData {
   country: string;
   city: string;
   address: string;
+  defaultHourlyRate: number;
+  taxCreditRate: number;
 }
 
 const STORAGE_KEY = "grantai_workspace";
@@ -67,6 +69,7 @@ export default function WorkspaceSettingsPage() {
   const [data, setData] = useState<WorkspaceData>({
     legalName: "", registrationNumber: "", vatNumber: "",
     country: "Netherlands", city: "", address: "",
+    defaultHourlyRate: 50.0, taxCreditRate: 0.14,
   });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -79,6 +82,8 @@ export default function WorkspaceSettingsPage() {
       ...d,
       legalName: activeWorkspace.name,
       country: activeWorkspace.country || "Netherlands",
+      defaultHourlyRate: activeWorkspace.defaultHourlyRate ?? 50.0,
+      taxCreditRate: activeWorkspace.taxCreditRate ?? 0.14,
     }));
     
     // Merge any other local storage data we had for this workspace (optional)
@@ -91,7 +96,7 @@ export default function WorkspaceSettingsPage() {
     } catch { /* ignore */ }
   }, [activeWorkspace.id, activeWorkspace.name, activeWorkspace.country]);
 
-  const update = (field: keyof WorkspaceData) => (value: string) => {
+  const update = <K extends keyof WorkspaceData>(field: K) => (value: WorkspaceData[K]) => {
     setData((d) => ({ ...d, [field]: value }));
     setDirty(true);
     setSaved(false);
@@ -108,6 +113,8 @@ export default function WorkspaceSettingsPage() {
     await updateWorkspace(activeWorkspace.id, {
       name: data.legalName,
       country: data.country,
+      defaultHourlyRate: data.defaultHourlyRate,
+      taxCreditRate: data.taxCreditRate,
     });
     
     setSaving(false);
@@ -198,6 +205,30 @@ export default function WorkspaceSettingsPage() {
               rows={2}
               placeholder="Herengracht 1, 1017 BN Amsterdam"
               className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-white/8 text-white placeholder-slate-600 text-sm resize-none focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/15 transition-all"
+            />
+          </div>
+        </Section>
+
+        {/* Financial Settings */}
+        <Section title="Financial Settings" description="Default rates used for calculating R&D claim value.">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField 
+              id="defaultHourlyRate" 
+              label="Default Hourly Rate (€)" 
+              type="number"
+              value={data.defaultHourlyRate.toString()} 
+              onChange={(v) => update("defaultHourlyRate")(parseFloat(v) || 0)} 
+              placeholder="50" 
+              hint="Average cost per engineering hour" 
+            />
+            <FormField 
+              id="taxCreditRate" 
+              label="Tax Credit Rate" 
+              type="number"
+              value={data.taxCreditRate.toString()} 
+              onChange={(v) => update("taxCreditRate")(parseFloat(v) || 0)} 
+              placeholder="0.14" 
+              hint="E.g. 0.14 for WBSO (14%) or 0.32 for UK SME" 
             />
           </div>
         </Section>

@@ -10,12 +10,14 @@ import {
   CreditCard,
   LayoutDashboard,
   ChevronLeft,
+  Plug,
 } from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 const settingsNav = [
   { href: "/settings/workspace", label: "Workspace Settings", icon: Building2 },
   { href: "/settings/members",   label: "Members",            icon: Users },
+  { href: "/settings/integrations", label: "Integrations",    icon: Plug },
   { href: "/settings/account",   label: "Account Preferences",icon: UserCircle },
   { href: "/settings/billing",   label: "Billing",            icon: CreditCard },
 ];

@@ -9,6 +9,7 @@ import { HorizontalScrollSection } from "@/components/horizontal-scroll";
 import { BeforeAfterSection } from "@/components/before-after";
 import { motion, useMotionValue, useTransform, animate, useInView, useScroll } from "framer-motion";
 import { ArrowRight, Clock, FileText, AlertCircle, Brain, Zap, ShieldCheck, Cpu, Sparkles, Database, Activity, Terminal, GitBranch, GitCommit, Cloud, LayoutGrid, ListTodo, Server } from "lucide-react";
+import { Navbar } from "@/components/navbar";
 
 function AnimatedCounter({ from, to, duration = 2, delay = 0, isDecimal = false }: { from: number, to: number, duration?: number, delay?: number, isDecimal?: boolean }) {
   const count = useMotionValue(from);
@@ -73,6 +74,7 @@ export default function Home() {
 
   return (
     <MainLayout>
+      <Navbar />
       <Hero />
 
       

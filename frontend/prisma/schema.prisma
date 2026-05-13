@@ -3,24 +3,72 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
   id                String          @id @default(uuid()) @db.Uuid
   email             String          @unique @db.VarChar
-  password_hash     String          @db.VarChar
+  password_hash     String?         @db.VarChar // Nullable for OAuth users
   display_name      String?         @db.VarChar
   avatar_url        String?         @db.Text
   created_at        DateTime        @default(now())
   updated_at        DateTime        @updatedAt
   
+  // NextAuth fields
+  name              String?
+  emailVerified     DateTime?
+  image             String?
+  
   companies         Company[]       // Owned companies
   company_members   CompanyMember[] // Companies they are members of
   audit_logs        AuditLog[]
+  accounts          Account[]       // OAuth accounts
+  sessions          Session[]       // User sessions
 
   @@map("users")
+}
+
+// NextAuth Prisma Adapter Models
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }
 
 model Company {
@@ -32,12 +80,18 @@ model Company {
   vat_number          String?        @db.VarChar
   city                String?        @db.VarChar
   address             String?        @db.Text
+  default_hourly_rate Decimal        @default(50.0) @db.Decimal
+  tax_credit_rate     Decimal        @default(0.14) @db.Decimal
   created_at          DateTime       @default(now())
   updated_at          DateTime       @updatedAt
 
   user                User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
   claims              Claim[]
   members             CompanyMember[]
+  integrations        Integration[]
+  engineering_events  EngineeringEvent[]
+  analyzed_logs       AnalyzedLog[]
+  daily_value_maps    DailyValueMap[]
 
   @@map("companies")
 }
@@ -48,6 +102,7 @@ model CompanyMember {
   company_id String   @db.Uuid
   role       String   @default("Viewer") @db.VarChar // Admin, Editor, Viewer
   status     String   @default("Pending") @db.VarChar // Active, Pending
+  hourly_rate Decimal? @db.Decimal
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -95,4 +150,90 @@ model AuditLog {
   user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@map("audit_logs")
+}
+
+model Integration {
+  id              String   @id @default(uuid()) @db.Uuid
+  company_id      String   @db.Uuid
+  provider        String   @db.VarChar // "github", "jira", "linear"
+  access_token    String   @db.Text
+  refresh_token   String?  @db.Text
+  config          Json?    // e.g., selected repositories or projects
+  status          String   @default("active") @db.VarChar
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  company         Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  engineering_events EngineeringEvent[]
+
+  @@unique([company_id, provider])
+  @@map("integrations")
+}
+
+model EngineeringEvent {
+  id              String   @id @default(uuid()) @db.Uuid
+  company_id      String   @db.Uuid
+  integration_id  String?  @db.Uuid
+  
+  event_type      String   @db.VarChar // "commit", "ticket_closed", "pr_merged"
+  source_id       String   @db.VarChar // original ID from github/jira
+  title           String   @db.Text
+  description     String?  @db.Text
+  author_email    String?  @db.VarChar
+  event_timestamp DateTime
+  
+  raw_payload     Json?    // Store the raw webhook payload just in case
+  
+  status          String   @default("pending") @db.VarChar // pending, analyzed, failed
+  
+  created_at      DateTime @default(now())
+
+  company         Company      @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  integration     Integration? @relation(fields: [integration_id], references: [id], onDelete: SetNull)
+  analyzed_log    AnalyzedLog?
+
+  @@unique([integration_id, source_id])
+  @@map("engineering_events")
+}
+
+model AnalyzedLog {
+  id                  String   @id @default(uuid()) @db.Uuid
+  event_id            String   @unique @db.Uuid
+  company_id          String   @db.Uuid
+  
+  is_rd               Boolean  @default(false)
+  confidence_score    Float    @db.DoublePrecision // 0.0 to 1.0
+  complexity_weight   Float    @db.DoublePrecision // 1.0 (normal) up to X.X
+  justification       String?  @db.Text // AI explanation why it is/isn't R&D
+  calculated_value    Decimal  @default(0) @db.Decimal // Generated value in €
+  model_used          String?  @db.VarChar // LLM model that produced this result
+  
+  // Feedback loop: user can override the AI classification
+  user_override       Boolean? // null = no override, true = user says R&D, false = user says not R&D
+  override_reason     String?  @db.Text // User's explanation for the override
+  
+  created_at          DateTime @default(now())
+
+  event               EngineeringEvent @relation(fields: [event_id], references: [id], onDelete: Cascade)
+  company             Company          @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@map("analyzed_logs")
+}
+
+model DailyValueMap {
+  id              String   @id @default(uuid()) @db.Uuid
+  company_id      String   @db.Uuid
+  date            DateTime @db.Date
+  
+  total_events    Int      @default(0)
+  rd_events       Int      @default(0)
+  total_value     Decimal  @default(0) @db.Decimal // Total € value for that day
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  company         Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  @@unique([company_id, date])
+  @@map("daily_value_maps")
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
-import { LayoutDashboard, Calculator, FileOutput, Settings } from "lucide-react";
+import { LayoutDashboard, Calculator, FileOutput, Settings, BrainCircuit } from "lucide-react";
 
 const navItems = [
   {
@@ -21,6 +21,11 @@ const navItems = [
     name: "Results",
     href: "/result",
     icon: FileOutput,
+  },
+  {
+    name: "Neural Processing",
+    href: "/dashboard/events",
+    icon: BrainCircuit,
   },
   {
     name: "Settings",
