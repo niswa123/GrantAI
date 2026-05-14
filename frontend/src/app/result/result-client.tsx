@@ -6,6 +6,7 @@ import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "
 import {
   CheckCircle2, XCircle, ChevronLeft, ChevronDown, ChevronUp,
   Copy, Check, Mail, Sparkles, TrendingUp, BarChart3, Shield,
+  ThumbsUp, ThumbsDown, Brain,
 } from "lucide-react";
 
 /** Lightweight Markdown renderer — no external deps. Handles: ## h2, **bold**, ---, paragraphs */
@@ -95,6 +96,8 @@ function BreakdownRow({ label, value, highlight }: { label: string; value: strin
 export default function ResultClient({ result }: { result: ClaimResult }) {
   const [claimExpanded, setClaimExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [feedbackGiven, setFeedbackGiven] = useState<"rd" | "not_rd" | null>(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const animatedRefund = useAnimatedNumber(result.estimatedRefund, 2.0);
 
   const isRd = result.classification === "R&D";
@@ -106,6 +109,23 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
+  };
+
+  const handleFeedback = async (userIsRd: boolean) => {
+    if (feedbackGiven || feedbackLoading) return;
+    setFeedbackLoading(true);
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ claimId: result.id, userIsRd }),
+      });
+      setFeedbackGiven(userIsRd ? "rd" : "not_rd");
+    } catch {
+      // silent fail
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const handleContact = () => {
@@ -192,6 +212,54 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
               <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">AI Analysis</h2>
             </div>
             <p className="text-slate-300 text-sm leading-relaxed">{result.explanation}</p>
+          </motion.div>
+
+          {/* Feedback block */}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.33 }}
+            className="rounded-xl sm:rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/8 p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Brain className="w-4 h-4 text-violet-400" />
+              <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">Train the AI</h2>
+              <span className="ml-auto text-[10px] text-slate-500 font-medium">Your feedback improves future results</span>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {feedbackGiven ? (
+                <motion.div
+                  key="thanks"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 text-sm text-emerald-400 font-medium py-1"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Thanks! Your correction has been saved and will improve future classifications.
+                </motion.div>
+              ) : (
+                <motion.div key="buttons" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <p className="text-xs text-slate-400 mb-3">
+                    Was the AI classification <strong className="text-white">"{result.classification}"</strong> correct?
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => handleFeedback(true)}
+                      disabled={feedbackLoading}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-sm font-semibold hover:bg-emerald-500/20 transition-all touch-manipulation disabled:opacity-50"
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      Yes, correct
+                    </button>
+                    <button
+                      onClick={() => handleFeedback(false)}
+                      disabled={feedbackLoading}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-400 text-sm font-semibold hover:bg-rose-500/20 transition-all touch-manipulation disabled:opacity-50"
+                    >
+                      <ThumbsDown className="w-4 h-4" />
+                      No, wrong
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Draft claim */}
