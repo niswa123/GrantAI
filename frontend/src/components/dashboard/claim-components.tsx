@@ -298,10 +298,10 @@ export function AuditDrawer({ recordId, open, onClose }: { recordId: string; ope
 
         <div className="border-t border-white/5 pt-3 space-y-3">
           {/* Add Link */}
-          <div className="flex gap-2">
-            <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Label (Jira, GitHub…)" className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-900/80 border border-white/8 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50" />
-            <input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddLink()} placeholder="https://…" className="flex-1 min-w-0 px-2.5 py-1.5 text-xs bg-slate-900/80 border border-white/8 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50" />
-            <button onClick={handleAddLink} disabled={!newUrl.trim() || isLoading} className="px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition-colors disabled:opacity-40">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Label (Jira, GitHub…)" className="flex-1 min-w-0 px-2.5 py-2 text-xs bg-slate-900/80 border border-white/8 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 touch-manipulation" />
+            <input value={newUrl} onChange={(e) => setNewUrl(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddLink()} placeholder="https://…" className="flex-1 min-w-0 px-2.5 py-2 text-xs bg-slate-900/80 border border-white/8 rounded-lg text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/50 touch-manipulation" />
+            <button onClick={handleAddLink} disabled={!newUrl.trim() || isLoading} className="px-3 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition-colors disabled:opacity-40 touch-manipulation">
               <Plus className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -387,7 +387,7 @@ export function ClaimCard({
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <div className="text-right hidden sm:block">
               <div className={`text-base font-black ${(record.estimatedRefund || 0) > 0 ? "text-cyan-400" : "text-slate-500"}`}>
                 €{(record.estimatedRefund || 0).toLocaleString("en-EU", { maximumFractionDigits: 0 })}
@@ -397,15 +397,33 @@ export function ClaimCard({
             <StatusBadge status={record.status || "Draft"} onStatusChange={(s) => onStatusChange(record.id, s)} />
             <button
               onClick={(e) => { e.preventDefault(); setAuditOpen((v) => !v); }}
-              className={`p-1.5 rounded-lg transition-all text-xs ${auditOpen ? "text-violet-400 bg-violet-500/10" : "text-slate-500 hover:text-violet-400 hover:bg-violet-500/10"}`}
+              className={`p-1.5 rounded-lg transition-all text-xs hidden sm:block ${auditOpen ? "text-violet-400 bg-violet-500/10" : "text-slate-500 hover:text-violet-400 hover:bg-violet-500/10"}`}
               title="Audit Trail"
             >
               <Shield className="w-4 h-4" />
             </button>
             <QuickActionsMenu record={record} onDelete={() => onDelete(record.id)} />
-            <Link href={`/result?id=${record.id}`} className="text-slate-600 hover:text-slate-300 transition-colors">
+            <Link href={`/result?id=${record.id}`} className="text-slate-600 hover:text-slate-300 transition-colors p-1 touch-manipulation">
               <ChevronRight className="w-4 h-4" />
             </Link>
+          </div>
+        </div>
+
+        {/* Mobile: price row */}
+        <div className="flex sm:hidden items-center justify-between mt-2 pt-2 border-t border-white/5">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => { e.preventDefault(); setAuditOpen((v) => !v); }}
+              className={`p-1.5 rounded-lg transition-all text-xs ${auditOpen ? "text-violet-400 bg-violet-500/10" : "text-slate-500 hover:text-violet-400 hover:bg-violet-500/10"}`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+            </button>
+          </div>
+          <div className="text-right">
+            <div className={`text-sm font-black ${(record.estimatedRefund || 0) > 0 ? "text-cyan-400" : "text-slate-500"}`}>
+              €{(record.estimatedRefund || 0).toLocaleString("en-EU", { maximumFractionDigits: 0 })}
+            </div>
+            <div className="text-[10px] text-slate-500">{roi}% ROI</div>
           </div>
         </div>
 
@@ -558,10 +576,10 @@ export function EmptyState() {
     <motion.div
       initial={{ opacity: 0, scale: 0.97 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="relative rounded-3xl border border-dashed border-white/10 bg-slate-900/20 overflow-hidden py-16 px-6"
+      className="relative rounded-2xl sm:rounded-3xl border border-dashed border-white/10 bg-slate-900/20 overflow-hidden py-12 sm:py-16 px-4 sm:px-6"
     >
       {/* Blurred demo rows behind */}
-      <div className="absolute inset-0 flex flex-col gap-2 p-6 pt-12 pointer-events-none select-none">
+      <div className="absolute inset-0 flex flex-col gap-2 p-4 sm:p-6 pt-10 sm:pt-12 pointer-events-none select-none">
         {["Developed novel ML pipeline...", "Built real-time compiler optimizations...", "Designed adaptive routing algorithm..."].map((t, i) => (
           <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/40 blur-sm opacity-30">
             <div className="w-8 h-8 rounded-lg bg-cyan-500/20 flex-shrink-0" />
@@ -573,20 +591,20 @@ export function EmptyState() {
 
       {/* Foreground guide */}
       <div className="relative z-10 flex flex-col items-center text-center">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[
             { step: "1", label: "Describe your R&D", color: "from-cyan-500 to-cyan-400" },
             { step: "2", label: "Enter costs", color: "from-violet-500 to-violet-400" },
             { step: "3", label: "Get your refund estimate", color: "from-emerald-500 to-emerald-400" },
           ].map(({ step, label, color }, i) => (
             <div key={i} className="flex flex-col items-center gap-2">
-              <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center text-slate-950 font-black text-lg shadow-lg`}>{step}</div>
-              <span className="text-xs text-slate-400 font-medium max-w-[90px]">{label}</span>
+              <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center text-slate-950 font-black text-base sm:text-lg shadow-lg`}>{step}</div>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium max-w-[70px] sm:max-w-[90px]">{label}</span>
             </div>
           ))}
         </div>
-        <p className="text-slate-500 font-medium">No calculations yet</p>
-        <p className="text-slate-600 text-sm mt-1">Your first result will appear here.</p>
+        <p className="text-slate-500 font-medium text-sm sm:text-base">No calculations yet</p>
+        <p className="text-slate-600 text-xs sm:text-sm mt-1">Your first result will appear here.</p>
       </div>
     </motion.div>
   );

@@ -81,18 +81,18 @@ export default function Home() {
       {/* ============================================ */}
       {/* SECTION 1: INTEGRATIONS (Sticky — gets overlapped by Stats) */}
       {/* ============================================ */}
-      <div className="relative z-20 w-full bg-slate-950 rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-40px_80px_rgba(0,0,0,0.8)] border-t border-white/5">
-        <div className="h-[140vh] relative">
-          <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
+      <div className="relative z-20 w-full bg-slate-950 rounded-t-[24px] sm:rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-40px_80px_rgba(0,0,0,0.8)] border-t border-white/5">
+        <div className="h-[120vh] sm:h-[140vh] relative">
+          <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden w-full">
             <section ref={parallaxRef} className="container mx-auto px-4 relative flex flex-col items-center justify-center">
           
-          <div className="text-center z-20 mb-20 md:mb-32 relative">
+          <div className="text-center z-20 mb-12 sm:mb-20 md:mb-32 relative">
             <motion.h2 
               initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
               whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               viewport={{ once: true }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="text-4xl md:text-6xl font-black mb-6 tracking-tighter text-white"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 tracking-tighter text-white px-4"
             >
               A growing library of <span className="text-cyan-400">Integrations</span>
             </motion.h2>
@@ -101,27 +101,27 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium"
+              className="text-slate-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-medium px-4"
             >
               We plug directly into your engineering ecosystem. No manual data entry ever again.
             </motion.p>
           </div>
 
-          <div className="relative w-full max-w-6xl h-[550px] flex items-center justify-center">
+          <div className="relative w-full max-w-6xl h-[400px] sm:h-[500px] md:h-[550px] flex items-center justify-center overflow-hidden">
             {/* Center Core */}
             <motion.div 
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-              className="absolute z-10 w-44 h-44 rounded-full bg-slate-950/80 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_80px_rgba(6,182,212,0.3)] backdrop-blur-3xl"
+              className="absolute z-10 w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full bg-slate-950/80 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_60px_rgba(6,182,212,0.3)] sm:shadow-[0_0_80px_rgba(6,182,212,0.3)] backdrop-blur-3xl"
             >
-              {/* Radar spin */}
-              <div className="absolute inset-[-80px] border border-cyan-500/10 rounded-full animate-[spin_10s_linear_infinite]" />
-              <div className="absolute inset-[-150px] border border-cyan-500/5 rounded-full animate-[spin_15s_linear_infinite_reverse] border-dashed" />
-              <div className="absolute inset-[-220px] border border-white/5 rounded-full animate-[spin_20s_linear_infinite]" />
-              <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center animate-[pulse_3s_ease-in-out_infinite] shadow-[inset_0_0_30px_rgba(255,255,255,0.4)] relative">
-                <span className="text-white font-black text-3xl tracking-tighter drop-shadow-lg relative z-10">GrantAI</span>
+              {/* Radar spin — скрываем на мобильных чтобы не вылезали */}
+              <div className="absolute inset-[-60px] sm:inset-[-80px] border border-cyan-500/10 rounded-full animate-[spin_10s_linear_infinite]" />
+              <div className="hidden sm:block absolute inset-[-110px] sm:inset-[-150px] border border-cyan-500/5 rounded-full animate-[spin_15s_linear_infinite_reverse] border-dashed" />
+              <div className="hidden sm:block absolute inset-[-160px] sm:inset-[-220px] border border-white/5 rounded-full animate-[spin_20s_linear_infinite]" />
+              <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center animate-[pulse_3s_ease-in-out_infinite] shadow-[inset_0_0_30px_rgba(255,255,255,0.4)] relative">
+                <span className="text-white font-black text-xl sm:text-2xl md:text-3xl tracking-tighter drop-shadow-lg relative z-10">GrantAI</span>
                 <div className="absolute inset-0 bg-white/20 rounded-full blur-md" />
               </div>
             </motion.div>
@@ -130,51 +130,51 @@ export default function Home() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(6,182,212,0.08),transparent_60%)] -z-10" />
 
             {/* Orbiting / Floating Tech Nodes */}
-            <motion.div style={{ y: yFast }} className="absolute top-[8%] left-[5%] md:left-[12%] group">
+            <motion.div style={{ y: yFast }} className="absolute top-[8%] left-[2%] sm:left-[5%] md:left-[12%] group">
               <div className="absolute inset-0 bg-blue-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-6 py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-blue-500/50 transition-all duration-500 cursor-default">
-                <LayoutGrid className="w-6 h-6 text-blue-400" />
-                <span className="text-white font-bold text-lg tracking-wide">Jira</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-blue-500/50 transition-all duration-500 cursor-default">
+                <LayoutGrid className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-blue-400" />
+                <span className="text-white font-bold text-sm sm:text-base md:text-lg tracking-wide">Jira</span>
               </div>
             </motion.div>
             
-            <motion.div style={{ y: ySlow }} className="absolute bottom-[15%] left-[2%] md:left-[8%] group">
+            <motion.div style={{ y: ySlow }} className="absolute bottom-[15%] left-[1%] sm:left-[2%] md:left-[8%] group">
               <div className="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-6 py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-white/40 transition-all duration-500 cursor-default">
-                <GitBranch className="w-6 h-6 text-white" />
-                <span className="text-white font-bold text-lg tracking-wide">GitHub</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-white/40 transition-all duration-500 cursor-default">
+                <GitBranch className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                <span className="text-white font-bold text-sm sm:text-base md:text-lg tracking-wide">GitHub</span>
               </div>
             </motion.div>
 
-            <motion.div style={{ y: yMedium }} className="absolute top-[20%] right-[2%] md:right-[12%] group">
+            <motion.div style={{ y: yMedium }} className="absolute top-[20%] right-[1%] sm:right-[2%] md:right-[12%] group">
               <div className="absolute inset-0 bg-orange-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-6 py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-orange-500/50 transition-all duration-500 cursor-default">
-                <GitCommit className="w-6 h-6 text-orange-500" />
-                <span className="text-white font-bold text-lg tracking-wide">GitLab</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-orange-500/50 transition-all duration-500 cursor-default">
+                <GitCommit className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-orange-500" />
+                <span className="text-white font-bold text-sm sm:text-base md:text-lg tracking-wide">GitLab</span>
               </div>
             </motion.div>
 
-            <motion.div style={{ y: yFast }} className="absolute bottom-[8%] right-[8%] md:right-[18%] group">
+            <motion.div style={{ y: yFast }} className="absolute bottom-[8%] right-[4%] sm:right-[8%] md:right-[18%] group">
               <div className="absolute inset-0 bg-amber-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-6 py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-amber-500/50 transition-all duration-500 cursor-default">
-                <Cloud className="w-6 h-6 text-amber-500" />
-                <span className="text-white font-bold text-lg tracking-wide">AWS</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl group-hover:-translate-y-2 group-hover:border-amber-500/50 transition-all duration-500 cursor-default">
+                <Cloud className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-amber-500" />
+                <span className="text-white font-bold text-sm sm:text-base md:text-lg tracking-wide">AWS</span>
               </div>
             </motion.div>
 
-            <motion.div style={{ y: ySlow }} className="absolute top-[2%] left-[35%] md:left-[42%] group">
+            <motion.div style={{ y: ySlow }} className="absolute top-[2%] left-[30%] sm:left-[35%] md:left-[42%] group">
               <div className="absolute inset-0 bg-purple-500/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-5 py-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 shadow-2xl group-hover:-translate-y-2 group-hover:border-purple-500/50 transition-all duration-500 cursor-default">
-                <ListTodo className="w-5 h-5 text-purple-400" />
-                <span className="text-white font-bold text-md tracking-wide">Linear</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-2xl group-hover:-translate-y-2 group-hover:border-purple-500/50 transition-all duration-500 cursor-default">
+                <ListTodo className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-purple-400" />
+                <span className="text-white font-bold text-xs sm:text-sm md:text-md tracking-wide">Linear</span>
               </div>
             </motion.div>
 
-            <motion.div style={{ y: yMedium }} className="absolute bottom-[22%] right-[28%] md:right-[33%] group">
+            <motion.div style={{ y: yMedium }} className="absolute bottom-[22%] right-[24%] sm:right-[28%] md:right-[33%] group">
               <div className="absolute inset-0 bg-blue-400/30 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative px-5 py-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-2 shadow-2xl group-hover:-translate-y-2 group-hover:border-blue-400/50 transition-all duration-500 cursor-default">
-                <Server className="w-5 h-5 text-blue-400" />
-                <span className="text-white font-bold text-md tracking-wide">Azure</span>
+              <div className="relative px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-1.5 sm:gap-2 shadow-2xl group-hover:-translate-y-2 group-hover:border-blue-400/50 transition-all duration-500 cursor-default">
+                <Server className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-blue-400" />
+                <span className="text-white font-bold text-xs sm:text-sm md:text-md tracking-wide">Azure</span>
               </div>
             </motion.div>
           </div>
@@ -198,10 +198,10 @@ export default function Home() {
       {/* ============================================ */}
       {/* SECTION 2: STATS (Slides OVER Integrations — Stacking Cards) */}
       {/* ============================================ */}
-      <div className="relative z-30 w-full bg-slate-950 rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-60px_100px_rgba(0,0,0,0.9)] border-t border-white/10">
-        <section className="py-24 md:py-32 container mx-auto px-4 relative overflow-hidden">
+      <div className="relative z-30 w-full bg-slate-950 rounded-t-[24px] sm:rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-60px_100px_rgba(0,0,0,0.9)] border-t border-white/10">
+        <section className="py-16 sm:py-20 md:py-24 lg:py-32 container mx-auto px-4 relative overflow-hidden">
           <motion.div 
-            className="glass-card rounded-[40px] p-12 md:p-16 lg:p-24 relative overflow-hidden group border-white/5"
+            className="glass-card rounded-[24px] sm:rounded-[32px] md:rounded-[40px] p-6 sm:p-10 md:p-12 lg:p-16 xl:p-24 relative overflow-hidden group border-white/5"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -210,38 +210,38 @@ export default function Home() {
           transition={{ duration: 0.5 }}
         >
           {/* Animated Magic Gradient Background */}
-          <div className="absolute top-0 right-0 w-full lg:w-2/3 h-full bg-gradient-to-l from-blue-600/10 via-cyan-500/5 to-transparent blur-[80px] -z-10 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-full lg:w-2/3 h-full bg-gradient-to-l from-blue-600/10 via-cyan-500/5 to-transparent blur-[60px] sm:blur-[80px] -z-10 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none" />
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-8 items-center relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-12 lg:gap-8 items-center relative z-10">
             {/* Left Content */}
             <div className="max-w-2xl">
-              <motion.h2 variants={itemVariants} className="text-4xl md:text-6xl font-bold mb-6 text-gradient tracking-tight leading-[1.1]">
+              <motion.h2 variants={itemVariants} className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-gradient tracking-tight leading-[1.1]">
                 Measure engineering <br /> value in real time.
               </motion.h2>
-              <motion.p variants={itemVariants} className="text-slate-400 text-lg md:text-xl mb-12 leading-relaxed">
+              <motion.p variants={itemVariants} className="text-slate-400 text-base sm:text-lg md:text-xl mb-8 sm:mb-10 md:mb-12 leading-relaxed">
                 Every day, your engineers create R&D value that goes unmeasured. GrantAI captures it the moment it happens — turning daily work logs into a continuous financial signal.
               </motion.p>
               
-              <motion.div variants={itemVariants} className="grid grid-cols-2 gap-10 pt-10 border-t border-white/5">
+              <motion.div variants={itemVariants} className="grid grid-cols-2 gap-6 sm:gap-8 md:gap-10 pt-6 sm:pt-8 md:pt-10 border-t border-white/5">
                 <motion.div whileHover={{ y: -8, scale: 1.05 }} className="transition-all duration-300 relative">
                   {/* Glowing spark behind the number */}
-                  <div className="absolute top-1/2 left-0 w-24 h-24 bg-emerald-500/15 blur-2xl -translate-y-1/2 -z-10 rounded-full" />
+                  <div className="absolute top-1/2 left-0 w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-emerald-500/15 blur-2xl -translate-y-1/2 -z-10 rounded-full" />
                   
-                  <div className="text-5xl md:text-6xl font-black mb-3 tracking-tighter text-white">
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-black mb-2 sm:mb-3 tracking-tighter text-white">
                     <span className="text-cyan-500">€</span>
                     <AnimatedCounter from={0} to={1240} duration={2.5} delay={0.5} isDecimal={false} />
                   </div>
-                  <div className="text-sm md:text-base text-slate-500 uppercase tracking-[0.2em] font-semibold">Daily Value Tracked</div>
+                  <div className="text-xs sm:text-sm md:text-base text-slate-500 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-semibold">Daily Value Tracked</div>
                 </motion.div>
                 <motion.div whileHover={{ y: -8, scale: 1.05 }} className="transition-all duration-300 relative">
                   {/* Glowing spark behind the number */}
-                  <div className="absolute top-1/2 left-0 w-20 h-20 bg-cyan-500/20 blur-2xl -translate-y-1/2 -z-10 rounded-full" />
+                  <div className="absolute top-1/2 left-0 w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-cyan-500/20 blur-2xl -translate-y-1/2 -z-10 rounded-full" />
                   
-                  <div className="text-5xl md:text-6xl font-black mb-3 tracking-tighter text-white">
+                  <div className="text-4xl sm:text-5xl md:text-6xl font-black mb-2 sm:mb-3 tracking-tighter text-white">
                     <AnimatedCounter from={0} to={99.8} duration={2.5} delay={0.7} isDecimal={true} />
                     <span className="text-cyan-500">%</span>
                   </div>
-                  <div className="text-sm md:text-base text-slate-500 uppercase tracking-[0.2em] font-semibold">AI Confidence Score</div>
+                  <div className="text-xs sm:text-sm md:text-base text-slate-500 uppercase tracking-[0.15em] sm:tracking-[0.2em] font-semibold">AI Confidence Score</div>
                 </motion.div>
               </motion.div>
             </div>
@@ -249,7 +249,7 @@ export default function Home() {
             {/* Right Holographic Animation — Real-time Value Dashboard */}
             <motion.div 
               variants={itemVariants} 
-              className="relative h-[450px] w-full flex items-center justify-center hidden md:flex perspective-[1500px]"
+              className="relative h-[350px] sm:h-[400px] md:h-[450px] w-full flex items-center justify-center hidden lg:flex perspective-[1500px]"
             >
               {/* Central Glowing Core */}
               <motion.div 
@@ -414,22 +414,22 @@ export default function Home() {
       {/* ============================================ */}
       {/* SECTION 4: HOW IT WORKS - PIPELINE */}
       {/* ============================================ */}
-      <section className="py-32 container mx-auto px-4 relative overflow-hidden bg-slate-950">
+      <section className="py-20 sm:py-24 md:py-28 lg:py-32 container mx-auto px-4 relative overflow-hidden bg-slate-950">
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 1, ease: "easeOut" }}
-          className="text-center mb-24 relative z-10"
+          className="text-center mb-16 sm:mb-20 md:mb-24 relative z-10"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-xs font-bold uppercase tracking-widest mb-8 backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/20 text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8 backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-primary animate-pulse" />
             <span className="text-brand-primary">How It Works</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter text-white">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 tracking-tighter text-white px-4">
             The <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.6)]">Automated</span> Pipeline
           </h2>
-          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto font-medium">
+          <p className="text-slate-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-medium px-4">
             Watch how raw engineering data transforms into a fully compliant tax claim.
           </p>
           </motion.div>
@@ -454,30 +454,30 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10">
             {/* Step 1: Data Ingestion */}
             <motion.div 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="relative p-[1px] rounded-[32px] group/card hover:-translate-y-2 transition-transform duration-500"
+              className="relative p-[1px] rounded-[24px] sm:rounded-[28px] md:rounded-[32px] group/card hover:-translate-y-2 transition-transform duration-500"
             >
-              <div className="absolute inset-[-2px] bg-cyan-500/20 blur-md opacity-0 group-hover/card:opacity-100 transition-opacity rounded-[32px]" />
-              <div className="relative h-full bg-slate-950 border border-white/5 rounded-[31px] p-8 md:p-10 flex flex-col items-center text-center transform-style-3d shadow-xl group-hover/card:shadow-[0_0_40px_rgba(6,182,212,0.15)]">
-                <div className="w-24 h-24 rounded-full bg-slate-900 border border-white/10 mb-8 flex items-center justify-center relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
-                  <Database className="w-10 h-10 text-slate-400 group-hover/card:text-cyan-400 transition-colors" />
+              <div className="absolute inset-[-2px] bg-cyan-500/20 blur-md opacity-0 group-hover/card:opacity-100 transition-opacity rounded-[24px] sm:rounded-[28px] md:rounded-[32px]" />
+              <div className="relative h-full bg-slate-950 border border-white/5 rounded-[23px] sm:rounded-[27px] md:rounded-[31px] p-6 sm:p-8 md:p-10 flex flex-col items-center text-center transform-style-3d shadow-xl group-hover/card:shadow-[0_0_40px_rgba(6,182,212,0.15)]">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 rounded-full bg-slate-900 border border-white/10 mb-6 sm:mb-7 md:mb-8 flex items-center justify-center relative shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+                  <Database className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-slate-400 group-hover/card:text-cyan-400 transition-colors" />
                   <motion.div 
                     animate={{ rotate: -360 }}
                     transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                     className="absolute inset-[-4px] rounded-full border-2 border-dashed border-cyan-500/30 group-hover/card:border-cyan-400/60 transition-colors"
                   />
                   {/* Floating source nodes */}
-                  <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-3 -right-3 w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white shadow-lg">Jira</motion.div>
-                  <motion.div animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity }} className="absolute -bottom-3 -left-3 w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold text-white shadow-lg">Git</motion.div>
+                  <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-2 sm:-top-3 -right-2 sm:-right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white shadow-lg">Jira</motion.div>
+                  <motion.div animate={{ y: [5, -5, 5] }} transition={{ duration: 4, repeat: Infinity }} className="absolute -bottom-2 sm:-bottom-3 -left-2 sm:-left-3 w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-[9px] sm:text-[10px] font-bold text-white shadow-lg">Git</motion.div>
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">1. Log Daily Activity</h3>
-                <p className="text-slate-400 font-medium leading-relaxed">Simply describe what you built today. No extra context needed, just your raw engineering notes.</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">1. Log Daily Activity</h3>
+                <p className="text-slate-400 text-sm sm:text-base font-medium leading-relaxed">Simply describe what you built today. No extra context needed, just your raw engineering notes.</p>
               </div>
             </motion.div>
 
@@ -487,7 +487,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="relative p-[1px] rounded-[32px] group/card hover:-translate-y-2 transition-transform duration-500"
+              className="relative p-[1px] rounded-[24px] sm:rounded-[28px] md:rounded-[32px] group/card hover:-translate-y-2 transition-transform duration-500"
             >
               <div className="absolute inset-[-2px] bg-cyan-500/40 blur-lg opacity-30 group-hover/card:opacity-100 transition-opacity rounded-[32px]" />
               <div className="relative h-full bg-slate-950 border border-cyan-500/20 rounded-[31px] p-8 md:p-10 flex flex-col items-center text-center transform-style-3d shadow-[0_0_40px_rgba(6,182,212,0.1)] group-hover/card:shadow-[0_0_60px_rgba(6,182,212,0.25)]">

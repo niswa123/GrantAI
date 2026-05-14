@@ -42,42 +42,44 @@ export function ActivityFeed({ logs }: ActivityFeedProps) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * index, duration: 0.5 }}
-              className="bg-slate-900/50 hover:bg-slate-900/80 transition-colors backdrop-blur-md border border-slate-800 rounded-2xl p-6 group"
+              className="bg-slate-900/50 hover:bg-slate-900/80 transition-colors backdrop-blur-md border border-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 group"
             >
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="px-3 py-1 rounded-full bg-slate-800 text-slate-400 text-xs font-semibold">
+              <div className="flex flex-col gap-4 sm:gap-6">
+                <div className="flex-1 space-y-3 sm:space-y-4">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <div className="px-2.5 py-1 rounded-full bg-slate-800 text-slate-400 text-xs font-semibold">
                       {log.date}
                     </div>
                     <div className="flex items-center gap-1 text-emerald-400/80 text-xs font-medium">
-                      <ShieldCheck className="w-4 h-4" />
+                      <ShieldCheck className="w-3.5 h-3.5" />
                       Confidence: {Math.round(log.confidence * 100)}%
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-500 mb-1 uppercase tracking-wider">Original Log</h4>
-                    <p className="text-slate-300 text-sm leading-relaxed border-l-2 border-slate-700 pl-4 py-1 italic">
+                    <h4 className="text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Original Log</h4>
+                    <p className="text-slate-300 text-xs sm:text-sm leading-relaxed border-l-2 border-slate-700 pl-3 sm:pl-4 py-1 italic">
                       "{log.originalText}"
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-500 mb-1 uppercase tracking-wider">AI Justification</h4>
-                    <p className="text-white text-sm leading-relaxed bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                    <h4 className="text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">AI Justification</h4>
+                    <p className="text-white text-xs sm:text-sm leading-relaxed bg-slate-950/50 p-3 sm:p-4 rounded-xl border border-slate-800">
                       {log.justification}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-start gap-2 min-w-[120px] pt-2 md:pt-0 border-t border-slate-800 md:border-t-0 md:border-l md:pl-6">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">R&D Value</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-cyan-400">€</span>
-                    <span className="text-3xl font-black text-white">{log.value.toLocaleString()}</span>
+                <div className="flex items-center justify-between sm:justify-start sm:gap-6 pt-3 border-t border-slate-800">
+                  <div>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">R&D Value</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-base sm:text-xl font-bold text-cyan-400">€</span>
+                      <span className="text-2xl sm:text-3xl font-black text-white">{log.value.toLocaleString()}</span>
+                    </div>
                   </div>
-                  <div className="hidden md:flex items-center gap-1 text-emerald-400 mt-2 bg-emerald-500/10 px-2 py-1 rounded-md text-xs font-medium">
+                  <div className="flex items-center gap-1 text-emerald-400 bg-emerald-500/10 px-2.5 py-1.5 rounded-md text-xs font-medium">
                     <CheckCircle className="w-3 h-3" /> Qualified
                   </div>
                 </div>

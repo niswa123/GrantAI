@@ -23,26 +23,26 @@ const plans = [
 
 export default function BillingPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
             <CreditCard className="w-4 h-4 text-cyan-400" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Billing</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Billing</h1>
         </div>
-        <p className="text-sm text-slate-400 ml-12">Manage your subscription and payment details.</p>
+        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">Manage your subscription and payment details.</p>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
         {plans.map((plan, i) => (
           <motion.div
             key={plan.name}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 + i * 0.06 }}
-            className={`relative rounded-2xl border p-6 flex flex-col ${
+            className={`relative rounded-xl sm:rounded-2xl border p-4 sm:p-6 flex flex-col ${
               plan.highlight
                 ? "border-cyan-500/30 bg-gradient-to-b from-cyan-500/8 to-slate-900/60 shadow-[0_0_30px_rgba(6,182,212,0.1)]"
                 : "border-white/8 bg-slate-900/40"
@@ -59,18 +59,18 @@ export default function BillingPage() {
               </div>
             )}
 
-            <div className="mb-4">
-              <h3 className="text-base font-black text-white">{plan.name}</h3>
+            <div className="mb-3 sm:mb-4">
+              <h3 className="text-sm sm:text-base font-black text-white">{plan.name}</h3>
               <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-3xl font-black text-white">{plan.price}</span>
-                {plan.period && <span className="text-sm text-slate-400">{plan.period}</span>}
+                <span className="text-2xl sm:text-3xl font-black text-white">{plan.price}</span>
+                {plan.period && <span className="text-xs sm:text-sm text-slate-400">{plan.period}</span>}
               </div>
             </div>
 
-            <ul className="space-y-2.5 flex-1 mb-6">
+            <ul className="space-y-2 sm:space-y-2.5 flex-1 mb-4 sm:mb-6">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
-                  <Check className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <li key={f} className="flex items-start gap-2 text-xs sm:text-sm text-slate-300">
+                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
                   {f}
                 </li>
               ))}
@@ -78,7 +78,7 @@ export default function BillingPage() {
 
             <button
               disabled={plan.ctaDisabled}
-              className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all ${
+              className={`w-full py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all touch-manipulation ${
                 plan.highlight
                   ? "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
                   : plan.ctaDisabled
@@ -94,8 +94,8 @@ export default function BillingPage() {
 
       {/* Current usage */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}
-        className="mt-8 p-5 rounded-2xl border border-white/8 bg-slate-900/40">
-        <h3 className="text-sm font-bold text-white mb-4">Current Usage — Free Plan</h3>
+        className="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-white/8 bg-slate-900/40">
+        <h3 className="text-xs sm:text-sm font-bold text-white mb-3 sm:mb-4">Current Usage — Free Plan</h3>
         <div className="space-y-3">
           {[{ label: "Calculations", used: 1, max: 3 }, { label: "Team Members", used: 1, max: 1 }].map(({ label, used, max }) => (
             <div key={label}>

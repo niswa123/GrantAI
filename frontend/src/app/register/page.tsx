@@ -93,33 +93,33 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#020617]">
       {/* Left side: Form */}
-      <div className="flex flex-col justify-center items-center p-8 lg:p-12 relative z-10">
-        <div className="w-full max-w-[420px] space-y-8">
+      <div className="flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 lg:p-12 relative z-10">
+        <div className="w-full max-w-[420px] space-y-6 sm:space-y-8">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Create an account</h1>
-            <p className="text-slate-400">Start managing your tax credits today</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Create an account</h1>
+            <p className="text-sm sm:text-base text-slate-400">Start managing your tax credits today</p>
           </div>
 
           <div className="flex flex-col gap-3">
             <Button 
               type="button" 
               variant="outline" 
-              className="w-full h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium" 
+              className="w-full h-11 sm:h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium touch-manipulation" 
               onClick={handleGoogleSignIn}
               disabled={googleLoading || githubLoading || loading}
             >
-              {googleLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <GoogleIcon className="w-5 h-5 mr-2" />}
-              Sign up with Google
+              {googleLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <GoogleIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+              <span className="text-sm sm:text-base">Sign up with Google</span>
             </Button>
             <Button 
               type="button" 
               variant="outline" 
-              className="w-full h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium" 
+              className="w-full h-11 sm:h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium touch-manipulation" 
               onClick={handleGitHubSignIn}
               disabled={googleLoading || githubLoading || loading}
             >
-              {githubLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <GitHubIcon className="w-5 h-5 mr-2" />}
-              Sign up with GitHub
+              {githubLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <GitHubIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+              <span className="text-sm sm:text-base">Sign up with GitHub</span>
             </Button>
           </div>
 
@@ -132,67 +132,64 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="companyName" className="text-slate-300">Company Name</Label>
+              <Label htmlFor="companyName" className="text-slate-300 text-sm">Company Name</Label>
               <Input 
                 id="companyName" 
                 name="companyName" 
                 placeholder="Acme Inc." 
                 required 
-                className="h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
+                className="h-11 sm:h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-300">Work Email</Label>
+              <Label htmlFor="email" className="text-slate-300 text-sm">Work Email</Label>
               <Input 
                 id="email" 
                 name="email" 
                 type="email" 
                 placeholder="name@company.com" 
                 required 
-                className="h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
+                className="h-11 sm:h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-300">Password</Label>
+              <Label htmlFor="password" className="text-slate-300 text-sm">Password</Label>
               <Input 
                 id="password" 
                 name="password" 
                 type="password" 
                 placeholder="••••••••" 
                 required 
-                className="h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
+                className="h-11 sm:h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
               />
             </div>
             {error && <p className="text-sm text-red-400 font-medium">{error}</p>}
             
-            <Button className="w-full h-12 mt-4 rounded-xl bg-white hover:bg-slate-200 text-black font-semibold transition-all" disabled={loading || googleLoading || githubLoading}>
-              {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Create Account"}
-              {!loading && <ArrowRight className="w-5 h-5 ml-2 opacity-80" />}
+            <Button className="w-full h-11 sm:h-12 mt-4 rounded-xl bg-white hover:bg-slate-200 text-black font-semibold transition-all touch-manipulation" disabled={loading || googleLoading || githubLoading}>
+              {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <span className="text-sm sm:text-base">Create Account</span>}
+              {!loading && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 opacity-80" />}
             </Button>
             
             <p className="text-xs text-slate-500 text-center mt-4 leading-relaxed">
-              By creating an account, you agree to our <br className="hidden sm:block" />
-              <Link href="#" className="text-slate-400 hover:text-white underline underline-offset-2 transition-colors">Terms of Service</Link> and <Link href="#" className="text-slate-400 hover:text-white underline underline-offset-2 transition-colors">Privacy Policy</Link>.
+              By creating an account, you agree to our{" "}
+              <Link href="#" className="text-slate-400 hover:text-white underline underline-offset-2 transition-colors touch-manipulation">Terms of Service</Link>{" "}and{" "}
+              <Link href="#" className="text-slate-400 hover:text-white underline underline-offset-2 transition-colors touch-manipulation">Privacy Policy</Link>.
             </p>
           </form>
 
-          <p className="text-sm text-slate-400 text-center pt-2">
+          <p className="text-xs sm:text-sm text-slate-400 text-center pt-2">
             Already have an account?{" "}
-            <Link href="/login" className="text-white hover:text-slate-300 font-medium transition-colors">Sign in here</Link>
+            <Link href="/login" className="text-white hover:text-slate-300 font-medium transition-colors touch-manipulation">Sign in here</Link>
           </p>
         </div>
       </div>
 
       {/* Right side: Visual */}
       <div className="hidden lg:flex relative overflow-hidden bg-slate-950 items-center justify-center p-12">
-        {/* Subtle gradient background instead of neon blurs */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-950" />
-        
-        {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-
         <div className="relative z-10 max-w-lg">
           <div className="inline-flex items-center rounded-full border border-slate-800 bg-slate-900/50 px-3 py-1 text-sm font-medium text-slate-300 mb-6 backdrop-blur-sm">
             Join GrantAI
@@ -203,7 +200,6 @@ export default function RegisterPage() {
           <p className="text-lg text-slate-400 leading-relaxed mb-10">
             Join hundreds of innovative companies recovering millions in tax credits, faster and with less risk.
           </p>
-          
           <div className="space-y-4">
             {[
               "Automated project tracking and scoring",
@@ -224,4 +220,3 @@ export default function RegisterPage() {
       </div>
     </div>
   )
-}

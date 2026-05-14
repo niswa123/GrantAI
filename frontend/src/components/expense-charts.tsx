@@ -133,11 +133,11 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Time Series Chart */}
-      <Card className="bg-slate-900/50 border-slate-700 p-6">
-        <h3 className="text-xl font-bold text-white mb-6">Expenses Over Time</h3>
-        <ResponsiveContainer width="100%" height={300}>
+      <Card className="bg-slate-900/50 border-slate-700 p-4 sm:p-6">
+        <h3 className="text-base sm:text-xl font-bold text-white mb-4 sm:mb-6">Expenses Over Time</h3>
+        <ResponsiveContainer width="100%" height={220}>
           <AreaChart data={timeSeriesData}>
             <defs>
               <linearGradient id="colorRd" x1="0" y1="0" x2="0" y2="1">
@@ -150,112 +150,52 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-            <XAxis
-              dataKey="monthLabel"
-              stroke="#94a3b8"
-              style={{ fontSize: "12px" }}
-            />
-            <YAxis
-              stroke="#94a3b8"
-              style={{ fontSize: "12px" }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-            />
+            <XAxis dataKey="monthLabel" stroke="#94a3b8" style={{ fontSize: "11px" }} />
+            <YAxis stroke="#94a3b8" style={{ fontSize: "11px" }} tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
             <Tooltip
-              contentStyle={{
-                backgroundColor: "#1e293b",
-                border: "1px solid #334155",
-                borderRadius: "8px",
-                color: "#fff",
-              }}
+              contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#fff", fontSize: "12px" }}
               formatter={(value: any) => `$${Number(value ?? 0).toLocaleString()}`}
             />
-            <Legend
-              wrapperStyle={{ paddingTop: "20px" }}
-              iconType="circle"
-            />
-            <Area
-              type="monotone"
-              dataKey="rdExpenses"
-              name="R&D Expenses"
-              stroke="#10b981"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorRd)"
-            />
-            <Area
-              type="monotone"
-              dataKey="nonRdExpenses"
-              name="Non-R&D Expenses"
-              stroke="#64748b"
-              strokeWidth={2}
-              fillOpacity={1}
-              fill="url(#colorNonRd)"
-            />
+            <Legend wrapperStyle={{ paddingTop: "16px", fontSize: "12px" }} iconType="circle" />
+            <Area type="monotone" dataKey="rdExpenses" name="R&D Expenses" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRd)" />
+            <Area type="monotone" dataKey="nonRdExpenses" name="Non-R&D Expenses" stroke="#64748b" strokeWidth={2} fillOpacity={1} fill="url(#colorNonRd)" />
           </AreaChart>
         </ResponsiveContainer>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Expense Type Breakdown */}
-        <Card className="bg-slate-900/50 border-slate-700 p-6">
-          <h3 className="text-xl font-bold text-white mb-6">Expenses by Type</h3>
-          <ResponsiveContainer width="100%" height={300}>
+        <Card className="bg-slate-900/50 border-slate-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-xl font-bold text-white mb-4 sm:mb-6">Expenses by Type</h3>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={expenseTypeData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis
-                dataKey="type"
-                stroke="#94a3b8"
-                style={{ fontSize: "12px" }}
-              />
-              <YAxis
-                stroke="#94a3b8"
-                style={{ fontSize: "12px" }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-              />
+              <XAxis dataKey="type" stroke="#94a3b8" style={{ fontSize: "11px" }} />
+              <YAxis stroke="#94a3b8" style={{ fontSize: "11px" }} tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1e293b",
-                  border: "1px solid #334155",
-                  borderRadius: "8px",
-                  color: "#fff",
-                }}
+                contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#fff", fontSize: "12px" }}
                 formatter={(value: any) => `$${Number(value ?? 0).toLocaleString()}`}
               />
-              <Legend
-                wrapperStyle={{ paddingTop: "20px" }}
-                iconType="circle"
-              />
-              <Bar
-                dataKey="rdAmount"
-                name="R&D"
-                fill="#10b981"
-                radius={[4, 4, 0, 0]}
-              />
-              <Bar
-                dataKey="nonRdAmount"
-                name="Non-R&D"
-                fill="#64748b"
-                radius={[4, 4, 0, 0]}
-              />
+              <Legend wrapperStyle={{ paddingTop: "16px", fontSize: "12px" }} iconType="circle" />
+              <Bar dataKey="rdAmount" name="R&D" fill="#10b981" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="nonRdAmount" name="Non-R&D" fill="#64748b" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
         {/* Pie Chart */}
-        <Card className="bg-slate-900/50 border-slate-700 p-6">
-          <h3 className="text-xl font-bold text-white mb-6">R&D vs Non-R&D Split</h3>
+        <Card className="bg-slate-900/50 border-slate-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-xl font-bold text-white mb-4 sm:mb-6">R&D vs Non-R&D Split</h3>
           <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={200}>
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                  }
-                  outerRadius={100}
+                  label={({ name, percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
+                  outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -264,33 +204,22 @@ export function ExpenseCharts({ expenses }: ExpenseChartsProps) {
                   ))}
                 </Pie>
                 <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#1e293b",
-                    border: "1px solid #334155",
-                    borderRadius: "8px",
-                    color: "#fff",
-                  }}
+                  contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px", color: "#fff", fontSize: "12px" }}
                   formatter={(value: any) => `$${Number(value ?? 0).toLocaleString()}`}
                 />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <div className="text-center p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-              <p className="text-sm text-slate-400 mb-1">R&D Expenses</p>
-              <p className="text-2xl font-bold text-emerald-400">
-                ${totalRdExpenses.toLocaleString()}
-              </p>
+          <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="text-center p-2.5 sm:p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+              <p className="text-xs text-slate-400 mb-1">R&D Expenses</p>
+              <p className="text-lg sm:text-2xl font-bold text-emerald-400">${totalRdExpenses.toLocaleString()}</p>
               <p className="text-xs text-emerald-400 mt-1">{rdPercentage}% of total</p>
             </div>
-            <div className="text-center p-3 rounded-lg bg-slate-700/30 border border-slate-600">
-              <p className="text-sm text-slate-400 mb-1">Non-R&D</p>
-              <p className="text-2xl font-bold text-slate-400">
-                ${totalNonRdExpenses.toLocaleString()}
-              </p>
-              <p className="text-xs text-slate-500 mt-1">
-                {(100 - Number(rdPercentage)).toFixed(1)}% of total
-              </p>
+            <div className="text-center p-2.5 sm:p-3 rounded-lg bg-slate-700/30 border border-slate-600">
+              <p className="text-xs text-slate-400 mb-1">Non-R&D</p>
+              <p className="text-lg sm:text-2xl font-bold text-slate-400">${totalNonRdExpenses.toLocaleString()}</p>
+              <p className="text-xs text-slate-500 mt-1">{(100 - Number(rdPercentage)).toFixed(1)}% of total</p>
             </div>
           </div>
         </Card>

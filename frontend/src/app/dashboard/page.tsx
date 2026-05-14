@@ -32,12 +32,12 @@ function StatCard({ label, value, sub, icon: Icon, color, glow }: {
   icon: React.ElementType; color: string; glow: string;
 }) {
   return (
-    <div className={`bg-slate-900/50 backdrop-blur-xl border border-white/8 rounded-2xl p-5 ${glow}`}>
+    <div className={`bg-slate-900/50 backdrop-blur-xl border border-white/8 rounded-xl sm:rounded-2xl p-4 sm:p-5 ${glow}`}>
       <div className="flex items-center gap-2 mb-2">
-        <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
+        <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${color}`} />
+        <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
       </div>
-      <div className={`text-2xl font-black ${color}`}>{value}</div>
+      <div className={`text-xl sm:text-2xl font-black ${color}`}>{value}</div>
       {sub && <div className="text-xs text-slate-500 mt-0.5">{sub}</div>}
     </div>
   );
@@ -47,12 +47,12 @@ function StatCard({ label, value, sub, icon: Icon, color, glow }: {
 
 function FYTabs({ fyOptions, selected, onSelect }: { fyOptions: string[]; selected: string; onSelect: (v: string) => void }) {
   return (
-    <div className="flex items-center gap-1 p-1 bg-slate-900/50 border border-white/8 rounded-xl w-fit">
+    <div className="flex items-center gap-1 p-1 bg-slate-900/50 border border-white/8 rounded-lg sm:rounded-xl w-full sm:w-fit overflow-x-auto scrollbar-hide">
       {["All Time", ...fyOptions].map((fy) => (
         <button
           key={fy}
           onClick={() => onSelect(fy)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
+          className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5 whitespace-nowrap touch-manipulation ${
             selected === fy
               ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]"
               : "text-slate-500 hover:text-white hover:bg-white/5"
@@ -77,13 +77,14 @@ function StickySummaryBar({ totalRefund, count, show }: { totalRefund: number; c
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.25 }}
-          className="sticky top-0 z-20 -mx-4 px-4 py-2.5 bg-slate-950/90 backdrop-blur-xl border-b border-white/5 flex items-center justify-between"
+          className="sticky top-14 sm:top-16 z-20 -mx-4 px-4 py-2.5 bg-slate-950/90 backdrop-blur-xl border-b border-white/5 flex items-center justify-between"
         >
           <span className="text-xs text-slate-400 font-medium">{count} claim{count !== 1 ? "s" : ""}</span>
           <div className="flex items-center gap-1.5 text-sm font-black text-cyan-400">
             <Euro className="w-4 h-4" />
-            {totalRefund.toLocaleString("en-EU", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-            <span className="text-xs text-slate-500 font-normal">total refund</span>
+            <span className="hidden xs:inline">{totalRefund.toLocaleString("en-EU", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+            <span className="xs:hidden">{(totalRefund / 1000).toFixed(1)}k</span>
+            <span className="text-xs text-slate-500 font-normal hidden sm:inline">total refund</span>
           </div>
         </motion.div>
       )}
@@ -195,20 +196,22 @@ export default function DashboardPage() {
                 {history.length > 0 && (
                   <button
                     onClick={() => exportToCSV(filtered)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:border-white/20 text-sm font-semibold transition-all"
+                    className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:border-white/20 text-xs sm:text-sm font-semibold transition-all touch-manipulation"
                   >
-                    <Download className="w-4 h-4" />
-                    Export CSV
+                    <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden xs:inline">Export CSV</span>
+                    <span className="xs:hidden">CSV</span>
                   </button>
                 )}
                 <Link
                   href="/input"
                   id="start-new-calculation"
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] touch-manipulation"
                 >
-                  <Plus className="w-4 h-4" />
-                  New Calculation
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden xs:inline">New Calculation</span>
+                  <span className="xs:hidden">New</span>
+                  <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </Link>
               </div>
             </div>
@@ -269,18 +272,18 @@ export default function DashboardPage() {
               <Link
                 href="/input"
                 id="start-new-calculation"
-                className="group block w-full relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-slate-900/80 to-violet-500/10 p-8 sm:p-10 hover:border-cyan-400/40 transition-all duration-500 hover:shadow-[0_0_60px_rgba(6,182,212,0.15)]"
+                className="group block w-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-slate-900/80 to-violet-500/10 p-6 sm:p-8 md:p-10 hover:border-cyan-400/40 transition-all duration-500 hover:shadow-[0_0_60px_rgba(6,182,212,0.15)]"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
-                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl sm:rounded-3xl" />
+                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6">
                   <div>
-                    <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] mb-4 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-shadow">
-                      <Plus className="w-6 h-6 text-cyan-400" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] mb-3 sm:mb-4 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-shadow">
+                      <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-black text-white mb-2">Start New R&amp;D Calculation</h2>
-                    <p className="text-slate-400 text-base max-w-md">Describe your project and enter costs — our AI scores R&amp;D eligibility and estimates your refund in seconds.</p>
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-2">Start New R&amp;D Calculation</h2>
+                    <p className="text-slate-400 text-sm sm:text-base max-w-md">Describe your project and enter costs — our AI scores R&amp;D eligibility and estimates your refund in seconds.</p>
                   </div>
-                  <div className="flex-shrink-0 flex items-center gap-3 px-6 py-3.5 bg-cyan-500 rounded-full font-bold text-slate-950 text-sm group-hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] group-hover:scale-105 transition-all duration-300">
+                  <div className="flex-shrink-0 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-cyan-500 rounded-full font-bold text-slate-950 text-sm group-hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] group-hover:scale-105 transition-all duration-300 touch-manipulation">
                     Get Started <ArrowUpRight className="w-4 h-4" />
                   </div>
                 </div>
@@ -290,12 +293,12 @@ export default function DashboardPage() {
             /* ── Toolbar: FY filter + view toggle ── */
             <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
               <FYTabs fyOptions={fyOptions} selected={fyFilter} onSelect={setFyFilter} />
-              <div className="flex items-center gap-1 p-1 bg-slate-900/50 border border-white/8 rounded-xl">
+              <div className="flex items-center gap-1 p-1 bg-slate-900/50 border border-white/8 rounded-xl self-end sm:self-auto">
                 {([["cards", LayoutGrid], ["table", LayoutList]] as [ViewMode, React.ElementType][]).map(([mode, Icon]) => (
                   <button
                     key={mode}
                     onClick={() => setViewMode(mode)}
-                    className={`p-2 rounded-lg transition-all ${viewMode === mode ? "bg-white/10 text-white" : "text-slate-500 hover:text-white hover:bg-white/5"}`}
+                    className={`p-2 rounded-lg transition-all touch-manipulation ${viewMode === mode ? "bg-white/10 text-white" : "text-slate-500 hover:text-white hover:bg-white/5"}`}
                     title={`${mode} view`}
                   >
                     <Icon className="w-4 h-4" />

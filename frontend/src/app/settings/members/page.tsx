@@ -247,16 +247,16 @@ export default function MembersPage() {
         {inviteOpen && <InviteModal onClose={() => setInviteOpen(false)} onInvite={handleInvite} />}
       </AnimatePresence>
 
-      <div className="max-w-4xl mx-auto px-4 py-10">
+      <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
         {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between mb-8">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between mb-6 sm:mb-8 gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
               <Users className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">Team Members</h1>
-              <p className="text-sm text-slate-400">
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Team Members</h1>
+              <p className="text-xs sm:text-sm text-slate-400">
                 {loading ? "Loading…" : `${members.length} member${members.length !== 1 ? "s" : ""} · ${members.filter((m) => m.status === "Active").length} active`}
               </p>
             </div>
@@ -264,9 +264,11 @@ export default function MembersPage() {
           <button
             onClick={() => setInviteOpen(true)}
             id="invite-member-button"
-            className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] touch-manipulation flex-shrink-0"
           >
-            <UserPlus className="w-4 h-4" /> Invite Member
+            <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden xs:inline">Invite Member</span>
+            <span className="xs:hidden">Invite</span>
           </button>
         </motion.div>
 

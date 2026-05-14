@@ -17,18 +17,18 @@ function Section({ title, description, icon: Icon, children }: {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-slate-900/40 border border-white/8 rounded-2xl p-6"
+      className="bg-slate-900/40 border border-white/8 rounded-xl sm:rounded-2xl p-4 sm:p-6"
     >
-      <div className="flex items-center gap-3 mb-5 pb-5 border-b border-white/5">
-        <div className="w-8 h-8 rounded-xl bg-slate-800 border border-white/8 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-3 mb-4 sm:mb-5 pb-4 sm:pb-5 border-b border-white/5">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-slate-800 border border-white/8 flex items-center justify-center flex-shrink-0">
+          <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
         </div>
         <div>
-          <h2 className="text-sm font-bold text-white">{title}</h2>
-          {description && <p className="text-xs text-slate-500 mt-0.5">{description}</p>}
+          <h2 className="text-xs sm:text-sm font-bold text-white">{title}</h2>
+          {description && <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">{description}</p>}
         </div>
       </div>
-      <div className="space-y-4">{children}</div>
+      <div className="space-y-3 sm:space-y-4">{children}</div>
     </motion.div>
   );
 }
@@ -336,19 +336,19 @@ function SecuritySection() {
 
 export default function AccountPage() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
             <UserCircle className="w-4 h-4 text-cyan-400" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Account Preferences</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Account Preferences</h1>
         </div>
-        <p className="text-sm text-slate-400 ml-12">Manage your personal profile and security settings.</p>
+        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">Manage your personal profile and security settings.</p>
       </motion.div>
 
-      <div className="space-y-5">
+      <div className="space-y-4 sm:space-y-5">
         <ProfileSection />
         <PasswordSection />
         <SecuritySection />
