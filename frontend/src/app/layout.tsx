@@ -45,10 +45,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
+      <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overflow-x-hidden`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
         <ThemeProvider
@@ -60,7 +60,7 @@ export default function RootLayout({
           <SessionProvider>
             <QueryProvider>
               <WorkspaceProvider>
-                <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden relative">
+                <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
                   <AppHeader />
                   <MainLayout>
                     {children}

@@ -61,120 +61,181 @@ export function AppleStyleStickyScroll() {
   });
 
   return (
-    <div ref={containerRef} className="relative bg-slate-950" style={{ height: "400vh" }}>
-      <div className="sticky top-0 h-screen flex items-center pt-16 sm:pt-20 pb-6 sm:pb-10 overflow-hidden">
-        <div className="container mx-auto px-4 lg:px-8 mt-8 sm:mt-12 md:mt-0">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
+    <>
+      {/* ========== DESKTOP: Sticky Scroll ========== */}
+      <div ref={containerRef} className="hidden md:block relative bg-slate-950" style={{ height: "400vh" }}>
+        <div className="sticky top-0 h-screen flex items-center pt-20 pb-10 overflow-hidden">
+          <div className="container mx-auto px-4 lg:px-8 mt-12 md:mt-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             
-            {/* LEFT: Scrolling Text Content */}
-            <div className="relative z-10">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="mb-8 sm:mb-12"
-              >
-                <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 mb-4 sm:mb-6 backdrop-blur-md">
-                  <span className="text-brand-primary text-xs sm:text-sm font-bold uppercase tracking-wider">How It Works</span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-4 sm:mb-6">
-                  The smartest way to track{" "}
-                  <span className="text-brand-primary">
-                    Engineering Value
-                  </span>
-                </h2>
-              </motion.div>
+              {/* LEFT: Scrolling Text Content */}
+              <div className="relative z-10">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="mb-12"
+                >
+                  <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8 backdrop-blur-md">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                    <span className="text-cyan-400">Zero Friction</span>
+                  </div>
+                  <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[1.1] mb-6">
+                    The smartest way to track{" "}
+                    <span className="text-cyan-400 drop-shadow-sm">
+                      Engineering Value.
+                    </span>
+                  </h2>
+                </motion.div>
 
-              {/* Feature Cards that fade in/out */}
-              <div className="space-y-8 relative" style={{ minHeight: "260px" }}>
-                {features.map((feature, index) => {
-                  const start = index / features.length;
-                  const end = (index + 1) / features.length;
-                  
-                  const opacity = useTransform(
-                    smoothProgress,
-                    [start - 0.1, start - 0.05, start, end, end + 0.05, end + 0.1],
-                    [0, 0, 1, 1, 0, 0]
-                  );
-                  
-                  const y = useTransform(
-                    smoothProgress,
-                    [start - 0.05, start, end, end + 0.05],
-                    [30, 0, 0, -30]
-                  );
+                {/* Feature Cards that fade in/out */}
+                <div className="space-y-8 relative" style={{ minHeight: "300px" }}>
+                  {features.map((feature, index) => {
+                    const start = index / features.length;
+                    const end = (index + 1) / features.length;
+                    
+                    const opacity = useTransform(
+                      smoothProgress,
+                      [start - 0.1, start - 0.05, start, end, end + 0.05, end + 0.1],
+                      [0, 0, 1, 1, 0, 0]
+                    );
+                    
+                    const y = useTransform(
+                      smoothProgress,
+                      [start - 0.05, start, end, end + 0.05],
+                      [30, 0, 0, -30]
+                    );
 
-                  const scale = useTransform(
-                    smoothProgress,
-                    [start - 0.05, start, end, end + 0.05],
-                    [0.98, 1, 1, 0.98]
-                  );
+                    const scale = useTransform(
+                      smoothProgress,
+                      [start - 0.05, start, end, end + 0.05],
+                      [0.98, 1, 1, 0.98]
+                    );
 
-                  const Icon = feature.icon;
+                    const Icon = feature.icon;
 
-                  return (
-                    <motion.div
-                      key={index}
-                      style={{ opacity, y, scale }}
-                      className="absolute inset-0"
-                    >
-                      <div className="flex items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
-                        <div 
-                          className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 relative"
-                          style={{
-                            backgroundColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.15)' : 
-                                           feature.color === 'purple' ? 'rgba(168,85,247,0.15)' : 
-                                           'rgba(16,185,129,0.15)',
-                            borderWidth: '1px',
-                            borderColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.3)' : 
-                                        feature.color === 'purple' ? 'rgba(168,85,247,0.3)' : 
-                                        'rgba(16,185,129,0.3)'
-                          }}
-                        >
-                          <Icon 
-                            className="w-6 h-6 sm:w-8 sm:h-8"
-                            style={{
-                              color: feature.color === 'cyan' ? '#22d3ee' : 
-                                    feature.color === 'purple' ? '#c084fc' : 
-                                    '#34d399'
-                            }}
-                          />
-                        </div>
-                        <div>
-                          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 sm:mb-2">
-                            Step {index + 1}
-                          </div>
-                          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2 tracking-tight">
-                            {feature.title}
-                          </h3>
+                    return (
+                      <motion.div
+                        key={index}
+                        style={{ opacity, y, scale }}
+                        className="absolute inset-0"
+                      >
+                        <div className="flex items-start gap-6 mb-6">
                           <div 
-                            className="text-base sm:text-xl font-bold mb-2 sm:mb-4"
+                            className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 relative"
                             style={{
-                              color: feature.color === 'cyan' ? '#22d3ee' : 
-                                    feature.color === 'purple' ? '#c084fc' : 
-                                    '#34d399'
+                              backgroundColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.15)' : 
+                                             feature.color === 'purple' ? 'rgba(168,85,247,0.15)' : 
+                                             'rgba(16,185,129,0.15)',
+                              borderWidth: '1px',
+                              borderColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.3)' : 
+                                          feature.color === 'purple' ? 'rgba(168,85,247,0.3)' : 
+                                          'rgba(16,185,129,0.3)'
                             }}
                           >
-                            {feature.subtitle}
+                            <Icon 
+                              className="w-8 h-8"
+                              style={{
+                                color: feature.color === 'cyan' ? '#22d3ee' : 
+                                      feature.color === 'purple' ? '#c084fc' : 
+                                      '#34d399'
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                              Step {index + 1}
+                            </div>
+                            <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white mb-2 tracking-tight">
+                              {feature.title}
+                            </h3>
+                            <div 
+                              className="text-xl font-bold mb-4"
+                              style={{
+                                color: feature.color === 'cyan' ? '#22d3ee' : 
+                                      feature.color === 'purple' ? '#c084fc' : 
+                                      '#34d399'
+                              }}
+                            >
+                              {feature.subtitle}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <p className="text-base sm:text-xl text-slate-400 leading-relaxed pl-16 sm:pl-[88px]">
-                        {feature.description}
-                      </p>
-                    </motion.div>
-                  );
-                })}
+                        <p className="text-xl text-slate-400 leading-relaxed pl-[88px]">
+                          {feature.description}
+                        </p>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            {/* RIGHT: Sticky Animated Dashboard — hidden on mobile */}
-            <div className="hidden lg:block relative">
-              <AnimatedDashboard progress={smoothProgress} features={features} />
+              {/* RIGHT: Sticky Animated Dashboard — hidden on mobile */}
+              <div className="hidden lg:block relative">
+                <AnimatedDashboard progress={smoothProgress} features={features} />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* ========== MOBILE: Static Timeline ========== */}
+      <div className="md:hidden relative bg-slate-950 py-20 px-4 overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-[10%] left-[-20%] w-[60vw] h-[60vw] bg-cyan-500/8 rounded-full blur-[80px]" />
+          <div className="absolute top-[50%] right-[-20%] w-[60vw] h-[60vw] bg-purple-500/8 rounded-full blur-[80px]" />
+          <div className="absolute bottom-[10%] left-[-10%] w-[60vw] h-[60vw] bg-emerald-500/8 rounded-full blur-[80px]" />
+        </div>
+
+        <div className="relative z-10">
+          <div className="mb-14 text-center">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8 backdrop-blur-md">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-cyan-400">Zero Friction</span>
+            </div>
+            <h2 className="text-4xl font-black text-white tracking-tighter leading-[1.15]">
+              The smartest way to track<br />
+              <span className="text-cyan-400 drop-shadow-sm">Engineering Value.</span>
+            </h2>
+          </div>
+
+          {/* Timeline */}
+          <div className="relative">
+            <div className="absolute top-[40px] bottom-[40px] left-[31px] w-[2px] bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-emerald-500/50" />
+
+            <div className="flex flex-col gap-8 relative z-10">
+              {features.map((feature, index) => {
+                const Icon = feature.icon;
+                const colorHex = feature.color === 'cyan' ? '#22d3ee' : 
+                                 feature.color === 'purple' ? '#c084fc' : '#34d399';
+                const bgClass = feature.color === 'cyan' ? 'bg-cyan-500/10 border-cyan-500/30' : 
+                                feature.color === 'purple' ? 'bg-purple-500/10 border-purple-500/30' : 
+                                'bg-emerald-500/10 border-emerald-500/30';
+
+                return (
+                  <div key={index} className="relative">
+                    <div className="flex items-start gap-5">
+                      <div className={`relative w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 border backdrop-blur-xl shadow-lg mt-1 ${bgClass}`}>
+                        <Icon className="w-7 h-7" style={{ color: colorHex }} />
+                        <div className="absolute -left-[18px] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-[3px] border-slate-950 z-20" style={{ backgroundColor: colorHex, boxShadow: `0 0 10px ${colorHex}` }} />
+                      </div>
+                      <div className="flex-1 bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-[20px] p-5 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-28 h-28 opacity-15 blur-[40px] pointer-events-none" style={{ backgroundColor: colorHex }} />
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2">Step 0{index + 1}</div>
+                        <h3 className="text-xl font-black text-white mb-1 tracking-tight">{feature.title}</h3>
+                        <div className="text-sm font-bold mb-3" style={{ color: colorHex }}>{feature.subtitle}</div>
+                        <p className="text-[14px] text-slate-400 leading-relaxed">{feature.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -221,10 +282,10 @@ function AnimatedDashboard({ progress, features }: { progress: any, features: Fe
         <motion.div
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30"
+          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold uppercase tracking-widest backdrop-blur-md"
         >
-          <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]" />
-          <span className="text-emerald-400 text-sm font-bold">Live</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-emerald-400">Live</span>
         </motion.div>
       </div>
 

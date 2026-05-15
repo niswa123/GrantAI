@@ -24,6 +24,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { classifyWorkLog, type LlmClassificationResult } from '@/lib/llm/classifier';
 import { calculateRdValue } from '@/lib/calculator/value-calculator';
 
@@ -32,6 +34,24 @@ const DEFAULT_TEAM_DAILY_RATE = 800;
 
 export async function POST(request: NextRequest) {
   try {
+    // ── Auth & Access Control ──────────────────────────────────────────────
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id as string | undefined;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
+    const { getUserAccessLevel } = await import("@/lib/access-control");
+    const access = await getUserAccessLevel(userId);
+
+    if (!access.hasAccess) {
+      return NextResponse.json(
+        { error: "Payment Required. Please upgrade to a premium tier for unlimited logs." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const { text, teamDailyRate } = body;
 

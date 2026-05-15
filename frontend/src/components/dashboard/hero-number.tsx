@@ -41,10 +41,11 @@ export function HeroNumber({ value, currency = "€" }: HeroNumberProps) {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs sm:text-sm font-semibold tracking-wide"
         >
-          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          <span>Total Accumulated R&D Value</span>
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-cyan-400">Live ROI Dashboard</span>
+          </div>
         </motion.div>
 
         <motion.div

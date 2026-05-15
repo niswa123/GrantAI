@@ -79,9 +79,24 @@ export async function POST(request: NextRequest) {
   const requestStart = Date.now();
 
   try {
-    // ── Auth ──────────────────────────────────────────────────────────────
+    // ── Auth & Access Control ──────────────────────────────────────────────
     const session = await getServerSession(authOptions);
     const userId = (session?.user as any)?.id as string | undefined;
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
+    const { getUserAccessLevel } = await import("@/lib/access-control");
+    const access = await getUserAccessLevel(userId);
+
+    // Lock enterprise claim generation behind tier check
+    if (!access.hasAccess) {
+      return NextResponse.json(
+        { error: "Payment Required. Please upgrade to a premium tier to generate claims." },
+        { status: 403 }
+      );
+    }
 
     // ── Parse & Validate Input ────────────────────────────────────────────
     const rawBody = await request.json().catch(() => null);

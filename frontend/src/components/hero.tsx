@@ -16,27 +16,27 @@ export function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.1])
 
   return (
-    <section ref={containerRef} className="relative min-h-[100dvh] w-full bg-slate-950 overflow-hidden max-w-[100vw]">
+    <section ref={containerRef} className="relative min-h-[100dvh] w-full bg-slate-950 overflow-hidden">
       <motion.div 
         style={{ scale, opacity }}
-        className="relative w-full h-full flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-40 pb-10"
+        className="relative w-full h-full flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden"
       >
         {/* Deep Space Grid Background */}
         <div className="absolute inset-0 bg-slate-950 -z-30" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(6,182,212,0.15),transparent_60%)] -z-20" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px] -z-20 [mask-image:radial-gradient(ellipse_at_top,black_40%,transparent_70%)]" />
 
-        <div className="container mx-auto px-4 relative z-10 text-center flex flex-col items-center">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center flex flex-col items-center max-w-full">
 
         {/* Shine Badge */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-white/10 mb-4 sm:mb-8"
+          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-4 sm:mb-8 backdrop-blur-md"
         >
-          <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-pulse" />
-          <span className="text-sm font-medium text-slate-300">GrantAI Engine v2.0 Live</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-cyan-400">GrantAI Engine v2.0 Live</span>
         </motion.div>
         
         {/* Main Title */}
@@ -44,10 +44,11 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-          className="text-[2.5rem] leading-[1.1] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-3 sm:mb-8 text-white max-w-5xl mx-auto px-4"
+          className="text-4xl leading-[1.15] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-3 sm:mb-8 text-white max-w-5xl mx-auto px-4 sm:px-6 break-words hyphens-auto"
+          style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Turn Code into <br />
-          <span className="text-cyan-400 drop-shadow-sm">
+          Turn Code into{" "}
+          <span className="text-cyan-400 drop-shadow-sm block sm:inline">
             Financial Capital.
           </span>
         </motion.h1>
@@ -57,10 +58,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-sm sm:text-lg md:text-xl lg:text-2xl text-slate-400 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-2 sm:px-4"
+          className="text-sm sm:text-lg md:text-xl lg:text-2xl text-slate-400 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-4 sm:px-6"
+          style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          The most powerful platform to track Continuous R&D Value Flow. 
-          Maximize your engineering capital transparently and daily.
+          Track Continuous R&D Value Flow. Maximize your engineering capital transparently.
         </motion.p>
         
         {/* Buttons */}
@@ -68,17 +69,17 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 px-4 w-full max-w-2xl"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6 w-full max-w-2xl"
         >
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-            <Button size="xl" className="group w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-8 text-sm sm:text-lg rounded-full overflow-hidden bg-white hover:bg-slate-100 text-black border border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] touch-manipulation">
-              Start Tracking Daily Value
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1.5 transition-transform" />
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:flex-1 sm:max-w-xs">
+            <Button size="xl" className="group w-full px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full overflow-hidden bg-white hover:bg-slate-100 text-black border border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] touch-manipulation whitespace-nowrap">
+              Start Tracking
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform" />
             </Button>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-            <Button variant="premium" size="xl" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-8 text-sm sm:text-lg rounded-full border border-white/10 bg-slate-900/50 hover:bg-slate-800 touch-manipulation">
-              See How it Works
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:flex-1 sm:max-w-xs">
+            <Button variant="premium" size="xl" className="w-full px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full border border-white/10 bg-slate-900/50 hover:bg-slate-800 touch-manipulation whitespace-nowrap">
+              How it Works
             </Button>
           </motion.div>
         </motion.div>
@@ -122,13 +123,13 @@ export function Hero() {
             {/* Dashboard Mock Body - Code & Report side by side */}
             <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 relative">
               {/* Left: Code Box */}
-              <div className="rounded-2xl sm:rounded-3xl bg-black/50 border border-white/5 p-3 sm:p-4 md:p-6 font-mono text-xs sm:text-sm text-slate-400 overflow-hidden relative shadow-inner">
+              <div className="min-w-0 rounded-2xl sm:rounded-3xl bg-black/50 border border-white/5 p-3 sm:p-4 md:p-6 font-mono text-xs sm:text-sm text-slate-400 overflow-hidden relative shadow-inner">
                 <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-600">Terminal</div>
                 <motion.div 
                   initial={{ y: 0 }} 
                   animate={{ y: -60 }} 
                   transition={{ duration: 12, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
-                  className="space-y-3 opacity-70"
+                  className="space-y-3 opacity-70 break-all sm:break-words whitespace-pre-wrap"
                 >
                   <p><span className="text-emerald-400">root@grantai:~#</span> analyze ./repo</p>
                   <p><span className="text-slate-300">commit</span> 8a3f2b1 integration of new AI caching layer...</p>
@@ -142,7 +143,7 @@ export function Hero() {
                 <motion.div 
                   animate={{ top: ["0%", "100%", "0%"] }} 
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute left-0 w-full h-[1px] bg-cyan-500 shadow-[0_0_15px_#06b6d4] z-10"
+                  className="absolute left-0 right-0 h-[2px] bg-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.8)] pointer-events-none"
                 />
               </div>
 
