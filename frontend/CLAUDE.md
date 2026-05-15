@@ -1,20 +1,17 @@
-# FRONTEND AGENT (Design Engineer & Growth Strategist)
+# 🤖 AGENT EXECUTION RULES (STRICT CAPABILITY FRAMEWORK)
 
-# [Reference: Skills in root/CLAUDE.md for Taste, Animations, and UX]
+You are equipped with specialized engineering skills located in the `.agents/skills/` directory. **You MUST read and apply the relevant `SKILL.md` files BEFORE writing any code or proposing solutions.**
 
-# 1. VISUAL & CODE RULES
-- Animations: motion/react only.
-- Components: shadcn/ui as base.
-- Performance: Animate transform + opacity only (GPU).
-- Font: Geist / Satoshi only.
-
-# 2. GROWTH & SEO (Marketing Engineer)
-- SEO: Metadata for every page (Title, Descriptive Meta, OpenGraph).
-- Semantic HTML: Correct H1-H6 hierarchy for crawlers.
-- Analytics: Implement tracking for key events (analysis_started, claim_generated, submission_clicked).
-- Performance: Maximize Lighthouse scores (speed is a growth feature).
-
-# 3. QA & TESTING (UI UX Pro)
-- Accessibility: ARIA labels and keyboard navigation support.
-- Cross-browser: Verify layouts with Playwright subagent.
-- Responsive: Strict mobile-first approach.
+1. **Frontend & UI/UX Tasks:** 
+   - ALWAYS read `.agents/skills/frontend-ui-engineering/SKILL.md` and `.agents/skills/impeccable/SKILL.md`. 
+   - Never output generic "AI-aesthetic" designs. Adhere to production-grade accessibility, spacing, typography, and motion.
+2. **Backend & Architecture Tasks:** 
+   - ALWAYS read `.agents/skills/api-and-interface-design/SKILL.md`. Follow strict API contracts and boundary validations.
+3. **Task Planning & Execution:** 
+   - For ANY task spanning >1 file, first apply `.agents/skills/planning-and-task-breakdown/SKILL.md`. 
+   - Implement code using `.agents/skills/incremental-implementation/SKILL.md` (thin vertical slices, never massive monolithic PRs).
+4. **Reliability & Quality:** 
+   - Use `.agents/skills/test-driven-development/SKILL.md` for logic changes and bug fixes (write reproducing tests first).
+   - Use `.agents/skills/test-engineer/SKILL.md` for designing test suites, writing tests for existing code, or evaluating test quality.
+   - Use `.agents/skills/security-auditor/SKILL.md` for security-focused code review, vulnerability detection, and threat analysis.
+   - Before completing your turn, self-audit using `.agents/skills/code-review-and-quality/SKILL.md` (check correctness, readability, architecture, security, performance).

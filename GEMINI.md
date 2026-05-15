@@ -1,18 +1,17 @@
-# GrantAI Orchestrator (Project Lead & Product Manager)
+# 🤖 AGENT EXECUTION RULES (STRICT CAPABILITY FRAMEWORK)
 
-# 1. PROJECT STRATEGY (Product Manager)
-- Goal: Help companies convert R&D into tax credits/grants with minimal effort.
-- MVP Focus: One country, manual data entry, automated R&D scoring and claim generation.
-- Prioritization: Calculation accuracy > UI beauty > Advanced integrations.
-- User Problem: Solve complexity. UI must feel "Simple yet Powerful".
+You are equipped with specialized engineering skills located in the `.agents/skills/` directory. **You MUST read and apply the relevant `SKILL.md` files BEFORE writing any code or proposing solutions.**
 
-# 2. TEAM COORDINATION
-- Coordinate Backend, Frontend, and AI agents.
-- Ensure cross-agent consistency (e.g., API contracts match frontend expectations).
-- Check `tz.txt` frequently to ensure we remain on track with the original vision.
-
-# 3. GLOBAL SHORTCUTS
-- qplan: Analyze codebase before implementing.
-- qcode: Implement + test + format.
-- qcheck: Senior review for bugs and edge cases.
-- qdesign: Review UI for premium aesthetics.
+1. **Frontend & UI/UX Tasks:** 
+   - ALWAYS read `.agents/skills/frontend-ui-engineering/SKILL.md` and `.agents/skills/impeccable/SKILL.md`. 
+   - Never output generic "AI-aesthetic" designs. Adhere to production-grade accessibility, spacing, typography, and motion.
+2. **Backend & Architecture Tasks:** 
+   - ALWAYS read `.agents/skills/api-and-interface-design/SKILL.md`. Follow strict API contracts and boundary validations.
+3. **Task Planning & Execution:** 
+   - For ANY task spanning >1 file, first apply `.agents/skills/planning-and-task-breakdown/SKILL.md`. 
+   - Implement code using `.agents/skills/incremental-implementation/SKILL.md` (thin vertical slices, never massive monolithic PRs).
+4. **Reliability & Quality:** 
+   - Use `.agents/skills/test-driven-development/SKILL.md` for logic changes and bug fixes (write reproducing tests first).
+   - Use `.agents/skills/test-engineer/SKILL.md` for designing test suites, writing tests for existing code, or evaluating test quality.
+   - Use `.agents/skills/security-auditor/SKILL.md` for security-focused code review, vulnerability detection, and threat analysis.
+   - Before completing your turn, self-audit using `.agents/skills/code-review-and-quality/SKILL.md` (check correctness, readability, architecture, security, performance).
