@@ -84,33 +84,33 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-[#020617]">
       {/* Left side: Form */}
-      <div className="flex flex-col justify-center items-center p-8 lg:p-12 relative z-10">
-        <div className="w-full max-w-[420px] space-y-8">
+      <div className="flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 lg:p-12 relative z-10">
+        <div className="w-full max-w-[420px] space-y-6 sm:space-y-8">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Welcome back</h1>
-            <p className="text-slate-400">Enter your credentials to access your R&D data</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Welcome back</h1>
+            <p className="text-sm sm:text-base text-slate-400">Enter your credentials to access your R&D data</p>
           </div>
 
           <div className="flex flex-col gap-3">
             <Button 
               type="button" 
               variant="outline" 
-              className="w-full h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium" 
+              className="w-full h-11 sm:h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium touch-manipulation" 
               onClick={handleGoogleSignIn}
               disabled={googleLoading || githubLoading || loading}
             >
-              {googleLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <GoogleIcon className="w-5 h-5 mr-2" />}
-              Sign in with Google
+              {googleLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <GoogleIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+              <span className="text-sm sm:text-base">Sign in with Google</span>
             </Button>
             <Button 
               type="button" 
               variant="outline" 
-              className="w-full h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium" 
+              className="w-full h-11 sm:h-12 rounded-xl bg-transparent border-slate-800 text-slate-200 hover:bg-slate-800 hover:text-white transition-all font-medium touch-manipulation" 
               onClick={handleGitHubSignIn}
               disabled={googleLoading || githubLoading || loading}
             >
-              {githubLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <GitHubIcon className="w-5 h-5 mr-2" />}
-              Sign in with GitHub
+              {githubLoading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <GitHubIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />}
+              <span className="text-sm sm:text-base">Sign in with GitHub</span>
             </Button>
           </div>
 
@@ -123,22 +123,22 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-300">Email</Label>
+              <Label htmlFor="email" className="text-slate-300 text-sm">Email</Label>
               <Input 
                 id="email" 
                 name="email" 
                 type="email" 
                 placeholder="name@company.com" 
                 required 
-                className="h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
+                className="h-11 sm:h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
               />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-slate-300">Password</Label>
-                <Link href="#" className="text-sm font-medium text-slate-400 hover:text-white">Forgot password?</Link>
+                <Label htmlFor="password" className="text-slate-300 text-sm">Password</Label>
+                <Link href="#" className="text-xs sm:text-sm font-medium text-slate-400 hover:text-white touch-manipulation">Forgot password?</Link>
               </div>
               <Input 
                 id="password" 
@@ -146,20 +146,20 @@ export default function LoginPage() {
                 type="password" 
                 placeholder="••••••••" 
                 required 
-                className="h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
+                className="h-11 sm:h-12 rounded-xl bg-slate-900/50 border-slate-800 text-white placeholder:text-slate-500 focus-visible:ring-slate-700"
               />
             </div>
             {error && <p className="text-sm text-red-400 font-medium">{error}</p>}
             
-            <Button className="w-full h-12 mt-4 rounded-xl bg-white hover:bg-slate-200 text-black font-semibold transition-all" disabled={loading || googleLoading || githubLoading}>
-              {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Sign In"}
-              {!loading && <ArrowRight className="w-5 h-5 ml-2 opacity-80" />}
+            <Button className="w-full h-11 sm:h-12 mt-4 rounded-xl bg-white hover:bg-slate-200 text-black font-semibold transition-all touch-manipulation" disabled={loading || googleLoading || githubLoading}>
+              {loading ? <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" /> : <span className="text-sm sm:text-base">Sign In</span>}
+              {!loading && <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 opacity-80" />}
             </Button>
           </form>
 
-          <p className="text-sm text-slate-400 text-center pt-4">
+          <p className="text-xs sm:text-sm text-slate-400 text-center pt-4">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-white hover:text-slate-300 font-medium transition-colors">Register now</Link>
+            <Link href="/register" className="text-white hover:text-slate-300 font-medium transition-colors touch-manipulation">Register now</Link>
           </p>
         </div>
       </div>

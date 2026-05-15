@@ -119,6 +119,7 @@ export async function POST(request: NextRequest) {
       salaryCosts,
       devCosts,
       countryCode,
+      workspaceId: validCompanyId ?? undefined,
     });
 
     // ── Credit Calculation (Deterministic) ─────────────────────────────────
@@ -214,6 +215,13 @@ function normalizeCountryToCode(countryName: string): string {
     france: "FR",
     germany: "DE",
     deutschland: "DE",
+    belgium: "BE",
+    belgique: "BE",
+    sweden: "SE",
+    sverige: "SE",
+    ireland: "IE",
+    spain: "ES",
+    españa: "ES",
   };
   return map[countryName.toLowerCase().trim()] ?? "DEFAULT";
 }

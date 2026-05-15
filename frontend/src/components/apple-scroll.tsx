@@ -62,9 +62,9 @@ export function AppleStyleStickyScroll() {
 
   return (
     <div ref={containerRef} className="relative bg-slate-950" style={{ height: "400vh" }}>
-      <div className="sticky top-0 h-screen flex items-center pt-20 pb-10 overflow-hidden">
-        <div className="container mx-auto px-4 lg:px-8 mt-12 md:mt-0">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="sticky top-0 h-screen flex items-center pt-16 sm:pt-20 pb-6 sm:pb-10 overflow-hidden">
+        <div className="container mx-auto px-4 lg:px-8 mt-8 sm:mt-12 md:mt-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center">
             
             {/* LEFT: Scrolling Text Content */}
             <div className="relative z-10">
@@ -72,12 +72,12 @@ export function AppleStyleStickyScroll() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="mb-12"
+                className="mb-8 sm:mb-12"
               >
-                <div className="inline-block px-4 py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 mb-6 backdrop-blur-md">
-                  <span className="text-brand-primary text-sm font-bold uppercase tracking-wider">How It Works</span>
+                <div className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 mb-4 sm:mb-6 backdrop-blur-md">
+                  <span className="text-brand-primary text-xs sm:text-sm font-bold uppercase tracking-wider">How It Works</span>
                 </div>
-                <h2 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-4 sm:mb-6">
                   The smartest way to track{" "}
                   <span className="text-brand-primary">
                     Engineering Value
@@ -86,12 +86,11 @@ export function AppleStyleStickyScroll() {
               </motion.div>
 
               {/* Feature Cards that fade in/out */}
-              <div className="space-y-8 relative" style={{ minHeight: "300px" }}>
+              <div className="space-y-8 relative" style={{ minHeight: "260px" }}>
                 {features.map((feature, index) => {
                   const start = index / features.length;
                   const end = (index + 1) / features.length;
                   
-                  // Резкое переключение - только активный степ виден
                   const opacity = useTransform(
                     smoothProgress,
                     [start - 0.1, start - 0.05, start, end, end + 0.05, end + 0.1],
@@ -118,9 +117,9 @@ export function AppleStyleStickyScroll() {
                       style={{ opacity, y, scale }}
                       className="absolute inset-0"
                     >
-                      <div className="flex items-start gap-6 mb-6">
+                      <div className="flex items-start gap-4 sm:gap-6 mb-4 sm:mb-6">
                         <div 
-                          className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 relative"
+                          className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 relative"
                           style={{
                             backgroundColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.15)' : 
                                            feature.color === 'purple' ? 'rgba(168,85,247,0.15)' : 
@@ -132,31 +131,23 @@ export function AppleStyleStickyScroll() {
                           }}
                         >
                           <Icon 
-                            className="w-8 h-8"
+                            className="w-6 h-6 sm:w-8 sm:h-8"
                             style={{
                               color: feature.color === 'cyan' ? '#22d3ee' : 
                                     feature.color === 'purple' ? '#c084fc' : 
                                     '#34d399'
                             }}
                           />
-                          <div 
-                            className="absolute inset-0 rounded-2xl blur-xl opacity-50"
-                            style={{
-                              backgroundColor: feature.color === 'cyan' ? 'rgba(6,182,212,0.3)' : 
-                                             feature.color === 'purple' ? 'rgba(168,85,247,0.3)' : 
-                                             'rgba(16,185,129,0.3)'
-                            }}
-                          />
                         </div>
                         <div>
-                          <div className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">
+                          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 sm:mb-2">
                             Step {index + 1}
                           </div>
-                          <h3 className="text-4xl md:text-5xl font-black text-white mb-2 tracking-tight">
+                          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white mb-1 sm:mb-2 tracking-tight">
                             {feature.title}
                           </h3>
                           <div 
-                            className="text-xl font-bold mb-4"
+                            className="text-base sm:text-xl font-bold mb-2 sm:mb-4"
                             style={{
                               color: feature.color === 'cyan' ? '#22d3ee' : 
                                     feature.color === 'purple' ? '#c084fc' : 
@@ -167,7 +158,7 @@ export function AppleStyleStickyScroll() {
                           </div>
                         </div>
                       </div>
-                      <p className="text-xl text-slate-400 leading-relaxed pl-[88px]">
+                      <p className="text-base sm:text-xl text-slate-400 leading-relaxed pl-16 sm:pl-[88px]">
                         {feature.description}
                       </p>
                     </motion.div>
@@ -176,7 +167,7 @@ export function AppleStyleStickyScroll() {
               </div>
             </div>
 
-            {/* RIGHT: Sticky Animated Dashboard */}
+            {/* RIGHT: Sticky Animated Dashboard — hidden on mobile */}
             <div className="hidden lg:block relative">
               <AnimatedDashboard progress={smoothProgress} features={features} />
             </div>

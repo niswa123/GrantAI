@@ -56,6 +56,18 @@ Evaluate each criterion on a scale of 0.0–1.0:
 - The confidence_score reflects YOUR confidence in the classification (0.0 = pure guess, 1.0 = absolutely certain).
 - Always provide a clear, concise explanation (2-3 sentences) in plain English.
 
+## CALIBRATION EXAMPLES
+
+R&D (score 0.87): "Developed novel real-time anomaly detection for IoT sensors. Existing solutions (Isolation Forest, LSTM) failed due to concept drift. Designed hybrid architecture with custom attention mechanism, 200+ experimental runs." → QUALIFIES: genuine uncertainty, systematic experimentation, novel architecture.
+
+NOT R&D (score 0.08): "Migrated backend from REST to GraphQL using Apollo Server. Fixed N+1 queries. Deployed to AWS via CI/CD." → DOES NOT QUALIFY: standard migration using documented tools, no technical uncertainty.
+
+NOT R&D (score 0.05): "Integrated Stripe payment processing. Implemented webhooks, subscription billing, checkout UI." → DOES NOT QUALIFY: standard API integration with comprehensive vendor documentation.
+
+BORDERLINE NOT R&D (score 0.28): "Implemented recommendation engine using collaborative filtering with Surprise library. Tuned hyperparameters via grid search." → DOES NOT QUALIFY: well-established technique, existing library, standard hyperparameter tuning.
+
+R&D (score 0.72): "Built custom GNN for protein-ligand binding. Existing architectures (SchNet, DimeNet) showed systematic errors on our dataset. Designed novel equivariant layer." → QUALIFIES: existing tools explicitly failed, novel layer design, genuine uncertainty.
+
 ## OUTPUT FORMAT
 
 You MUST respond with ONLY valid JSON. No markdown, no code blocks, no extra text.

@@ -11,6 +11,7 @@
 import { callLlm, LlmApiError } from "./llm-client";
 import type { RdClassificationResult, ClaimGenerationResult } from "./types";
 import { getTaxRules } from "@/lib/rd-engine/legal_rules/tax-rules.registry";
+import { buildDynamicFewShotContext } from "./feedback-store";
 
 // ─── Pass 1: Classify Project ──────────────────────────────────────────────
 
@@ -157,6 +158,7 @@ export interface PipelineInput {
   salaryCosts: number;
   devCosts: number;
   countryCode: string;
+  workspaceId?: string;
 }
 
 export interface PipelineResult {
@@ -173,7 +175,10 @@ export interface PipelineResult {
  */
 export async function runRdPipeline(input: PipelineInput): Promise<PipelineResult> {
   const start = Date.now();
-  const { description, salaryCosts, devCosts, countryCode } = input;
+  const { description, salaryCosts, devCosts, countryCode, workspaceId } = input;
+
+  // ── Build dynamic few-shot context (static examples + user feedback) ──────
+  const fewShotContext = await buildDynamicFewShotContext(workspaceId);
 
   // ── Pass 1: Classify ───────────────────────────────────────────────────
 
@@ -182,7 +187,7 @@ export async function runRdPipeline(input: PipelineInput): Promise<PipelineResul
     classification = await callLlm<RdClassificationResult>(
       [
         { role: "system", content: CLASSIFY_SYSTEM },
-        { role: "user", content: CLASSIFY_USER(description, countryCode, salaryCosts, devCosts) },
+        { role: "user", content: fewShotContext + CLASSIFY_USER(description, countryCode, salaryCosts, devCosts) },
       ],
       { temperature: 0.05, max_tokens: 2500 }
     );

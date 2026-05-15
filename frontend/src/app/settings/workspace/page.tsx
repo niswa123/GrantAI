@@ -124,16 +124,16 @@ export default function WorkspaceSettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
             <Building2 className="w-4 h-4 text-cyan-400" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Workspace Settings</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Workspace Settings</h1>
         </div>
-        <p className="text-sm text-slate-400 ml-12">Manage your legal entity information for R&amp;D claims.</p>
+        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">Manage your legal entity information for R&amp;D claims.</p>
       </motion.div>
 
       <motion.form
@@ -234,27 +234,27 @@ export default function WorkspaceSettingsPage() {
         </Section>
 
         {/* Save bar */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 pt-2">
           <AnimatePresence mode="wait">
             {saved ? (
               <motion.div key="saved" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                className="flex items-center gap-2 text-sm text-emerald-400 font-semibold">
+                className="flex items-center gap-2 text-xs sm:text-sm text-emerald-400 font-semibold">
                 <CheckCircle2 className="w-4 h-4" /> Saved successfully
               </motion.div>
             ) : dirty ? (
               <motion.div key="dirty" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-                className="flex items-center gap-2 text-sm text-amber-400/80">
+                className="flex items-center gap-2 text-xs sm:text-sm text-amber-400/80">
                 <AlertCircle className="w-4 h-4" /> Unsaved changes
               </motion.div>
             ) : (
-              <div key="clean" className="text-sm text-slate-600">All changes saved</div>
+              <div key="clean" className="text-xs sm:text-sm text-slate-600">All changes saved</div>
             )}
           </AnimatePresence>
 
           <button
             type="submit"
             disabled={!dirty || saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)]"
+            className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 rounded-xl font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(6,182,212,0.25)] hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] touch-manipulation"
           >
             {saving ? (
               <><div className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" /> Saving…</>

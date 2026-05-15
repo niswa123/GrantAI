@@ -128,16 +128,16 @@ export default function IntegrationsPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="max-w-3xl mx-auto px-4 py-6 sm:py-10">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
             <Plug className="w-4 h-4 text-cyan-400" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Data Integrations</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Data Integrations</h1>
         </div>
-        <p className="text-sm text-slate-400 ml-12">
+        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">
           Connect your engineering tools to automatically track and analyze R&amp;D activities.
         </p>
       </motion.div>
@@ -186,44 +186,44 @@ export default function IntegrationsPage() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.05 }}
-                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 rounded-2xl border transition-all ${
+                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border transition-all gap-4 ${
                   isConnected 
                     ? "bg-slate-900/60 border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.05)]" 
                     : "bg-slate-900/40 border-white/5"
                 }`}
               >
-                <div className="flex gap-4 items-start sm:items-center w-full">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${provider.color} border border-white/10`}>
+                <div className="flex gap-3 sm:gap-4 items-start sm:items-center w-full">
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${provider.color} border border-white/10`}>
                     {provider.icon}
                   </div>
                   
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-bold text-white">{provider.name}</h3>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                      <h3 className="text-sm sm:text-base font-bold text-white">{provider.name}</h3>
                       {isConnected && (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wide">
                           Connected
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-slate-400 mt-1 max-w-md">{provider.description}</p>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md">{provider.description}</p>
                     
                     {isConnected && integration.updated_at && (
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-slate-500 mt-1.5">
                         Last synced: {new Date(integration.updated_at).toLocaleDateString()}
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="mt-4 sm:mt-0 ml-16 sm:ml-4 shrink-0">
+                <div className="ml-13 sm:ml-4 shrink-0 self-start sm:self-auto">
                   {isConnected ? (
                     <button
                       onClick={() => handleDisconnect(provider.id)}
                       disabled={isLoading}
-                      className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-400 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all disabled:opacity-50"
+                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all disabled:opacity-50 touch-manipulation"
                     >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                       Disconnect
                     </button>
                   ) : (
@@ -231,9 +231,9 @@ export default function IntegrationsPage() {
                       onClick={() => handleConnect(provider.id)}
                       disabled={isLoading || !hasRealId}
                       title={!hasRealId ? "Loading workspace..." : undefined}
-                      className="flex items-center justify-center gap-2 px-6 py-2 rounded-xl text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     >
-                      {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
+                      {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
                       {hasRealId ? "Connect" : "Loading..."}
                     </button>
                   )}

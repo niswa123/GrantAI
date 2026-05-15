@@ -58,7 +58,7 @@ function CurrencyInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full pl-8 pr-4 py-3.5 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-slate-600 font-mono text-lg focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-full pl-8 pr-4 py-3 sm:py-3.5 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-slate-600 font-mono text-base sm:text-lg focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
       <p className="mt-1.5 text-xs text-slate-500">{hint}</p>
@@ -128,7 +128,7 @@ export default function InputPage() {
         {/* Back */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors mb-8 group"
+          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors mb-6 sm:mb-8 group touch-manipulation"
         >
           <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
           Back to Dashboard
@@ -185,9 +185,9 @@ export default function InputPage() {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                rows={7}
+                rows={6}
                 placeholder="Describe the technical uncertainty, novel approaches, and systematic research or experimentation in your project. Be specific about what made this R&D work — what problem you were solving and why existing solutions weren't sufficient…"
-                className="w-full px-4 py-3.5 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-slate-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                className="w-full px-3 sm:px-4 py-3 sm:py-3.5 rounded-xl bg-slate-900/80 border border-white/10 text-white placeholder-slate-600 text-sm leading-relaxed resize-none focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/20 transition-all"
               />
               <div className="mt-1.5 flex items-center justify-between">
                 <p className="text-xs text-slate-500">
