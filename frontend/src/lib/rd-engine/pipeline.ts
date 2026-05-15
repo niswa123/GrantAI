@@ -12,6 +12,15 @@ import { callLlm, LlmApiError } from "./llm-client";
 import type { RdClassificationResult, ClaimGenerationResult } from "./types";
 import { getTaxRules } from "@/lib/rd-engine/legal_rules/tax-rules.registry";
 import { buildDynamicFewShotContext } from "./feedback-store";
+import { getDomainKnowledge } from "./domain-knowledge";
+
+// ─── Types ─────────────────────────────────────────────────────────────────
+
+interface CritiqueResult {
+  critique: string;
+  agrees_with_classification: boolean;
+  adjusted_rd_score: number;
+}
 
 // ─── Pass 1: Classify Project ──────────────────────────────────────────────
 
@@ -22,17 +31,17 @@ Your sole purpose: rigorously evaluate whether a project meets the OECD Frascati
 CRITICAL DIRECTIVES — READ CAREFULLY:
 1. Be a SKEPTIC. Not a cheerleader. If in doubt, mark lower.
 2. BUSINESS NOVELTY ≠ TECHNOLOGICAL NOVELTY. Building a new app using existing frameworks is NOT R&D. Solving a genuinely unsolved technical problem IS.
-3. TECHNICAL UNCERTAINTY is the most important criterion. It must be GENUINE uncertainty that a competent engineer in the field could not resolve using existing published knowledge, without systematic experimentation.
-4. Routine activities that NEVER qualify:
+3. TECHNICAL UNCERTAINTY is the most important criterion. It must be GENUINE uncertainty that a competent engineer in the field could not resolve using existing published knowledge.
+4. ZERO TOLERANCE FOR FALSE POSITIVES. The following activities are NEVER R&D and MUST receive a score < 0.2:
+   - Changing UI/UX elements (button colors, layouts, styling)
+   - Fixing syntax errors, typos, or simple bugs
+   - Standard CRUD operations and API integrations
+   - Upgrading dependencies or migrating frameworks
    - Adopting existing cloud infrastructure (AWS, GCP, Azure)
-   - Standard API integrations
-   - UI/UX development
-   - Bug fixing
-   - Adapting known algorithms to a new context without genuine uncertainty
 5. You MUST reason step-by-step BEFORE scoring (Chain-of-Thought).
 
 SCORING SCALE:
-- 0.0–0.2: Clearly routine / commercial
+- 0.0–0.2: Clearly routine / commercial / UI changes / simple fixes
 - 0.3–0.4: Marginal — some interesting work but not R&D
 - 0.5–0.6: Borderline eligible — proceed with caution and strong documentation
 - 0.7–0.8: Solid R&D — clear uncertainty and systematic approach
@@ -79,6 +88,33 @@ Respond with EXACTLY this JSON structure (no markdown, no text outside JSON):
   "risk_flags": ["<Areas a tax inspector would challenge>"],
   "recommended_evidence": ["<Specific documentation company must prepare to defend this claim>"]
 }`;
+};
+
+// ─── Pass 1b: Critique (Devil's Advocate) ──────────────────────────────────
+
+const CRITIQUE_SYSTEM = `You are an aggressive, skeptical Tax Authority Inspector (Devil's Advocate).
+Your job is to read an R&D classification result and try to TEAR IT DOWN.
+Look for any signs that the work is actually routine software engineering disguised as R&D.
+If the classification is 'Not R&D', verify they didn't miss a genuine technological uncertainty.
+
+Output ONLY valid JSON:
+{
+  "critique": "<2-3 sentences aggressively challenging the initial classification>",
+  "agrees_with_classification": <boolean>,
+  "adjusted_rd_score": <float 0.0-1.0 - lower it if you suspect routine work>
+}`;
+
+const CRITIQUE_USER = (description: string, initialResult: RdClassificationResult): string => {
+  return `PROJECT DESCRIPTION:
+"${description}"
+
+INITIAL CLASSIFICATION (By junior analyst):
+- Score: ${initialResult.rd_score}
+- Eligible: ${initialResult.is_rd_eligible}
+- Novelty Justification: ${initialResult.criteria_scores.novelty.justification}
+- Uncertainty Justification: ${initialResult.criteria_scores.technical_uncertainty.justification}
+
+Critique this classification. Are they too generous? Are they confusing complex business logic with genuine technological uncertainty?`;
 };
 
 // ─── Pass 2: Generate Claim Text ───────────────────────────────────────────
@@ -168,51 +204,73 @@ export interface PipelineResult {
 }
 
 /**
- * Run the full two-pass LLM pipeline.
- *
- * Pass 1 (Classify): Low temperature (0.05) for consistent, rigorous scoring.
- * Pass 2 (Generate): Slightly higher temperature (0.3) for natural language variety.
+ * Run the full two-pass LLM pipeline with Self-Consistency and Critique.
  */
 export async function runRdPipeline(input: PipelineInput): Promise<PipelineResult> {
   const start = Date.now();
   const { description, salaryCosts, devCosts, countryCode, workspaceId } = input;
 
-  // ── Build dynamic few-shot context (static examples + user feedback) ──────
+  // ── Build Context ──────────────────────────────────────────────────────
   const fewShotContext = await buildDynamicFewShotContext(workspaceId);
+  const domainKnowledge = getDomainKnowledge(countryCode);
+  const fullContext = domainKnowledge + "\n" + fewShotContext;
 
-  // ── Pass 1: Classify ───────────────────────────────────────────────────
+  // ── Pass 1: Classify (with Self-Consistency for borderline cases) ──────
+  
+  let classification = await runClassificationPass(description, countryCode, salaryCosts, devCosts, fullContext);
 
-  let classification: RdClassificationResult;
-  try {
-    classification = await callLlm<RdClassificationResult>(
-      [
-        { role: "system", content: CLASSIFY_SYSTEM },
-        { role: "user", content: fewShotContext + CLASSIFY_USER(description, countryCode, salaryCosts, devCosts) },
-      ],
-      { temperature: 0.05, max_tokens: 2500 }
+  // SELF-CONSISTENCY SAMPLING: If score is borderline (0.40 - 0.65), run 2 more times
+  if (classification.rd_score >= 0.40 && classification.rd_score <= 0.65) {
+    console.log(`[Pipeline] Borderline score (${classification.rd_score}). Triggering self-consistency sampling...`);
+    const run2 = await runClassificationPass(description, countryCode, salaryCosts, devCosts, fullContext, 0.15);
+    const run3 = await runClassificationPass(description, countryCode, salaryCosts, devCosts, fullContext, 0.25);
+    
+    // Median score
+    const scores = [classification.rd_score, run2.rd_score, run3.rd_score].sort();
+    const medianScore = scores[1];
+    
+    // Majority vote for eligibility
+    const votes = [classification.is_rd_eligible, run2.is_rd_eligible, run3.is_rd_eligible];
+    const eligibleCount = votes.filter(v => v).length;
+    
+    // Pick the run closest to the median score
+    classification = [classification, run2, run3].reduce((prev, curr) => 
+      Math.abs(curr.rd_score - medianScore) < Math.abs(prev.rd_score - medianScore) ? curr : prev
     );
-  } catch (err) {
-    const msg = err instanceof LlmApiError ? err.message : String(err);
-    throw new Error(`R&D classification failed: ${msg}`);
+    
+    classification.is_rd_eligible = eligibleCount >= 2;
+    console.log(`[Pipeline] Self-Consistency resolved: Median Score = ${medianScore}, Eligible = ${classification.is_rd_eligible}`);
   }
 
-  // Validate critical fields — prevent hallucinated scores
-  classification.rd_score = clampScore(classification.rd_score);
-  for (const key of Object.keys(classification.criteria_scores) as Array<
-    keyof typeof classification.criteria_scores
-  >) {
-    classification.criteria_scores[key].score = clampScore(
-      classification.criteria_scores[key].score
-    );
-  }
-
-  // Enforce eligibility gate: technical_uncertainty MUST be >= 0.5
-  const rules = getTaxRules(countryCode);
-  if (
-    classification.rd_score < rules.minRdScoreThreshold ||
-    classification.criteria_scores.technical_uncertainty.score < 0.5
-  ) {
-    classification.is_rd_eligible = false;
+  // ── Pass 1b: Critique (Devil's Advocate) ───────────────────────────────
+  
+  if (classification.is_rd_eligible) {
+    try {
+      const critique = await callLlm<CritiqueResult>(
+        [
+          { role: "system", content: CRITIQUE_SYSTEM },
+          { role: "user", content: CRITIQUE_USER(description, classification) },
+        ],
+        { temperature: 0.1, max_tokens: 1000 }
+      );
+      
+      console.log(`[Pipeline] Critique pass applied. Agree: ${critique.agrees_with_classification}, Adjusted Score: ${critique.adjusted_rd_score}`);
+      
+      if (!critique.agrees_with_classification) {
+        classification.rd_score = clampScore(critique.adjusted_rd_score);
+        // Re-evaluate eligibility gate
+        const rules = getTaxRules(countryCode);
+        if (classification.rd_score < rules.minRdScoreThreshold) {
+          classification.is_rd_eligible = false;
+        }
+      }
+      
+      // Inject critique into risk flags
+      classification.risk_flags.push(`Devil's Advocate Critique: ${critique.critique}`);
+      
+    } catch (err) {
+      console.warn(`[Pipeline] Critique pass failed, proceeding with initial classification: ${err}`);
+    }
   }
 
   // ── Pass 2: Generate Claim Text ────────────────────────────────────────
@@ -239,6 +297,47 @@ export async function runRdPipeline(input: PipelineInput): Promise<PipelineResul
     claimText,
     latencyMs: Date.now() - start,
   };
+}
+
+/** Helper to run a single classification pass */
+async function runClassificationPass(
+  description: string, 
+  countryCode: string, 
+  salaryCosts: number, 
+  devCosts: number, 
+  fullContext: string,
+  temperature: number = 0.05
+): Promise<RdClassificationResult> {
+  let classification: RdClassificationResult;
+  try {
+    classification = await callLlm<RdClassificationResult>(
+      [
+        { role: "system", content: CLASSIFY_SYSTEM },
+        { role: "user", content: fullContext + "\n\n" + CLASSIFY_USER(description, countryCode, salaryCosts, devCosts) },
+      ],
+      { temperature, max_tokens: 2500 }
+    );
+  } catch (err) {
+    const msg = err instanceof LlmApiError ? err.message : String(err);
+    throw new Error(`R&D classification failed: ${msg}`);
+  }
+
+  // Validate critical fields
+  classification.rd_score = clampScore(classification.rd_score);
+  for (const key of Object.keys(classification.criteria_scores) as Array<keyof typeof classification.criteria_scores>) {
+    classification.criteria_scores[key].score = clampScore(classification.criteria_scores[key].score);
+  }
+
+  // Enforce eligibility gate
+  const rules = getTaxRules(countryCode);
+  if (
+    classification.rd_score < rules.minRdScoreThreshold ||
+    classification.criteria_scores.technical_uncertainty.score < 0.5
+  ) {
+    classification.is_rd_eligible = false;
+  }
+
+  return classification;
 }
 
 /** Clamp a score to [0.0, 1.0] and round to 2 decimal places */

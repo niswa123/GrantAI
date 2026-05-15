@@ -74,6 +74,33 @@ export const RD_POSITIVE_EXAMPLES: FewShotExample[] = [
       "Novel material synthesis (MIP). Regulatory-driven performance gap. 80+ experimental trials. Fundamental chemistry uncertainty in polymer recognition selectivity.",
     category: "biotech",
   },
+  {
+    description:
+      "Developed a low-latency order matching engine for high-frequency crypto trading. Traditional lock-based and lock-free queue approaches in C++ were yielding a 50us tail latency jitter due to CPU cache thrashing under 100k msg/sec loads. We researched and designed a novel hardware-software co-designed ring buffer bypassing the OS kernel entirely via DPDK, bringing 99.9th percentile latency down to a deterministic 3us.",
+    rd_score: 0.88,
+    is_rd: true,
+    key_reason:
+      "FinTech specific R&D. Overcoming fundamental hardware/software limits (CPU cache thrashing). Novel OS bypass architecture. Standard tuning failed.",
+    category: "software",
+  },
+  {
+    description:
+      "Investigated early delamination in 3D-printed composite aerospace parts. The technical uncertainty was the non-linear relationship between extruder temperature, cooling rate, and carbon fiber volume fraction during continuous printing. Designed a Design of Experiments (DoE) matrix with 45 prints, discovering a previously undocumented thermal gradient inversion that caused the weak adhesion.",
+    rd_score: 0.92,
+    is_rd: true,
+    key_reason:
+      "Hardware/Manufacturing R&D. Discovery of undocumented phenomena. Systematic DoE methodology. Genuine scientific uncertainty.",
+    category: "hardware",
+  },
+  {
+    description:
+      "Built a custom rendering pipeline for mobile WebGL to support 100k+ dynamic particles at 60fps. Standard Three.js InstancedMesh approaches hit GPU memory limits. We created a novel spatial hashing algorithm that runs entirely in a compute shader, culling occluded particles before the vertex stage without CPU intervention.",
+    rd_score: 0.84,
+    is_rd: true,
+    key_reason:
+      "GameDev/Graphics R&D. Overcoming absolute platform limits (WebGL on mobile). Novel spatial hashing algorithm in compute shaders.",
+    category: "software",
+  }
 ];
 
 // ─── NON-QUALIFYING EXAMPLES ───────────────────────────────────────────────
@@ -133,6 +160,33 @@ export const RD_NEGATIVE_EXAMPLES: FewShotExample[] = [
       "Standard DevOps/infrastructure work. Kubernetes, EKS, Prometheus are mature technologies with extensive documentation. Blue-green deployment is a well-known pattern. No technical uncertainty.",
     category: "routine",
   },
+  {
+    description:
+      "Spent 3 weeks solving a highly complex bug where the application would sporadically crash under heavy load. Traced the issue through multiple microservices using Datadog and discovered a race condition in our distributed Redis cache lock implementation. Rewrote the locking mechanism using Lua scripts to ensure atomicity.",
+    rd_score: 0.15,
+    is_rd: false,
+    key_reason:
+      "Adversarial Example: High complexity ≠ R&D. Fixing a bug (even a very hard race condition) in existing code using known patterns (Redis Lua scripting) is routine software engineering, not R&D. No advancement of baseline technology.",
+    category: "routine",
+  },
+  {
+    description:
+      "Integrated OpenAI GPT-4 API to add an 'AI Summary' feature to our legal document platform. Wrote custom prompts to extract key clauses, handled the API rate limits, and built a nice UI for lawyers to review the generated summaries.",
+    rd_score: 0.12,
+    is_rd: false,
+    key_reason:
+      "Adversarial Example: Using 'AI' does not make it R&D. This is a standard API integration using commercial LLMs. Prompt engineering without developing new underlying ML architectures is routine application development.",
+    category: "routine",
+  },
+  {
+    description:
+      "Optimized our complex SQL queries that were joining 15 tables and taking over 30 seconds to execute. Analyzed the query execution plans, added composite indexes, refactored subqueries into CTEs, and implemented application-level caching with Memcached. Reduced query time to 200ms.",
+    rd_score: 0.10,
+    is_rd: false,
+    key_reason:
+      "Adversarial Example: Performance optimization using standard DBA techniques (indexing, CTEs, caching) is routine work. There is no scientific or technological uncertainty here, just a complex engineering task.",
+    category: "routine",
+  }
 ];
 
 // ─── BORDERLINE EXAMPLES (important for calibration) ──────────────────────

@@ -50,7 +50,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased overflow-x-hidden`}
     >
-      <body className="min-h-full flex flex-col bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden max-w-[100vw]">
+      <body className="min-h-full flex flex-col bg-[#020617] text-slate-50 selection:bg-cyan-500/30 overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -60,10 +60,12 @@ export default function RootLayout({
           <SessionProvider>
             <QueryProvider>
               <WorkspaceProvider>
-                <AppHeader />
-                <MainLayout>
-                  {children}
-                </MainLayout>
+                <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden relative">
+                  <AppHeader />
+                  <MainLayout>
+                    {children}
+                  </MainLayout>
+                </div>
               </WorkspaceProvider>
             </QueryProvider>
           </SessionProvider>

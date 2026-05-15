@@ -16,10 +16,10 @@ export function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0.1])
 
   return (
-    <section ref={containerRef} className="relative min-h-[110vh] w-full bg-slate-950 overflow-hidden max-w-[100vw]">
+    <section ref={containerRef} className="relative min-h-[100dvh] w-full bg-slate-950 overflow-hidden max-w-[100vw]">
       <motion.div 
         style={{ scale, opacity }}
-        className="relative w-full flex flex-col items-center justify-start pt-32 md:pt-40"
+        className="relative w-full h-full flex flex-col items-center justify-start pt-24 sm:pt-32 md:pt-40 pb-10"
       >
         {/* Deep Space Grid Background */}
         <div className="absolute inset-0 bg-slate-950 -z-30" />
@@ -33,7 +33,7 @@ export function Hero() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-white/10 mb-8"
+          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass border border-white/10 mb-4 sm:mb-8"
         >
           <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-pulse" />
           <span className="text-sm font-medium text-slate-300">GrantAI Engine v2.0 Live</span>
@@ -44,7 +44,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-6 sm:mb-8 text-white leading-[1.05] max-w-5xl mx-auto px-4"
+          className="text-[2.5rem] leading-[1.1] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-3 sm:mb-8 text-white max-w-5xl mx-auto px-4"
         >
           Turn Code into <br />
           <span className="text-cyan-400 drop-shadow-sm">
@@ -57,7 +57,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-400 max-w-3xl mx-auto mb-8 sm:mb-10 leading-relaxed font-medium px-4"
+          className="text-sm sm:text-lg md:text-xl lg:text-2xl text-slate-400 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-2 sm:px-4"
         >
           The most powerful platform to track Continuous R&D Value Flow. 
           Maximize your engineering capital transparently and daily.
@@ -68,16 +68,16 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4 w-full max-w-2xl"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 px-4 w-full max-w-2xl"
         >
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-            <Button size="xl" className="group w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-base sm:text-lg rounded-full overflow-hidden bg-white hover:bg-slate-100 text-black border border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] touch-manipulation">
+            <Button size="xl" className="group w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-8 text-sm sm:text-lg rounded-full overflow-hidden bg-white hover:bg-slate-100 text-black border border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] touch-manipulation">
               Start Tracking Daily Value
               <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1.5 transition-transform" />
             </Button>
           </motion.div>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-            <Button variant="premium" size="xl" className="w-full sm:w-auto px-6 sm:px-10 py-6 sm:py-8 text-base sm:text-lg rounded-full border border-white/10 bg-slate-900/50 hover:bg-slate-800 touch-manipulation">
+            <Button variant="premium" size="xl" className="w-full sm:w-auto px-6 sm:px-10 py-5 sm:py-8 text-sm sm:text-lg rounded-full border border-white/10 bg-slate-900/50 hover:bg-slate-800 touch-manipulation">
               See How it Works
             </Button>
           </motion.div>
@@ -89,15 +89,15 @@ export function Hero() {
           animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.5, type: "spring", stiffness: 45, damping: 20 }}
           style={{ perspective: 1500 }}
-          className="mt-12 sm:mt-16 md:mt-20 w-full max-w-5xl mx-auto relative group px-4"
+          className="mt-6 sm:mt-16 md:mt-20 w-full max-w-5xl mx-auto relative group px-2 sm:px-4 flex-grow flex flex-col justify-end"
         >
           {/* Ambient Mockup Glow */}
           <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 to-cyan-400/30 rounded-[40px] blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-1000" />
           
-          <div className="relative rounded-t-2xl sm:rounded-t-3xl md:rounded-t-[40px] border-t border-x border-white/15 bg-slate-950/80 backdrop-blur-2xl p-4 sm:p-6 md:p-10 overflow-hidden shadow-2xl h-[350px] sm:h-[400px] md:h-[450px] flex flex-col transition-transform duration-700 ease-out group-hover:-translate-y-2">
+          <div className="relative rounded-t-2xl sm:rounded-t-3xl md:rounded-t-[40px] border-t border-x border-white/15 bg-slate-950/80 backdrop-blur-2xl p-4 sm:p-6 md:p-10 overflow-hidden shadow-2xl h-[280px] sm:h-[400px] md:h-[450px] flex flex-col transition-transform duration-700 ease-out group-hover:-translate-y-2">
             
             {/* Dashboard Mock Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 sm:pb-6 mb-4 sm:mb-6 gap-3 sm:gap-4">
+            <div className="flex flex-row items-center justify-between border-b border-white/5 pb-3 sm:pb-6 mb-3 sm:mb-6 gap-2 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
                   <Cpu className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-cyan-400" />
@@ -112,7 +112,7 @@ export function Hero() {
                 </div>
               </div>
               <div className="flex gap-2 sm:gap-3">
-                <div className="px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 md:py-2.5 rounded-full border border-white/5 bg-white/5 text-xs sm:text-sm font-medium text-slate-300">
+                <div className="px-2 sm:px-4 md:px-5 py-1 sm:py-2 md:py-2.5 rounded-full border border-white/5 bg-white/5 text-[10px] sm:text-sm font-medium text-slate-300">
                   <span className="hidden xs:inline">Confidence: </span>
                   <span className="text-white font-bold">99.8%</span>
                 </div>
