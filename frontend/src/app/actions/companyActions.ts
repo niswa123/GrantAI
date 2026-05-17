@@ -14,7 +14,12 @@ export async function getUserCompanies() {
   const userId = (session.user as any).id;
 
   const companies = await prisma.company.findMany({
-    where: { user_id: userId },
+    where: {
+      OR: [
+        { user_id: userId },
+        { members: { some: { user_id: userId } } }
+      ]
+    },
     orderBy: { created_at: 'asc' },
   });
 

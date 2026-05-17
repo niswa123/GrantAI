@@ -32,7 +32,13 @@ export async function POST(request: Request) {
 
   // Verify company ownership
   const company = await prisma.company.findFirst({
-    where: { id: companyId, user_id: session.user.id },
+    where: { 
+      id: companyId,
+      OR: [
+        { user_id: session.user.id },
+        { members: { some: { user_id: session.user.id } } }
+      ]
+    },
     select: { id: true, name: true },
   });
   if (!company) {
