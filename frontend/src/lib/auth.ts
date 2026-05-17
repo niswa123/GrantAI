@@ -67,6 +67,7 @@ export const authOptions: NextAuthOptions = {
           displayName: user.display_name || '',
           image: user.avatar_url || `https://api.dicebear.com/9.x/shapes/svg?seed=${user.email}&backgroundColor=06b6d4`,
           defaultCompanyId: user.companies.length > 0 ? user.companies[0].id : undefined,
+          needsOnboarding: user.companies.length === 0,
         };
       },
     }),
@@ -78,13 +79,13 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       // Allow OAuth sign-ins (Google & GitHub)
       if (account?.provider === 'google' || account?.provider === 'github') {
-        // Check if user exists, if not - they will be created by PrismaAdapter
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
+          include: { companies: true },
         });
 
         if (existingUser) {
-          // Update user info from OAuth profile if needed
+          // Update user info from OAuth profile
           await prisma.user.update({
             where: { id: existingUser.id },
             data: {
@@ -95,6 +96,15 @@ export const authOptions: NextAuthOptions = {
               emailVerified: new Date(),
             },
           });
+
+          // If this is an existing user with NO companies yet, mark for onboarding
+          if (existingUser.companies.length === 0) {
+            // Signal to the JWT callback that onboarding is needed
+            (user as any).needsOnboarding = true;
+          }
+        } else {
+          // Brand new OAuth user — will be created by PrismaAdapter, needs onboarding
+          (user as any).needsOnboarding = true;
         }
       }
       return true;
@@ -105,6 +115,10 @@ export const authOptions: NextAuthOptions = {
         token.displayName = user.displayName || user.name;
         token.picture = user.image;
         token.defaultCompanyId = user.defaultCompanyId;
+        // Carry the onboarding flag if set by signIn callback
+        if ((user as any).needsOnboarding) {
+          token.needsOnboarding = true;
+        }
       }
 
       // For OAuth users, fetch additional data from database
@@ -119,6 +133,10 @@ export const authOptions: NextAuthOptions = {
           token.displayName = dbUser.display_name || dbUser.name;
           token.picture = dbUser.avatar_url || dbUser.image;
           token.defaultCompanyId = dbUser.companies.length > 0 ? dbUser.companies[0].id : undefined;
+          // Clear onboarding flag once they have a company
+          if (dbUser.companies.length > 0) {
+            token.needsOnboarding = false;
+          }
         }
       }
 
@@ -130,6 +148,7 @@ export const authOptions: NextAuthOptions = {
         session.user.displayName = token.displayName;
         session.user.image = token.picture;
         session.user.defaultCompanyId = token.defaultCompanyId;
+        session.user.needsOnboarding = token.needsOnboarding ?? false;
         // Override next-auth's "name" with our display_name so it's consistent
         if (token.displayName) {
           session.user.name = token.displayName;

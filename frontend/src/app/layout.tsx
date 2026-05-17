@@ -7,6 +7,7 @@ import { WorkspaceProvider } from "@/providers/workspace-provider";
 import { SessionProvider } from "@/providers/session-provider";
 import { AppHeader } from "@/components/app-header";
 import { MainLayout } from "@/components/main-layout";
+import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,7 @@ export default function RootLayout({
               <WorkspaceProvider>
                 <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
                   <AppHeader />
+                  <EmailVerificationBanner />
                   <MainLayout>
                     {children}
                   </MainLayout>

@@ -1,0 +1,238 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { motion, AnimatePresence } from "framer-motion";
+import { createCompany } from "@/app/actions/companyActions";
+import { ArrowRight, Building2, Globe, Loader2, CheckCircle2 } from "lucide-react";
+
+const COUNTRIES = [
+  "Netherlands", "United Kingdom", "France", "Germany",
+  "Belgium", "Sweden", "Ireland", "Spain", "United States",
+  "Canada", "Australia", "Other",
+];
+
+export default function OnboardingPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [companyName, setCompanyName] = useState("");
+  const [country, setCountry] = useState("");
+
+  const userName = session?.user?.name?.split(" ")[0] || "there";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!companyName.trim() || !country) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await createCompany(companyName.trim(), country);
+      if (result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      // Show success step briefly, then redirect
+      setStep(3);
+      setTimeout(() => router.push("/dashboard"), 1500);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Ambient glows */}
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-violet-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Grid texture */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px]" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative w-full max-w-md"
+      >
+        {/* Card */}
+        <div className="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-[0_0_60px_rgba(6,182,212,0.08)]">
+
+          <AnimatePresence mode="wait">
+            {/* ── Step 1: Welcome ── */}
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest text-cyan-400 mb-6">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  Step 1 of 2
+                </div>
+
+                <h1 className="text-3xl font-black text-white tracking-tighter mb-2">
+                  Welcome, {userName}! 👋
+                </h1>
+                <p className="text-slate-400 text-base leading-relaxed mb-8">
+                  Let's set up your workspace. This takes 30 seconds and helps GrantAI calculate your R&D tax credits accurately.
+                </p>
+
+                <div className="space-y-3 mb-8">
+                  {[
+                    { icon: "🏢", text: "Your company name for claims" },
+                    { icon: "🌍", text: "Your country for tax jurisdiction" },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 text-slate-300 text-sm">
+                      <span className="text-lg">{item.icon}</span>
+                      <span>{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setStep(2)}
+                  className="w-full h-12 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-base flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]"
+                >
+                  Let's Go <ArrowRight className="w-5 h-5" />
+                </button>
+              </motion.div>
+            )}
+
+            {/* ── Step 2: Company Form ── */}
+            {step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest text-cyan-400 mb-6">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  Step 2 of 2
+                </div>
+
+                <h2 className="text-2xl font-black text-white tracking-tighter mb-1">
+                  Your Workspace
+                </h2>
+                <p className="text-slate-400 text-sm mb-7">
+                  Tell us about your company so we can apply the right tax rules.
+                </p>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {/* Company Name */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-cyan-400" />
+                      Company Name
+                    </label>
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="Acme Technologies B.V."
+                      required
+                      className="w-full h-12 px-4 rounded-xl bg-slate-800/60 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all text-sm"
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                      Country / Jurisdiction
+                    </label>
+                    <select
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      required
+                      className="w-full h-12 px-4 rounded-xl bg-slate-800/60 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all text-sm appearance-none cursor-pointer"
+                    >
+                      <option value="" className="bg-slate-900">Select your country...</option>
+                      {COUNTRIES.map((c) => (
+                        <option key={c} value={c} className="bg-slate-900">{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {error && (
+                    <p className="text-sm text-red-400 font-medium bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2.5">
+                      {error}
+                    </p>
+                  )}
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="h-12 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition-all"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="flex-1 h-12 rounded-2xl bg-cyan-500 hover:bg-cyan-400 disabled:opacity-60 disabled:cursor-not-allowed text-slate-950 font-black text-sm flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)]"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>Create Workspace <ArrowRight className="w-4 h-4" /></>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ── Step 3: Success ── */}
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, type: "spring", bounce: 0.4 }}
+                className="text-center py-6"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.1, type: "spring", bounce: 0.6 }}
+                  className="w-20 h-20 mx-auto rounded-full bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+                >
+                  <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+                </motion.div>
+                <h2 className="text-2xl font-black text-white tracking-tighter mb-2">
+                  Workspace Created!
+                </h2>
+                <p className="text-slate-400 text-sm">
+                  Taking you to your dashboard...
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Subtle branding */}
+        <p className="text-center text-xs text-slate-600 mt-6 font-medium tracking-widest uppercase">
+          GrantAI — Code. Claim. Capital.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
