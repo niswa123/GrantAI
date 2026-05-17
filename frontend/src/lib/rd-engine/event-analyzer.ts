@@ -4,8 +4,8 @@
  * Takes an EngineeringEvent from the database, sends it through the LLM classifier,
  * and persists the result as an AnalyzedLog record.
  *
- * Uses the existing classifier from src/lib/llm/classifier.ts which supports
- * both real OpenAI API and mock classification for development.
+ * Uses the existing classifier from src/lib/llm/classifier.ts which requires
+ * a real OpenAI API key.
  */
 
 import prisma from "@/lib/prisma";
