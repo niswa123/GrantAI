@@ -151,7 +151,7 @@ export default function InputPage() {
             </div>
             <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
               Describe Your{" "}
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary">
+              <span className="text-cyan-400">
                 R&amp;D Project
               </span>
             </h1>
