@@ -111,6 +111,7 @@ export default function DashboardPage() {
 
   // Load history from DB
   const loadClaims = useCallback(async () => {
+    if (!activeWorkspace?.id) return;
     try {
       setIsLoaded(false);
       const claims = await getDashboardClaims(activeWorkspace.id);
@@ -120,7 +121,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoaded(true);
     }
-  }, [activeWorkspace.id]);
+  }, [activeWorkspace?.id]);
 
   useEffect(() => {
     loadClaims();
@@ -186,7 +187,7 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <h1 className="text-xl font-black text-white tracking-tight">
-                  {activeWorkspace.name}
+                  {activeWorkspace?.name || "Loading..."}
                   <span className="text-slate-500 font-normal text-base ml-2">/ R&amp;D Claims</span>
                 </h1>
                 <p className="text-xs text-slate-500 mt-0.5">Track and manage your R&amp;D tax credit applications</p>
@@ -205,7 +206,7 @@ export default function DashboardPage() {
                   </button>
                 )}
                 <MagicSyncButton
-                  companyId={activeWorkspace.id}
+                  companyId={activeWorkspace?.id || ""}
                   onSuccess={loadClaims}
                 />
                 <Link
