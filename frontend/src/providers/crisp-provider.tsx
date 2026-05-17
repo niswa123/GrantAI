@@ -32,6 +32,9 @@ export function CrispProvider({ children }: { children: React.ReactNode }) {
   }, [websiteId]);
 
   // Identify the logged-in user in Crisp for personalized support
+  // ⚠️ NOTE: Identifying users programmatically requires a paid Crisp plan (Starter/Mini)
+  // We'll leave this commented out so it works perfectly as an anonymous chat on the free plan!
+  /*
   useEffect(() => {
     if (!websiteId || typeof window === 'undefined') return;
     if (!session?.user) return;
@@ -53,6 +56,7 @@ export function CrispProvider({ children }: { children: React.ReactNode }) {
 
     return () => clearInterval(interval);
   }, [session, websiteId]);
+  */
 
   return <>{children}</>;
 }
