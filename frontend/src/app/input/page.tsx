@@ -156,7 +156,7 @@ export default function InputPage() {
               </span>
             </h1>
             <p className="mt-2 text-base text-slate-400">
-              Calculation for <span className="text-white font-medium">{activeWorkspace.name}</span>. Tell us what you built, enter your costs, and we&apos;ll estimate your eligible R&amp;D tax credit instantly.
+              Calculation for <span className="text-white font-medium">{activeWorkspace?.name || "your workspace"}</span>. Tell us what you built, enter your costs, and we&apos;ll estimate your eligible R&amp;D tax credit instantly.
             </p>
           </div>
 

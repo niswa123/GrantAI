@@ -80,21 +80,22 @@ export default function WorkspaceSettingsPage() {
   useEffect(() => {
     setData((d) => ({
       ...d,
-      legalName: activeWorkspace.name,
-      country: activeWorkspace.country || "Netherlands",
-      defaultHourlyRate: activeWorkspace.defaultHourlyRate ?? 50.0,
-      taxCreditRate: activeWorkspace.taxCreditRate ?? 0.14,
+      legalName: activeWorkspace?.name || "",
+      country: activeWorkspace?.country || "Netherlands",
+      defaultHourlyRate: activeWorkspace?.defaultHourlyRate ?? 50.0,
+      taxCreditRate: activeWorkspace?.taxCreditRate ?? 0.14,
     }));
     
     // Merge any other local storage data we had for this workspace (optional)
     try {
+      if (!activeWorkspace?.id) return;
       const raw = localStorage.getItem(`${STORAGE_KEY}_${activeWorkspace.id}`);
       if (raw) {
         const parsed = JSON.parse(raw);
         setData(prev => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
-  }, [activeWorkspace.id, activeWorkspace.name, activeWorkspace.country]);
+  }, [activeWorkspace?.id, activeWorkspace?.name, activeWorkspace?.country]);
 
   const update = <K extends keyof WorkspaceData>(field: K) => (value: WorkspaceData[K]) => {
     setData((d) => ({ ...d, [field]: value }));
@@ -110,12 +111,14 @@ export default function WorkspaceSettingsPage() {
     localStorage.setItem(`${STORAGE_KEY}_${activeWorkspace.id}`, JSON.stringify(data));
     
     // Update global state and DB for the fields the provider cares about
-    await updateWorkspace(activeWorkspace.id, {
-      name: data.legalName,
-      country: data.country,
-      defaultHourlyRate: data.defaultHourlyRate,
-      taxCreditRate: data.taxCreditRate,
-    });
+    if (activeWorkspace?.id) {
+      await updateWorkspace(activeWorkspace.id, {
+        name: data.legalName,
+        country: data.country,
+        defaultHourlyRate: data.defaultHourlyRate,
+        taxCreditRate: data.taxCreditRate,
+      });
+    }
     
     setSaving(false);
     setSaved(true);
