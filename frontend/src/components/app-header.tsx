@@ -42,8 +42,12 @@ function countryFlag(country: string): string {
 function WorkspaceAvatar({ ws, size = "sm" }: { ws: Workspace; size?: "sm" | "md" }) {
   const sizeClass = size === "md" ? "w-8 h-8 text-sm" : "w-6 h-6 text-xs";
   return (
-    <div className={`${sizeClass} ${ws.color} rounded-lg flex items-center justify-center font-black text-white flex-shrink-0 shadow-sm`}>
-      {ws.initials}
+    <div className={`${sizeClass} ${ws.color} rounded-lg flex items-center justify-center font-black text-white flex-shrink-0 shadow-sm overflow-hidden`}>
+      {ws.logoUrl ? (
+        <img src={ws.logoUrl} alt="Workspace Avatar" className="w-full h-full object-cover" />
+      ) : (
+        ws.initials
+      )}
     </div>
   );
 }

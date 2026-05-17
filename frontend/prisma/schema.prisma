@@ -97,6 +97,7 @@ model Company {
   id                  String   @id @default(uuid()) @db.Uuid
   user_id             String   @db.Uuid // Owner
   name                String   @db.VarChar
+  logo_url            String?  @db.Text
   country             String   @db.VarChar
   registration_number String?  @db.VarChar
   vat_number          String?  @db.VarChar

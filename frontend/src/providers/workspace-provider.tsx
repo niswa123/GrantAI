@@ -10,6 +10,7 @@ export interface Workspace {
   country: string;
   initials: string;
   color: string; // tailwind bg color class for the avatar
+  logoUrl?: string;
   defaultHourlyRate?: number;
   taxCreditRate?: number;
 }
@@ -94,7 +95,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const addWorkspace = useCallback(async (ws: Omit<Workspace, "id">) => {
     if (status !== "authenticated") return;
-    const res = await createCompany(ws.name, ws.country);
+    const res = await createCompany(ws.name, ws.country, ws.logoUrl);
     if (res.success && res.company) {
       setWorkspaces((prev) => [...prev, res.company!]);
       setActiveWorkspace(res.company!);
@@ -103,7 +104,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const updateWorkspace = useCallback(async (id: string, data: Partial<Workspace>) => {
     if (status !== "authenticated") return;
-    const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate);
+    const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate, data.logoUrl);
     if (res.success && res.company) {
       setWorkspaces((prev) => prev.map(w => w.id === id ? res.company! : w));
       setActiveWorkspaceState((prev) => prev?.id === id ? res.company! : prev);

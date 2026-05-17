@@ -26,6 +26,7 @@ export async function getUserCompanies() {
   return companies.map(c => ({
     id: c.id,
     name: c.name,
+    logoUrl: c.logo_url || undefined,
     country: c.country,
     initials: c.name.charAt(0).toUpperCase(),
     color: 'bg-cyan-500', // Generate dynamically or use fixed color
@@ -34,7 +35,7 @@ export async function getUserCompanies() {
   }));
 }
 
-export async function createCompany(name: string, country: string) {
+export async function createCompany(name: string, country: string, logoUrl?: string) {
   const session = await getServerSession(authOptions);
   
   if (!session || !(session.user as any)?.id) {
@@ -46,6 +47,7 @@ export async function createCompany(name: string, country: string) {
       data: {
         name,
         country,
+        logo_url: logoUrl,
         user_id: (session.user as any).id,
       }
     });
@@ -55,6 +57,7 @@ export async function createCompany(name: string, country: string) {
       company: {
         id: company.id,
         name: company.name,
+        logoUrl: company.logo_url || undefined,
         country: company.country,
         initials: company.name.charAt(0).toUpperCase(),
         color: 'bg-cyan-500',
@@ -67,7 +70,7 @@ export async function createCompany(name: string, country: string) {
   }
 }
 
-export async function updateCompany(id: string, name: string, country: string, defaultHourlyRate?: number, taxCreditRate?: number) {
+export async function updateCompany(id: string, name: string, country: string, defaultHourlyRate?: number, taxCreditRate?: number, logoUrl?: string) {
   const session = await getServerSession(authOptions);
   
   if (!session || !(session.user as any)?.id) {
@@ -78,6 +81,7 @@ export async function updateCompany(id: string, name: string, country: string, d
     const dataToUpdate: any = { name, country };
     if (defaultHourlyRate !== undefined) dataToUpdate.default_hourly_rate = defaultHourlyRate;
     if (taxCreditRate !== undefined) dataToUpdate.tax_credit_rate = taxCreditRate;
+    if (logoUrl !== undefined) dataToUpdate.logo_url = logoUrl;
 
     const company = await prisma.company.update({
       where: { id, user_id: (session.user as any).id },
@@ -89,6 +93,7 @@ export async function updateCompany(id: string, name: string, country: string, d
       company: {
         id: company.id,
         name: company.name,
+        logoUrl: company.logo_url || undefined,
         country: company.country,
         initials: company.name.charAt(0).toUpperCase(),
         color: 'bg-cyan-500',

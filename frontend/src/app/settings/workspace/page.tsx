@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Save, CheckCircle2, AlertCircle, ChevronDown } from "lucide-react";
+import { Building2, Save, CheckCircle2, AlertCircle, ChevronDown, Upload, RefreshCcw } from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
 
 const COUNTRIES = [
@@ -23,6 +23,7 @@ interface WorkspaceData {
   address: string;
   defaultHourlyRate: number;
   taxCreditRate: number;
+  logoUrl: string;
 }
 
 const STORAGE_KEY = "grantai_workspace";
@@ -70,6 +71,7 @@ export default function WorkspaceSettingsPage() {
     legalName: "", registrationNumber: "", vatNumber: "",
     country: "Netherlands", city: "", address: "",
     defaultHourlyRate: 50.0, taxCreditRate: 0.14,
+    logoUrl: "",
   });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -84,6 +86,7 @@ export default function WorkspaceSettingsPage() {
       country: activeWorkspace?.country || "Netherlands",
       defaultHourlyRate: activeWorkspace?.defaultHourlyRate ?? 50.0,
       taxCreditRate: activeWorkspace?.taxCreditRate ?? 0.14,
+      logoUrl: activeWorkspace?.logoUrl || "",
     }));
     
     // Merge any other local storage data we had for this workspace (optional)
@@ -103,6 +106,30 @@ export default function WorkspaceSettingsPage() {
     setSaved(false);
   };
 
+  const generateNewAvatar = () => {
+    const randomSeed = Math.random().toString(36).substring(7);
+    setData(d => ({ ...d, logoUrl: `https://api.dicebear.com/9.x/shapes/svg?seed=${randomSeed}&backgroundColor=06b6d4` }));
+    setDirty(true);
+    setSaved(false);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be under 2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      setData(d => ({ ...d, logoUrl: result }));
+      setDirty(true);
+      setSaved(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -117,6 +144,7 @@ export default function WorkspaceSettingsPage() {
         country: data.country,
         defaultHourlyRate: data.defaultHourlyRate,
         taxCreditRate: data.taxCreditRate,
+        logoUrl: data.logoUrl,
       });
     }
     
@@ -146,6 +174,34 @@ export default function WorkspaceSettingsPage() {
         onSubmit={handleSave}
         className="space-y-8"
       >
+        {/* Workspace Profile */}
+        <Section title="Workspace Profile" description="Your workspace's visual identity.">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="relative flex-shrink-0">
+              <div className="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-white/10 overflow-hidden shadow-[0_0_20px_rgba(6,182,212,0.08)] flex items-center justify-center text-xl font-bold text-slate-400">
+                {data.logoUrl ? (
+                  <img src={data.logoUrl} alt="Workspace Logo" className="w-full h-full object-cover" />
+                ) : (
+                  data.legalName.charAt(0).toUpperCase() || "?"
+                )}
+              </div>
+              <div className="absolute inset-0 rounded-2xl bg-slate-950/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                <label title="Upload logo" className="p-1.5 bg-slate-900 border border-white/10 rounded-lg text-slate-300 hover:text-cyan-400 hover:border-cyan-400/50 cursor-pointer transition-all">
+                  <Upload className="w-3.5 h-3.5" />
+                  <input type="file" accept="image/*" className="sr-only" onChange={handleFileUpload} />
+                </label>
+                <button type="button" onClick={generateNewAvatar} title="Generate random logo" className="p-1.5 bg-slate-900 border border-white/10 rounded-lg text-slate-300 hover:text-cyan-400 hover:border-cyan-400/50 transition-all">
+                  <RefreshCcw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+            <div>
+              <div className="text-base font-bold text-white">{data.legalName || "Your Workspace"}</div>
+              <div className="text-xs text-slate-600 mt-1">Hover avatar to change or generate</div>
+            </div>
+          </div>
+        </Section>
+
         {/* Legal Identity */}
         <Section title="Legal Identity" description="Details of your registered legal entity.">
           <FormField id="legalName" label="Legal Entity Name" value={data.legalName}
