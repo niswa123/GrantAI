@@ -273,7 +273,6 @@ export default function InputPage() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" />
                   <span>Calculate R&amp;D Credit</span>
                   <ArrowRight className="w-5 h-5" />
                 </>
