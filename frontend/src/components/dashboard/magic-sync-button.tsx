@@ -222,7 +222,7 @@ export function MagicSyncButton({ companyId, onSuccess }: MagicSyncButtonProps) 
                       disabled={!sources.some((s) => s.connected)}
                       className="w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Start Magic Sync ✨
+                      Start Magic Sync
                     </button>
                   </motion.div>
                 )}
