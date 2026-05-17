@@ -1,166 +1,126 @@
 <div align="center">
+  <img src="frontend/public/logo-square.png" alt="GrantAI Logo" width="120" height="120" />
+  
+  # 🚀 GrantAI
+  **The Next-Generation AI R&D Tax Credit Operating System**
 
-<!-- Hero Header with Native Emojis -->
-<h1 align="center" style="font-size: 3rem;">🚀 💸 🧠</h1>
+  [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+  [![Supabase](https://img.shields.io/badge/Supabase-DB-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-<br/>
-
-<h1 align="center">
-  <span style="color: #06B6D4;">GRANT.AI</span><br/>
-  CODE → CAPITAL<br/>
-  R&D TAX CREDITS ON AUTOPILOT
-</h1>
-
-<p align="center" style="font-size: 1.4rem;">
-  <b>The world's first fully autonomous, audit-proof R&D Tax Credit Engine.</b>
-</p>
-
-<!-- Animated Tech Stack Badges (Shields.io is extremely stable) -->
-<p align="center">
-  <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js_15-000000?style=for-the-badge&logo=next.js&logoColor=white" /></a>
-  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" /></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" /></a>
-  <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-336791?style=for-the-badge&logo=supabase&logoColor=white" /></a>
-  <a href="https://stripe.com/"><img src="https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white" /></a>
-  <a href="https://nowpayments.io/"><img src="https://img.shields.io/badge/Crypto_Payments-F3BA2F?style=for-the-badge&logo=binance&logoColor=black" /></a>
-</p>
-
----
-
+  <p align="center">
+    Automate, optimize, and secure your R&D tax credit claims with our unified AI engine. 
+    <br/><i>Less paperwork. More engineering.</i>
+  </p>
 </div>
 
-## 🌌 The Vision: Killing the $20B Consultancy Tax
+---
 
-<div align="center">
-  <i>"Engineering teams build the future. Tax consultants shouldn't take 20% of it."</i>
-</div>
+## ✨ Overview
 
-<br/>
+**GrantAI** transforms the tedious, manual process of claiming R&D tax credits into a seamless, automated pipeline. By deeply integrating with your existing engineering tools, our platform uses advanced LLMs to identify qualifying R&D activities, generate robust technical justifications, and calculate precise ROI forecasts across multiple global tax jurisdictions (WBSO, CIR, HMRC, and more).
 
-The process of claiming **Research & Development (R&D) Tax Credits** is broken. Companies either lose thousands of hours attempting it themselves or bleed **20-25%** of their return to expensive tax consultants who don't even understand the code being written.
+## 💡 Key Features
 
-**GrantAI** replaces the success-fee consultant with a strict, deterministic AI engine. We integrate natively into your DevOps pipelines to mathematically calculate and defend your R&D value in real-time.
+- 🔮 **Unified Magic Sync**  
+  One-click synchronization with **GitHub, Jira, and Linear**. We ingest commits, PRs, and tickets to build a holistic timeline of your engineering efforts.
+
+- 🧠 **AI Classification Engine**  
+  Our proprietary 2-pass LLM pipeline automatically analyzes your data against strict legal frameworks, identifying *technological uncertainty* and *scientific advancement*.
+
+- 🌍 **Multi-Jurisdiction Support**  
+  Built-in rule registries for **🇳🇱 WBSO, 🇬🇧 HMRC, 🇫🇷 CIR, 🇩🇪 Forschungszulage**, and others.
+
+- 💳 **Dual-Provider Billing**  
+  Seamless subscription management supporting both fiat (**Stripe**) and cryptocurrency (**NOWPayments**).
+
+- 🛡️ **Enterprise-Grade Security**  
+  Role-Based Access Control (RBAC), multi-tenant workspaces, and immutable audit trails for every R&D claim.
 
 ---
 
-## ⚡ Core Architecture
+## 🛠️ Technology Stack
 
-<table align="center">
-  <tr>
-    <td align="center" width="50%">
-      <h1 style="margin: 0;">💻</h1>
-      <b>1. Continuous Ingestion</b>
-      <br />
-      <p align="left">Native OAuth integrations with <b>GitHub</b>, <b>Jira</b>, and <b>Linear</b>. Silently listens to webhooks and logs your team's engineering events without disrupting their flow.</p>
-    </td>
-    <td align="center" width="50%">
-      <h1 style="margin: 0;">🕵️‍♂️</h1>
-      <b>2. Two-Pass AI Engine</b>
-      <br />
-      <p align="left">Raw logs pass through a Skeptical Auditor (Chain-of-Thought) to separate commercial boilerplate from genuine technical R&D based on OECD Frascati rules.</p>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <h1 style="margin: 0;">🧮</h1>
-      <b>3. Real-Time Math</b>
-      <br />
-      <p align="left">AI doesn't count money. GrantAI routes approved projects through a hard-coded, math-only rules engine specific to your jurisdiction (UK, FR, DE, NL, US).</p>
-    </td>
-    <td align="center" width="50%">
-      <h1 style="margin: 0;">🛡️</h1>
-      <b>4. Audit-Proof Generation</b>
-      <br />
-      <p align="left">Generates dry, highly technical, third-person defense narratives perfectly tuned for tax authority review. Zero marketing fluff. 100% compliant.</p>
-    </td>
-  </tr>
-</table>
+| Category          | Technology                                                                 |
+| ----------------- | -------------------------------------------------------------------------- |
+| **Frontend**      | Next.js 14 (App Router), React, TypeScript                                |
+| **Styling**       | Tailwind CSS, Framer Motion, Lucide Icons                                  |
+| **Backend**       | Next.js API Routes, Server Actions, Node.js                               |
+| **Database**      | PostgreSQL (Supabase), Prisma ORM                                          |
+| **Auth**          | NextAuth.js (Session management, RBAC)                                     |
+| **AI/LLM**        | DeepSeek / OpenAI via specialized `rd-engine` pipelines                    |
+| **Integrations**  | GitHub API, Jira API, Linear API                                           |
 
 ---
 
-## 🏗 System Topology
+## 🚀 Getting Started
 
-GrantAI is built as a highly scalable, asynchronous, event-driven application.
+### Prerequisites
+
+- Node.js >= 18.x
+- npm >= 9.x
+- A running Supabase instance
+
+### Local Development
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/grantai.git
+   cd grantai
+   ```
+
+2. **Install dependencies**
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+3. **Environment Setup**
+   Copy the example environment file and populate your keys:
+   ```bash
+   cp .env.example .env
+   ```
+   *(Ensure you have your `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, Stripe, and LLM API keys configured).*
+
+4. **Database Setup**
+   Push the Prisma schema to your database:
+   ```bash
+   npx prisma db push
+   npx prisma generate
+   ```
+
+5. **Start the Development Server**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+---
+
+## 🏗️ Architecture
 
 ```mermaid
 graph TD;
-    subgraph "Data Sources"
-      GH([GitHub]):::source
-      JR([Jira]):::source
-    end
-
-    subgraph "GrantAI Backend"
-      API[Next.js API Ingress]:::backend
-      ING((Job Queue)):::worker
-      AI{AI Engine}:::ai
-      FIN[Financial Rules Engine]:::backend
-    end
-
-    subgraph "Payments & Data"
-      STR([Stripe / Crypto]):::payment
-      DB[(Supabase PostgreSQL)]:::database
-    end
-
-    GH -->|Payload| API
-    JR -->|Payload| API
-
-    API -->|Event| ING
-    ING --> AI
-    AI -->|Confidence + Justification| FIN
-    FIN -->|Calculated Value| DB
-    STR -->|Webhook| API
-
-    classDef source fill:#1e293b,stroke:#334155,color:#cbd5e1;
-    classDef backend fill:#0f172a,stroke:#06b6d4,color:#f8fafc;
-    classDef worker fill:#312e81,stroke:#6366f1,color:#f8fafc;
-    classDef ai fill:#4c1d95,stroke:#a855f7,color:#f8fafc;
-    classDef database fill:#064e3b,stroke:#10b981,color:#f8fafc;
-    classDef payment fill:#635BFF,stroke:#818cf8,color:#ffffff;
+    UI[Frontend / Next.js UI] -->|Server Actions| API[Backend API]
+    API -->|OAuth/Tokens| INT[Integrations: GitHub/Jira/Linear]
+    INT -->|Raw Data| SYNC[Magic Sync Aggregator]
+    SYNC -->|Normalized Events| AI[LLM Classification Engine]
+    AI -->|Draft Claims & ROI| DB[(Supabase PostgreSQL)]
+    DB --> UI
 ```
 
 ---
 
-## 🚀 Quick Start Guide
+## 🔒 Security & Compliance
 
-> [!IMPORTANT]
-> Make sure you have **Node.js 18+**, a **PostgreSQL** database (Supabase), and your API keys ready (KIE.AI, Stripe, NOWPayments).
+GrantAI treats your intellectual property with the utmost respect. 
+- **No training:** Your source code and tickets are *never* used to train our AI models.
+- **Audit Trails:** Every claim generation step, modification, and user action is permanently logged via the `AuditLog` subsystem for tax authority reviews.
 
-### 1. Installation
-
-```bash
-cd frontend
-npm install
-```
-
-### 2. Environment Setup
-
-Create `.env` in the `frontend` directory:
-
-```env
-DATABASE_URL="postgresql://user:pass@pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://user:pass@pooler.supabase.com:5432/postgres"
-
-NEXTAUTH_SECRET="your-secure-secret"
-NEXTAUTH_URL="http://localhost:3000"
-
-KIE_API_KEY="sk-..." # Drives the Two-Pass AI Engine
-
-STRIPE_SECRET_KEY="sk_test_..."
-NOWPAYMENTS_API_KEY="..."
-```
-
-### 3. Ignite
-
-```bash
-npx prisma migrate dev --name init
-npm run prisma db seed
-npm run dev
-```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+---
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Diamond%20with%20a%20Dot.png" alt="Diamond" width="40" />
-  <p><i>Crafted with precision for the future of automated compliance.</i></p>
-  <h3><b>GrantAI — Code. Claim. Capital.</b></h3>
+  <b>Built with ❤️ by the GrantAI Engineering Team</b>
 </div>
