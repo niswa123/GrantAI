@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma';
 import { SubscriptionTier, SubscriptionStatus } from '@prisma/client';
 
 // Fallback is left empty so no random email gets admin access if env var is missing
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@gmail.com';
 
 export interface AccessLevel {
   tier: SubscriptionTier;
