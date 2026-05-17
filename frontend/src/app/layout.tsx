@@ -19,6 +19,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+import { PostHogProvider } from "@/providers/posthog-provider";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -58,19 +60,21 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SessionProvider>
-            <QueryProvider>
-              <WorkspaceProvider>
-                <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
-                  <AppHeader />
-                  <EmailVerificationBanner />
-                  <MainLayout>
-                    {children}
-                  </MainLayout>
-                </div>
-              </WorkspaceProvider>
-            </QueryProvider>
-          </SessionProvider>
+          <PostHogProvider>
+            <SessionProvider>
+              <QueryProvider>
+                <WorkspaceProvider>
+                  <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
+                    <AppHeader />
+                    <EmailVerificationBanner />
+                    <MainLayout>
+                      {children}
+                    </MainLayout>
+                  </div>
+                </WorkspaceProvider>
+              </QueryProvider>
+            </SessionProvider>
+          </PostHogProvider>
         </ThemeProvider>
       </body>
     </html>
