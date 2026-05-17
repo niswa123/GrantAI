@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import { loopsOnSubscriptionActivated, loopsOnSubscriptionCancelled } from '@/lib/loops';
+import { attioOnSubscriptionActivated, attioOnSubscriptionCancelled } from '@/lib/attio';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-04-30.basil',
@@ -159,6 +160,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const userEmail = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
   if (userEmail?.email) {
     loopsOnSubscriptionActivated({ email: userEmail.email, plan });
+    attioOnSubscriptionActivated({ email: userEmail.email, plan });
   }
 }
 
@@ -226,4 +228,5 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const userEmail = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
   if (userEmail?.email) {
     loopsOnSubscriptionCancelled(userEmail.email);
+    attioOnSubscriptionCancelled(userEmail.email);
   }
