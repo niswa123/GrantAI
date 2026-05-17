@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { WorkspaceProvider } from "@/providers/workspace-provider";
 import { SessionProvider } from "@/providers/session-provider";
+import { CrispProvider } from "@/providers/crisp-provider";
 import { AppHeader } from "@/components/app-header";
 import { MainLayout } from "@/components/main-layout";
 import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner";
@@ -62,6 +63,7 @@ export default function RootLayout({
         >
           <PostHogProvider>
             <SessionProvider>
+              <CrispProvider>
               <QueryProvider>
                 <WorkspaceProvider>
                   <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
@@ -73,6 +75,7 @@ export default function RootLayout({
                   </div>
                 </WorkspaceProvider>
               </QueryProvider>
+              </CrispProvider>
             </SessionProvider>
           </PostHogProvider>
         </ThemeProvider>
