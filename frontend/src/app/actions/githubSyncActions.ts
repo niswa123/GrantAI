@@ -3,6 +3,8 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
+import { cookies } from 'next/headers';
+
 export type GitHubSyncStatus =
   | { stage: 'idle' }
   | { stage: 'fetching' }
@@ -41,6 +43,9 @@ export async function runGitHubSync(params: {
     return { success: false, claimsCreated: 0, error: 'Unauthorized' };
   }
 
+  const cookieStore = cookies();
+  const cookieHeader = cookieStore.toString();
+
   // ── Step 1: Fetch repos + commits from GitHub ────────────────────────────────
   let syncData: {
     repos: { name: string; language: string | null; description: string | null }[];
@@ -51,7 +56,10 @@ export async function runGitHubSync(params: {
   try {
     const syncRes = await fetch(`${baseUrl}/api/integrations/github/sync`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader
+      },
       body: JSON.stringify({ companyId }),
     });
 
@@ -104,7 +112,10 @@ export async function runGitHubSync(params: {
     try {
       const calcRes = await fetch(`${baseUrl}/api/calculate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cookie': cookieHeader
+        },
         body: JSON.stringify({
           description,
           salaryCosts: Math.max(salaryCosts / reposToAnalyze.length, 1000),
