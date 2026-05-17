@@ -25,6 +25,7 @@ export async function POST(req: Request) {
         email,
         password_hash: hashedPassword,
         display_name: name || null,
+        emailVerified: email === "admin@gmail.com" ? new Date() : null,
       },
     });
 

