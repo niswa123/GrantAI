@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { loopsOnSubscriptionActivated } from '@/lib/loops';
 
 /**
  * NOWPayments IPN payload shape (partial — only fields we use).
@@ -134,6 +135,12 @@ export async function POST(request: Request) {
     console.log(
       `[NOWPayments Webhook] Granted ${tier} to user ${userId}, period ends ${periodEnd.toISOString()}`
     );
+
+    // 📣 Update Loops contact — stops "upgrade" drip, starts "power user" sequence
+    const userEmail = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (userEmail?.email) {
+      loopsOnSubscriptionActivated({ email: userEmail.email, plan: tier });
+    }
   } catch (err) {
     console.error('[NOWPayments Webhook] DB error:', err);
     // Return 500 so NOWPayments retries — we haven't granted access yet

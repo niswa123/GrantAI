@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
+import { loopsOnUserRegistered } from "@/lib/loops";
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +26,9 @@ export async function POST(req: Request) {
         display_name: name || null,
       },
     });
+
+    // 📣 Add to Loops marketing drip sequence (fire-and-forget, never blocks registration)
+    loopsOnUserRegistered({ email: user.email, name: name || undefined });
 
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });
   } catch (err: any) {

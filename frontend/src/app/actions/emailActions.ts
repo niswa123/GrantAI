@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
+import { loopsOnEmailVerified } from '@/lib/loops';
 
 // Uses Resend (https://resend.com) - install: npm install resend
 // Requires RESEND_API_KEY in .env
@@ -71,6 +72,9 @@ export async function verifyEmail(token: string) {
     where: { email: record.identifier },
     data: { emailVerified: new Date() },
   });
+
+  // 📣 Advance Loops drip sequence — stops email nudge, starts GitHub connect campaign
+  loopsOnEmailVerified(record.identifier);
 
   // Clean up token
   await prisma.verificationToken.delete({ where: { token } });
