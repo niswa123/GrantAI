@@ -1,1 +1,65 @@
-'use server';\n\nimport prisma from '@/lib/prisma';\nimport { getServerSession } from 'next-auth/next';\nimport { authOptions } from '@/lib/auth';\n\nconst UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n\nexport async function getDashboardClaims(companyId?: string) {\n  const session = await getServerSession(authOptions);\n\n  const targetCompanyId = companyId || (session?.user as any)?.defaultCompanyId;\n\n  if (!targetCompanyId || !UUID_REGEX.test(targetCompanyId)) {\n    return [];\n  }\n\n  const dbClaims = await prisma.claim.findMany({\n    where: { company_id: targetCompanyId },\n    orderBy: { created_at: 'desc' },\n  });\n\n  return dbClaims.map(c => ({\n    id: c.id,\n    date: c.created_at.toISOString(),\n    description: c.description,\n    estimatedRefund: Number(c.estimated_rd_amount || 0),\n    classification: (c.rd_score || 0) >= 0.5 ? 'R&D' : 'Not R&D',\n    confidenceScore: c.rd_score || 0,\n    totalCosts: Number(c.total_salary_cost) + Number(c.total_dev_cost),\n    salaryCosts: Number(c.total_salary_cost),\n    devCosts: Number(c.total_dev_cost),\n    status: c.status as any,\n    workspaceId: c.company_id || undefined,\n  }));\n}\n\nexport async function updateClaimStatus(claimId: string, status: string) {\n  const session = await getServerSession(authOptions);\n  if (!session) return { error: 'Unauthorized' };\n\n  try {\n    const updated = await prisma.claim.update({\n      where: { id: claimId },\n      data: { status },\n    });\n    return { success: true, status: updated.status };\n  } catch (err: any) {\n    return { error: err.message };\n  }\n}\n\nexport async function deleteClaim(claimId: string) {\n  const session = await getServerSession(authOptions);\n  if (!session) return { error: 'Unauthorized' };\n\n  try {\n    await prisma.claim.delete({\n      where: { id: claimId },\n    });\n    return { success: true };\n  } catch (err: any) {\n    return { error: err.message };\n  }\n}\n
+'use server';
+
+import prisma from '@/lib/prisma';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getDashboardClaims(companyId?: string) {
+  const session = await getServerSession(authOptions);
+
+  const targetCompanyId = companyId || (session?.user as any)?.defaultCompanyId;
+
+  if (!targetCompanyId || !UUID_REGEX.test(targetCompanyId)) {
+    return [];
+  }
+
+  const dbClaims = await prisma.claim.findMany({
+    where: { company_id: targetCompanyId },
+    orderBy: { created_at: 'desc' },
+  });
+
+  return dbClaims.map(c => ({
+    id: c.id,
+    date: c.created_at.toISOString(),
+    description: c.description,
+    estimatedRefund: Number(c.estimated_rd_amount || 0),
+    classification: (c.rd_score || 0) >= 0.5 ? 'R&D' : 'Not R&D',
+    confidenceScore: c.rd_score || 0,
+    totalCosts: Number(c.total_salary_cost) + Number(c.total_dev_cost),
+    salaryCosts: Number(c.total_salary_cost),
+    devCosts: Number(c.total_dev_cost),
+    status: c.status as any,
+    workspaceId: c.company_id || undefined,
+  }));
+}
+
+export async function updateClaimStatus(claimId: string, status: string) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: 'Unauthorized' };
+
+  try {
+    const updated = await prisma.claim.update({
+      where: { id: claimId },
+      data: { status },
+    });
+    return { success: true, status: updated.status };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+export async function deleteClaim(claimId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session) return { error: 'Unauthorized' };
+
+  try {
+    await prisma.claim.delete({
+      where: { id: claimId },
+    });
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
