@@ -108,14 +108,16 @@ Output ONLY valid JSON:
 }`;
 
 const CRITIQUE_USER = (description: string, initialResult: RdClassificationResult): string => {
+  const noveltyJustification = initialResult.criteria_scores?.novelty?.justification ?? "Not available";
+  const uncertaintyJustification = initialResult.criteria_scores?.technical_uncertainty?.justification ?? "Not available";
   return `PROJECT DESCRIPTION:
 "${description}"
 
 INITIAL CLASSIFICATION (By junior analyst):
 - Score: ${initialResult.rd_score}
 - Eligible: ${initialResult.is_rd_eligible}
-- Novelty Justification: ${initialResult.criteria_scores.novelty.justification}
-- Uncertainty Justification: ${initialResult.criteria_scores.technical_uncertainty.justification}
+- Novelty Justification: ${noveltyJustification}
+- Uncertainty Justification: ${uncertaintyJustification}
 
 Critique this classification. Are they too generous? Are they confusing complex business logic with genuine technological uncertainty?`;
 };
@@ -147,14 +149,14 @@ COMPANY PROJECT DESCRIPTION:
 "${description}"
 
 AI CLASSIFICATION ANALYSIS (use this as your technical basis):
-- R&D Score: ${classification.rd_score.toFixed(2)}
-- Key Innovations: ${JSON.stringify(classification.key_innovations)}
-- Technical Uncertainty Evidence: ${classification.criteria_scores.technical_uncertainty.justification}
-- Technological Baseline: ${classification.step_by_step_analysis["1_identify_baseline"]}
-- Technological Advance Identified: ${classification.step_by_step_analysis["2_identify_advance"]}
-- Core Uncertainty: ${classification.step_by_step_analysis["3_identify_uncertainty"]}
-- Methodology: ${classification.step_by_step_analysis["4_evaluate_methodology"]}
-- Risk Flags to address: ${JSON.stringify(classification.risk_flags)}
+- R&D Score: ${classification.rd_score?.toFixed?.(2) ?? '0.00'}
+- Key Innovations: ${JSON.stringify(classification.key_innovations ?? [])}
+- Technical Uncertainty Evidence: ${classification.criteria_scores?.technical_uncertainty?.justification ?? 'Not available'}
+- Technological Baseline: ${classification.step_by_step_analysis?.["1_identify_baseline"] ?? 'Not available'}
+- Technological Advance Identified: ${classification.step_by_step_analysis?.["2_identify_advance"] ?? 'Not available'}
+- Core Uncertainty: ${classification.step_by_step_analysis?.["3_identify_uncertainty"] ?? 'Not available'}
+- Methodology: ${classification.step_by_step_analysis?.["4_evaluate_methodology"] ?? 'Not available'}
+- Risk Flags to address: ${JSON.stringify(classification.risk_flags ?? [])}
 
 EXPENDITURE SUMMARY:
 - Staff/Salary costs: ${salary.toLocaleString("en-GB", { style: "currency", currency: rules.currency })}
@@ -325,9 +327,31 @@ async function runClassificationPass(
     throw new Error(`R&D classification failed: ${msg}`);
   }
 
+  // Normalize: LLM may return incomplete or differently shaped criteria_scores
+  if (!classification.criteria_scores || typeof classification.criteria_scores !== 'object') {
+    classification.criteria_scores = {} as any;
+  }
+  const defaultCriterion = { score: 0, justification: "Not provided by model" };
+  const requiredKeys: Array<keyof typeof classification.criteria_scores> = [
+    'novelty', 'technical_uncertainty', 'systematic_approach', 'transferability', 'creative_element'
+  ];
+  for (const key of requiredKeys) {
+    if (!classification.criteria_scores[key] || typeof classification.criteria_scores[key] !== 'object') {
+      classification.criteria_scores[key] = { ...defaultCriterion };
+    }
+  }
+
+  // Ensure other required arrays exist
+  classification.key_innovations = classification.key_innovations ?? [];
+  classification.disqualifying_factors_found = classification.disqualifying_factors_found ?? [];
+  classification.risk_flags = classification.risk_flags ?? [];
+  classification.recommended_evidence = classification.recommended_evidence ?? [];
+  classification.rd_score = classification.rd_score ?? 0;
+  classification.is_rd_eligible = classification.is_rd_eligible ?? false;
+
   // Validate critical fields
   classification.rd_score = clampScore(classification.rd_score);
-  for (const key of Object.keys(classification.criteria_scores) as Array<keyof typeof classification.criteria_scores>) {
+  for (const key of requiredKeys) {
     classification.criteria_scores[key].score = clampScore(classification.criteria_scores[key].score);
   }
 
