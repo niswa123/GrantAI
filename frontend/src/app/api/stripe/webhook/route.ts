@@ -230,3 +230,4 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     loopsOnSubscriptionCancelled(userEmail.email);
     attioOnSubscriptionCancelled(userEmail.email);
   }
+}
