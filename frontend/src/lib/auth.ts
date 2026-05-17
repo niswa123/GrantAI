@@ -160,6 +160,6 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'supersecret_fallback',
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
