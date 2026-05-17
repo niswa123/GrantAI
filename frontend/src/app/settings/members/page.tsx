@@ -206,6 +206,7 @@ export default function MembersPage() {
   const [isPending, startTransition] = useTransition();
 
   const load = useCallback(async () => {
+    if (!activeWorkspace?.id) return;
     setLoading(true);
     try {
       const data = await getCompanyMembers(activeWorkspace.id);
@@ -213,11 +214,12 @@ export default function MembersPage() {
     } catch { /* ignore */ } finally {
       setLoading(false);
     }
-  }, [activeWorkspace.id]);
+  }, [activeWorkspace?.id]);
 
   useEffect(() => { load(); }, [load]);
 
   const handleInvite = async (email: string, role: MemberRole) => {
+    if (!activeWorkspace?.id) return;
     const result = await inviteMember(activeWorkspace.id, email, role);
     if ("error" in result) throw new Error(result.error);
     if (result.member) {

@@ -20,6 +20,7 @@ export default function EventsPage() {
   const [bulkResult, setBulkResult] = useState<{ analyzed: number; failed: number } | null>(null);
 
   const loadEvents = useCallback(async () => {
+    if (!activeWorkspace?.id) return;
     setIsLoading(true);
     try {
       const res = await getCompanyEvents(activeWorkspace.id, { pageSize: 50 });
@@ -31,7 +32,7 @@ export default function EventsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [activeWorkspace.id]);
+  }, [activeWorkspace?.id]);
 
   useEffect(() => {
     loadEvents();
@@ -61,6 +62,7 @@ export default function EventsPage() {
   };
 
   const handleBulkAnalyze = async () => {
+    if (!activeWorkspace?.id) return;
     setIsBulkAnalyzing(true);
     setBulkResult(null);
     try {
