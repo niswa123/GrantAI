@@ -147,7 +147,6 @@ function WorkspaceSwitcher() {
               >
                 <Settings className="w-4 h-4" />
                 Workspace Settings
-                <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-50" />
               </Link>
               <button
                 onClick={() => { setOpen(false); setCreateOpen(true); }}
