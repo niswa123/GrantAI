@@ -10,6 +10,8 @@ import { BeforeAfterSection } from "@/components/before-after";
 import { motion, useMotionValue, useTransform, animate, useInView, useScroll } from "framer-motion";
 import { ArrowRight, Clock, FileText, AlertCircle, Brain, Zap, ShieldCheck, Cpu, Sparkles, Database, Activity, Terminal, GitBranch, GitCommit, Cloud, LayoutGrid, ListTodo, Server, CreditCard, Bitcoin, X, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
+import { Logo } from "@/components/ui/logo";
+import { SiteFooter } from "@/components/site-footer";
 
 function AnimatedCounter({ from, to, duration = 2, delay = 0, isDecimal = false }: { from: number, to: number, duration?: number, delay?: number, isDecimal?: boolean }) {
   const count = useMotionValue(from);
@@ -159,7 +161,9 @@ export default function Home() {
               <div className="absolute inset-[-150px] border border-cyan-500/5 rounded-full animate-[spin_15s_linear_infinite_reverse] border-dashed" />
               <div className="absolute inset-[-220px] border border-white/5 rounded-full animate-[spin_20s_linear_infinite]" />
               <div className="w-32 h-32 rounded-full bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center animate-[pulse_3s_ease-in-out_infinite] shadow-[inset_0_0_30px_rgba(255,255,255,0.4)] relative">
-                <span className="text-white font-black text-3xl tracking-tighter drop-shadow-lg relative z-10">GrantAI</span>
+                <div className="relative z-10 drop-shadow-lg scale-[1.5]">
+                  <Logo showText={false} className="w-10 h-10" />
+                </div>
                 <div className="absolute inset-0 bg-white/20 rounded-full blur-md" />
               </div>
             </motion.div>
@@ -228,7 +232,9 @@ export default function Home() {
             {/* CENTER CORE */}
             <div className="absolute z-20 flex items-center justify-center" style={{ width: 96, height: 96, borderRadius: '50%', background: 'rgba(2,6,23,0.95)', border: '1px solid rgba(6,182,212,0.5)', boxShadow: '0 0 50px rgba(6,182,212,0.5), 0 0 100px rgba(6,182,212,0.2)' }}>
               <div className="animate-pulse flex items-center justify-center" style={{ width: 68, height: 68, borderRadius: '50%', background: 'linear-gradient(135deg, #0891b2, #22d3ee)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.3), 0 0 30px rgba(6,182,212,0.6)' }}>
-                <span style={{ color: 'white', fontWeight: 900, fontSize: 10, letterSpacing: '-0.02em' }}>GrantAI</span>
+                <div className="relative z-10 scale-[0.6]">
+                  <Logo showText={false} className="w-8 h-8" />
+                </div>
               </div>
             </div>
 
@@ -1097,6 +1103,7 @@ export default function Home() {
         </div>
       )}
 
+      <SiteFooter />
     </MainLayout>
   );
 }

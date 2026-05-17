@@ -6,6 +6,7 @@ import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation"
 import { Menu, X } from "lucide-react"
+import { Logo } from "./ui/logo"
 
 export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -58,16 +59,8 @@ export function Navbar() {
           }`}
       >
         <div className={`glass rounded-full flex items-center justify-between transition-all duration-500 ease-out overflow-hidden ${isScrolled ? "px-3 sm:px-4 py-2 bg-slate-950/80 backdrop-blur-xl border-white/10" : "px-3 sm:px-6 py-2.5 sm:py-3 bg-slate-900/30 backdrop-blur-md border-white/5"}`}>
-          <Link href="/" className={`${isScrolled ? "text-base sm:text-lg" : "text-lg sm:text-xl"} font-bold tracking-tighter flex items-center gap-2 transition-all flex-shrink-0`}>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-[10px] bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)] flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400">
-                <path d="m12 3-8 4v10l8 4 8-4V7z"></path>
-                <path d="m12 11 8-4"></path>
-                <path d="m12 11-8-4"></path>
-                <path d="m12 11v10"></path>
-              </svg>
-            </div>
-            <span className="hidden xs:inline truncate">GrantAI</span>
+          <Link href="/" className="flex items-center gap-2 transition-all flex-shrink-0">
+            <Logo className="w-7 h-7 sm:w-8 sm:h-8" showText textSize="text-lg sm:text-xl" />
           </Link>
           
           {/* Desktop Menu */}

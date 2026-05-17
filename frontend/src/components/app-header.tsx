@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useWorkspace, type Workspace } from "@/providers/workspace-provider";
 import { useSession, signOut } from "next-auth/react";
+import { Logo } from "./ui/logo";
 
 // ── Shared Config ──────────────────────────────────────────────────────────
 
@@ -361,15 +362,7 @@ export function AppHeader() {
         <div className="flex items-center gap-3">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 group flex-shrink-0">
-            <div className="w-7 h-7 rounded-[8px] bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center group-hover:shadow-[0_0_12px_rgba(6,182,212,0.3)] transition-shadow">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 text-cyan-400">
-                <path d="m12 3-8 4v10l8 4 8-4V7z" />
-                <path d="m12 11 8-4" />
-                <path d="m12 11-8-4" />
-                <path d="m12 11v10" />
-              </svg>
-            </div>
-            <span className="text-sm font-black text-white tracking-tight hidden sm:block">GrantAI</span>
+            <Logo className="w-7 h-7 sm:w-8 sm:h-8" showText textSize="text-sm sm:text-base hidden sm:block" />
           </Link>
 
           {/* Divider */}

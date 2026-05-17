@@ -7,6 +7,7 @@ import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, ArrowRight, Lock, Mail } from "lucide-react";
 import { registerUser } from "@/app/actions/authActions";
+import { Logo } from "@/components/ui/logo";
 import { Turnstile } from "@/components/turnstile";
 
 // ── Icons ─────────────────────────────────────────────────────────────────
@@ -149,8 +150,9 @@ export default function RegisterPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center mb-5"
+          className="text-center mb-5 flex flex-col items-center"
         >
+          <Logo className="w-12 h-12 mb-6" showText={false} />
           <h1 className="text-2xl font-black text-white tracking-tight mb-1">
             Create an account
           </h1>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
 import { LayoutDashboard, Calculator, FileOutput, Settings, BrainCircuit } from "lucide-react";
+import { Logo } from "./ui/logo";
 
 const navItems = [
   {
@@ -61,28 +62,9 @@ export function AppNav() {
         {/* Logo */}
         <Link
           href="/dashboard"
-          className={`${
-            isScrolled ? "text-lg" : "text-xl"
-          } font-bold tracking-tighter flex items-center gap-2 transition-all hover:scale-105 duration-300`}
+          className="flex items-center gap-2 transition-all hover:scale-105 duration-300 flex-shrink-0"
         >
-          <div className="w-8 h-8 rounded-[10px] bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-4 h-4 text-cyan-400"
-            >
-              <path d="m12 3-8 4v10l8 4 8-4V7z"></path>
-              <path d="m12 11 8-4"></path>
-              <path d="m12 11-8-4"></path>
-              <path d="m12 11v10"></path>
-            </svg>
-          </div>
-          <span className="text-white">GrantAI</span>
+          <Logo className="w-8 h-8" showText textSize={isScrolled ? "text-lg" : "text-xl"} />
         </Link>
 
         {/* Navigation Links */}

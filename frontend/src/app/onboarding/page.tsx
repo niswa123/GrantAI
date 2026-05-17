@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createCompany } from "@/app/actions/companyActions";
 import { ArrowRight, Building2, Globe, Loader2, CheckCircle2 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 const COUNTRIES = [
   "Netherlands", "United Kingdom", "France", "Germany",
@@ -229,9 +230,12 @@ export default function OnboardingPage() {
         </div>
 
         {/* Subtle branding */}
-        <p className="text-center text-xs text-slate-600 mt-6 font-medium tracking-widest uppercase">
-          GrantAI — Code. Claim. Capital.
-        </p>
+        <div className="flex flex-col items-center gap-3 mt-6">
+          <Logo className="w-6 h-6 opacity-40 hover:opacity-100 transition-opacity" showText textSize="text-sm opacity-50" />
+          <p className="text-center text-[10px] text-slate-600 font-bold tracking-widest uppercase">
+            Code. Claim. Capital.
+          </p>
+        </div>
       </motion.div>
     </div>
   );
