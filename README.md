@@ -1,21 +1,21 @@
 <div align="center">
 
-<!-- Hero Header with Animated Emojis -->
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Rocket.png" alt="Rocket" width="80" height="80" />
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Money%20with%20Wings.png" alt="Money" width="100" height="100" />
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Brain.png" alt="Brain" width="80" height="80" />
+<!-- Hero Header with Native Emojis -->
+<h1 align="center" style="font-size: 3rem;">🚀 💸 🧠</h1>
 
 <br/>
 
 <h1 align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=900&size=48&duration=4000&pause=1000&color=06B6D4&center=true&vCenter=true&width=600&height=80&lines=GRANT.AI;CODE+→+CAPITAL;R%26D+TAX+CREDITS;AUTOPILOT+ON" alt="Typing SVG" />
+  <span style="color: #06B6D4;">GRANT.AI</span><br/>
+  CODE → CAPITAL<br/>
+  R&D TAX CREDITS ON AUTOPILOT
 </h1>
 
 <p align="center" style="font-size: 1.4rem;">
   <b>The world's first fully autonomous, audit-proof R&D Tax Credit Engine.</b>
 </p>
 
-<!-- Animated Tech Stack Badges -->
+<!-- Animated Tech Stack Badges (Shields.io is extremely stable) -->
 <p align="center">
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js_15-000000?style=for-the-badge&logo=next.js&logoColor=white" /></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" /></a>
@@ -25,7 +25,7 @@
   <a href="https://nowpayments.io/"><img src="https://img.shields.io/badge/Crypto_Payments-F3BA2F?style=for-the-badge&logo=binance&logoColor=black" /></a>
 </p>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+---
 
 </div>
 
@@ -48,15 +48,13 @@ The process of claiming **Research & Development (R&D) Tax Credits** is broken. 
 <table align="center">
   <tr>
     <td align="center" width="50%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Laptop.png" width="60" />
-      <br />
+      <h1 style="margin: 0;">💻</h1>
       <b>1. Continuous Ingestion</b>
       <br />
       <p align="left">Native OAuth integrations with <b>GitHub</b>, <b>Jira</b>, and <b>Linear</b>. Silently listens to webhooks and logs your team's engineering events without disrupting their flow.</p>
     </td>
     <td align="center" width="50%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Magnifying%20Glass%20Tilted%20Right.png" width="60" />
-      <br />
+      <h1 style="margin: 0;">🕵️‍♂️</h1>
       <b>2. Two-Pass AI Engine</b>
       <br />
       <p align="left">Raw logs pass through a Skeptical Auditor (Chain-of-Thought) to separate commercial boilerplate from genuine technical R&D based on OECD Frascati rules.</p>
@@ -64,15 +62,13 @@ The process of claiming **Research & Development (R&D) Tax Credits** is broken. 
   </tr>
   <tr>
     <td align="center" width="50%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Abacus.png" width="60" />
-      <br />
+      <h1 style="margin: 0;">🧮</h1>
       <b>3. Real-Time Math</b>
       <br />
       <p align="left">AI doesn't count money. GrantAI routes approved projects through a hard-coded, math-only rules engine specific to your jurisdiction (UK, FR, DE, NL, US).</p>
     </td>
     <td align="center" width="50%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Shield.png" width="60" />
-      <br />
+      <h1 style="margin: 0;">🛡️</h1>
       <b>4. Audit-Proof Generation</b>
       <br />
       <p align="left">Generates dry, highly technical, third-person defense narratives perfectly tuned for tax authority review. Zero marketing fluff. 100% compliant.</p>
@@ -80,7 +76,7 @@ The process of claiming **Research & Development (R&D) Tax Credits** is broken. 
   </tr>
 </table>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%">
+---
 
 ## 🏗 System Topology
 
