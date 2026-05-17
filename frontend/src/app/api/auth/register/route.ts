@@ -17,35 +17,14 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user and a default workspace for them in a single transaction
+    // Create the user only — company is created during the /onboarding flow
     const user = await prisma.user.create({
       data: {
         email,
         password_hash: hashedPassword,
         display_name: name || null,
-        companies: {
-          create: {
-            name: name ? `${name}'s Workspace` : "My Workspace",
-            country: "Netherlands", // Default mock country
-          }
-        }
       },
-      include: {
-        companies: true
-      }
     });
-
-    // Automatically add the user as an Admin in the CompanyMember table for their own company
-    if (user.companies.length > 0) {
-      await prisma.companyMember.create({
-        data: {
-          user_id: user.id,
-          company_id: user.companies[0].id,
-          role: "Admin",
-          status: "Active"
-        }
-      });
-    }
 
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });
   } catch (err: any) {
@@ -53,3 +32,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
   }
 }
+

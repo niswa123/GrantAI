@@ -50,11 +50,9 @@ const PROVIDERS = [
   },
 ];
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const isRealUuid = (id: string) => UUID_REGEX.test(id);
 
 export default function IntegrationsPage() {
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, isLoading: workspaceLoading } = useWorkspace();
   const searchParams = useSearchParams();
   
   const [integrations, setIntegrations] = useState<Integration[]>([]);
@@ -63,8 +61,8 @@ export default function IntegrationsPage() {
   
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // True only when the workspace provider has finished hydrating from DB
-  const hasRealId = isRealUuid(activeWorkspace?.id ?? "");
+  // Ready only when we have a real workspace loaded from DB
+  const workspaceReady = !workspaceLoading && !!activeWorkspace;
 
   useEffect(() => {
     // Show toast from OAuth redirects
@@ -75,8 +73,7 @@ export default function IntegrationsPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    // Wait until we have a real UUID from the DB (not mock ws_1)
-    if (!hasRealId) {
+    if (!workspaceReady) {
       setLoading(false);
       return;
     }
@@ -84,7 +81,7 @@ export default function IntegrationsPage() {
     async function fetchIntegrations() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/integrations?companyId=${activeWorkspace.id}`);
+        const res = await fetch(`/api/integrations?companyId=${activeWorkspace!.id}`);
         if (res.ok) {
           const data = await res.json();
           setIntegrations(data.integrations || []);
@@ -97,10 +94,10 @@ export default function IntegrationsPage() {
     }
 
     fetchIntegrations();
-  }, [activeWorkspace?.id, hasRealId]);
+  }, [activeWorkspace?.id, workspaceReady]);
 
   const handleConnect = (providerId: string) => {
-    if (!hasRealId) return;
+    if (!workspaceReady || !activeWorkspace) return;
     setActionLoading(providerId);
     window.location.href = `/api/integrations/${providerId}/connect?companyId=${activeWorkspace.id}`;
   };
@@ -229,12 +226,12 @@ export default function IntegrationsPage() {
                   ) : (
                     <button
                       onClick={() => handleConnect(provider.id)}
-                      disabled={isLoading || !hasRealId}
-                      title={!hasRealId ? "Loading workspace..." : undefined}
+                      disabled={isLoading || !workspaceReady}
+                      title={!workspaceReady ? "Loading workspace..." : undefined}
                       className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                     >
                       {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
-                      {hasRealId ? "Connect" : "Loading..."}
+                      {workspaceReady ? "Connect" : "Loading..."}
                     </button>
                   )}
                 </div>

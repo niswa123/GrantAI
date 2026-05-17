@@ -50,7 +50,7 @@ function WorkspaceAvatar({ ws, size = "sm" }: { ws: Workspace; size?: "sm" | "md
 // ── WorkspaceSwitcher Dropdown ─────────────────────────────────────────────
 
 function WorkspaceSwitcher() {
-  const { workspaces, activeWorkspace, setActiveWorkspace, addWorkspace } = useWorkspace();
+  const { workspaces, activeWorkspace, isLoading, setActiveWorkspace, addWorkspace } = useWorkspace();
   const [open, setOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -80,6 +80,16 @@ function WorkspaceSwitcher() {
       setIsCreating(false);
     }
   };
+
+  // While loading or no workspace yet — show a skeleton pill
+  if (isLoading || !activeWorkspace) {
+    return (
+      <div className="flex items-center gap-2 px-2.5 py-1.5">
+        <div className="w-6 h-6 rounded-lg bg-slate-700 animate-pulse" />
+        <div className="hidden sm:block w-24 h-3.5 rounded bg-slate-700 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div ref={ref} className="relative">
@@ -121,7 +131,7 @@ function WorkspaceSwitcher() {
                       {countryFlag(ws.country)} {ws.country}
                     </p>
                   </div>
-                  {ws.id === activeWorkspace.id && (
+                  {ws.id === activeWorkspace?.id && (
                     <Check className="w-4 h-4 text-cyan-400 flex-shrink-0" />
                   )}
                 </button>

@@ -24,10 +24,10 @@ export async function GET(request: Request) {
     );
   }
 
-  // Reject mock/non-UUID IDs (e.g. "ws_1") before hitting Prisma
+  // Reject non-UUID IDs before hitting Prisma
   const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!UUID_REGEX.test(companyId)) {
-    return NextResponse.json({ integrations: [] }, { status: 200 });
+    return NextResponse.json({ error: "Invalid companyId format" }, { status: 400 });
   }
 
   // Verify company belongs to the requesting user

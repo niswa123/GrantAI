@@ -16,7 +16,8 @@ export interface Workspace {
 
 interface WorkspaceContextType {
   workspaces: Workspace[];
-  activeWorkspace: Workspace;
+  activeWorkspace: Workspace | null;
+  isLoading: boolean;
   setActiveWorkspace: (ws: Workspace) => void;
   addWorkspace: (ws: Omit<Workspace, "id">) => Promise<void>;
   updateWorkspace: (id: string, data: Partial<Workspace>) => Promise<void>;
@@ -25,21 +26,6 @@ interface WorkspaceContextType {
 import { useSession } from "next-auth/react";
 import { getUserCompanies, createCompany, updateCompany } from "@/app/actions/companyActions";
 
-// ── Default Mocked Data ────────────────────────────────────────────────────
-
-const DEFAULT_WORKSPACES: Workspace[] = [
-  {
-    id: "ws_1",
-    name: "My Workspace",
-    country: "Netherlands",
-    initials: "M",
-    color: "bg-violet-500",
-    defaultHourlyRate: 50.0,
-    taxCreditRate: 0.14,
-  },
-];
-
-const LS_KEY = "grantai_workspaces";
 const LS_ACTIVE_KEY = "grantai_active_workspace";
 
 // ── Context ────────────────────────────────────────────────────────────────
@@ -47,56 +33,57 @@ const LS_ACTIVE_KEY = "grantai_active_workspace";
 const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-  const [workspaces, setWorkspaces] = useState<Workspace[]>(DEFAULT_WORKSPACES);
-  const [activeWorkspace, setActiveWorkspaceState] = useState<Workspace>(DEFAULT_WORKSPACES[0]);
+  const { status } = useSession();
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [activeWorkspace, setActiveWorkspaceState] = useState<Workspace | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Hydrate from DB on mount or auth change
   useEffect(() => {
     async function loadCompanies() {
-      if (status === "loading") return; // Wait for auth to resolve
+      if (status === "loading") return;
 
       if (status === "authenticated") {
+        setIsLoading(true);
         try {
           const dbCompanies = await getUserCompanies();
           if (dbCompanies.length > 0) {
             setWorkspaces(dbCompanies);
-            
-            // Try to restore active from local storage — but ONLY if it's a real UUID
+
+            // Restore last-used workspace from localStorage (UUID only)
             const savedActiveId = localStorage.getItem(LS_ACTIVE_KEY);
-            const isRealUuid = savedActiveId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(savedActiveId);
-            const found = isRealUuid ? dbCompanies.find(c => c.id === savedActiveId) : null;
-            
+            const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            const isValidUuid = savedActiveId && UUID_REGEX.test(savedActiveId);
+            const found = isValidUuid ? dbCompanies.find(c => c.id === savedActiveId) : null;
+
             if (found) {
               setActiveWorkspaceState(found);
             } else {
-              // Clear any stale mock IDs (ws_1, etc.)
+              // Clear any stale IDs and default to first real company
               localStorage.removeItem(LS_ACTIVE_KEY);
-              localStorage.removeItem(LS_KEY);
               setActiveWorkspaceState(dbCompanies[0]);
               localStorage.setItem(LS_ACTIVE_KEY, dbCompanies[0].id);
             }
+          } else {
+            // User has no companies yet — will be redirected to /onboarding by middleware
+            setWorkspaces([]);
+            setActiveWorkspaceState(null);
           }
         } catch (e) {
-          console.error("Failed to load DB companies");
+          console.error("[WorkspaceProvider] Failed to load companies from DB:", e);
+          setWorkspaces([]);
+          setActiveWorkspaceState(null);
+        } finally {
+          setIsLoading(false);
         }
       } else if (status === "unauthenticated") {
-        try {
-          const savedWs = localStorage.getItem(LS_KEY);
-          const savedActiveId = localStorage.getItem(LS_ACTIVE_KEY);
-          const list: Workspace[] = savedWs ? JSON.parse(savedWs) : DEFAULT_WORKSPACES;
-          setWorkspaces(list);
-          if (savedActiveId) {
-            const found = list.find((w) => w.id === savedActiveId);
-            if (found) setActiveWorkspaceState(found);
-          }
-        } catch {
-          setWorkspaces(DEFAULT_WORKSPACES);
-          setActiveWorkspaceState(DEFAULT_WORKSPACES[0]);
-        }
+        // Not logged in — clear state
+        setWorkspaces([]);
+        setActiveWorkspaceState(null);
+        setIsLoading(false);
       }
     }
-    
+
     loadCompanies();
   }, [status]);
 
@@ -106,49 +93,25 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addWorkspace = useCallback(async (ws: Omit<Workspace, "id">) => {
-    if (status === "authenticated") {
-      const res = await createCompany(ws.name, ws.country);
-      if (res.success && res.company) {
-        setWorkspaces((prev) => [...prev, res.company!]);
-        setActiveWorkspace(res.company!);
-      }
-    } else {
-      const newWs: Workspace = { ...ws, id: `ws_${Date.now()}` };
-      setWorkspaces((prev) => {
-        const next = [...prev, newWs];
-        localStorage.setItem(LS_KEY, JSON.stringify(next));
-        return next;
-      });
-      setActiveWorkspace(newWs);
+    if (status !== "authenticated") return;
+    const res = await createCompany(ws.name, ws.country);
+    if (res.success && res.company) {
+      setWorkspaces((prev) => [...prev, res.company!]);
+      setActiveWorkspace(res.company!);
     }
   }, [status, setActiveWorkspace]);
 
   const updateWorkspace = useCallback(async (id: string, data: Partial<Workspace>) => {
-    if (status === "authenticated") {
-      const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate);
-      if (res.success && res.company) {
-        setWorkspaces((prev) => prev.map(w => w.id === id ? res.company! : w));
-        setActiveWorkspaceState((prev) => prev.id === id ? res.company! : prev);
-      }
-    } else {
-      const updatedData = {
-        ...data,
-        initials: data.name ? data.name.charAt(0).toUpperCase() : undefined,
-      };
-      setWorkspaces((prev) => {
-        const next = prev.map(w => w.id === id ? { ...w, ...updatedData, initials: updatedData.initials ?? w.initials } : w);
-        localStorage.setItem(LS_KEY, JSON.stringify(next));
-        return next;
-      });
-      setActiveWorkspaceState((prev) => {
-        const next = prev.id === id ? { ...prev, ...updatedData, initials: updatedData.initials ?? prev.initials } : prev;
-        return next;
-      });
+    if (status !== "authenticated") return;
+    const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate);
+    if (res.success && res.company) {
+      setWorkspaces((prev) => prev.map(w => w.id === id ? res.company! : w));
+      setActiveWorkspaceState((prev) => prev?.id === id ? res.company! : prev);
     }
   }, [status]);
 
   return (
-    <WorkspaceContext.Provider value={{ workspaces, activeWorkspace, setActiveWorkspace, addWorkspace, updateWorkspace }}>
+    <WorkspaceContext.Provider value={{ workspaces, activeWorkspace, isLoading, setActiveWorkspace, addWorkspace, updateWorkspace }}>
       {children}
     </WorkspaceContext.Provider>
   );

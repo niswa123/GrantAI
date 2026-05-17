@@ -2,8 +2,8 @@
  * LLM Classifier — Strict R&D classification of daily work logs.
  *
  * Architecture:
- * - If OPENAI_API_KEY is set → calls OpenAI-compatible API
- * - If no key → uses intelligent mock for development/demo
+ * - Calls OpenAI-compatible API using OPENAI_API_KEY from environment.
+ * - If OPENAI_API_KEY is missing, throws a hard error. No silent fallbacks in production.
  *
  * The system prompt is specifically designed for the "Daily R&D Value Flow" use case:
  * classify whether an engineer's daily work log describes R&D activity.
@@ -101,13 +101,15 @@ interface OpenAIResponse {
 }
 
 async function callLlmApi(workLogText: string): Promise<LlmClassificationResult> {
-  const apiKey = process.env.OPENAI_API_KEY || '';
+  const apiKey = process.env.OPENAI_API_KEY;
   const baseUrl = process.env.LLM_BASE_URL || 'https://api.openai.com/v1';
   const model = process.env.LLM_MODEL || 'gpt-4o-mini';
 
   if (!apiKey) {
-    console.warn('[LLM] No OPENAI_API_KEY set. Using mock classifier.');
-    return mockClassify(workLogText);
+    throw new Error(
+      '[LLM] OPENAI_API_KEY is not set. ' +
+      'Add OPENAI_API_KEY to your environment variables before using the R&D classifier.'
+    );
   }
 
   const userMessage = USER_PROMPT_TEMPLATE.replace('{work_log}', workLogText);
@@ -156,93 +158,6 @@ async function callLlmApi(workLogText: string): Promise<LlmClassificationResult>
       creativeElement: normalizeScore(parsed.criteria_scores?.creative_element),
     },
     model: result.model || model,
-  };
-}
-
-// ─── Mock Classifier (for development without API key) ──────────────────────
-
-function mockClassify(text: string): LlmClassificationResult {
-  const lower = text.toLowerCase();
-
-  // Keyword heuristics for mock classification
-  const rdKeywords = [
-    'algorithm', 'research', 'prototype', 'experiment', 'novel', 'innovative',
-    'hypothesis', 'architecture', 'machine learning', 'ml', 'ai', 'neural',
-    'optimization', 'performance', 'benchmark', 'custom engine', 'framework',
-    'uncertainty', 'unknown', 'challenge', 'complex', 'design pattern',
-    'data pipeline', 'scalability', 'distributed', 'real-time', 'concurrent',
-    'compiler', 'parser', 'interpreter', 'cryptography', 'protocol',
-    'new approach', 'state of the art', 'breakthrough', 'invented', 'developed',
-  ];
-
-  const nonRdKeywords = [
-    'bug fix', 'bugfix', 'hotfix', 'meeting', 'standup', 'sprint planning',
-    'deployment', 'deploy', 'config', 'configuration', 'update dependencies',
-    'routine', 'standard', 'crud', 'basic', 'simple', 'copy', 'paste',
-    'documentation', 'readme', 'jira', 'ticket', 'admin', 'email',
-  ];
-
-  let rdScore = 0;
-  let nonRdScore = 0;
-
-  for (const kw of rdKeywords) {
-    if (lower.includes(kw)) rdScore += 1;
-  }
-  for (const kw of nonRdKeywords) {
-    if (lower.includes(kw)) nonRdScore += 1;
-  }
-
-  // Word count bonus — longer, more detailed descriptions tend to be more R&D-like
-  const wordCount = text.split(/\s+/).length;
-  if (wordCount > 50) rdScore += 1;
-  if (wordCount > 100) rdScore += 1;
-
-  const totalSignals = Math.max(rdScore + nonRdScore, 1);
-  const rdRatio = rdScore / totalSignals;
-  const isRd = rdRatio > 0.45;
-
-  const baseConfidence = 0.5 + (Math.abs(rdRatio - 0.5) * 0.8);
-  const confidence = clamp(baseConfidence + Math.random() * 0.1, 0.3, 0.95);
-
-  // Generate plausible criteria scores
-  const noveltyScore = isRd ? clamp(0.4 + rdRatio * 0.5 + Math.random() * 0.2, 0, 1) : clamp(0.1 + Math.random() * 0.2, 0, 1);
-  const techUncertaintyScore = isRd ? clamp(0.3 + rdRatio * 0.5 + Math.random() * 0.2, 0, 1) : clamp(0.05 + Math.random() * 0.15, 0, 1);
-  const systematicScore = isRd ? clamp(0.4 + Math.random() * 0.3, 0, 1) : clamp(0.2 + Math.random() * 0.3, 0, 1);
-  const creativeScore = isRd ? clamp(0.3 + rdRatio * 0.4 + Math.random() * 0.2, 0, 1) : clamp(0.1 + Math.random() * 0.2, 0, 1);
-
-  return {
-    classification: isRd ? 'R&D' : 'Not R&D',
-    explanation: isRd
-      ? 'The described work involves technical novelty and addresses engineering challenges that go beyond routine software development. There is evidence of systematic problem-solving and exploration of new approaches.'
-      : 'The described work appears to be standard software development without significant technical uncertainty or novelty. It follows well-established patterns and does not involve R&D-qualifying activities.',
-    confidenceScore: Math.round(confidence * 100) / 100,
-    criteriaScores: {
-      novelty: {
-        score: Math.round(noveltyScore * 100) / 100,
-        justification: isRd
-          ? 'Work involves creating new approaches or solutions not previously available.'
-          : 'Work uses established methods and known solutions.',
-      },
-      technicalUncertainty: {
-        score: Math.round(techUncertaintyScore * 100) / 100,
-        justification: isRd
-          ? 'Genuine technical challenges that require investigation and experimentation.'
-          : 'Challenges are resolvable using existing knowledge and standard practices.',
-      },
-      systematicApproach: {
-        score: Math.round(systematicScore * 100) / 100,
-        justification: isRd
-          ? 'Work follows a structured methodology with clear objectives.'
-          : 'Work is task-driven rather than research-oriented.',
-      },
-      creativeElement: {
-        score: Math.round(creativeScore * 100) / 100,
-        justification: isRd
-          ? 'Non-routine problem-solving and original design decisions evident.'
-          : 'Implementation follows standard patterns without creative deviation.',
-      },
-    },
-    model: 'mock-classifier-v1',
   };
 }
 
