@@ -68,6 +68,7 @@ export const authOptions: NextAuthOptions = {
           image: user.avatar_url || `https://api.dicebear.com/9.x/shapes/svg?seed=${user.email}&backgroundColor=06b6d4`,
           defaultCompanyId: user.companies.length > 0 ? user.companies[0].id : undefined,
           needsOnboarding: user.companies.length === 0,
+          emailVerified: user.emailVerified,
         };
       },
     }),
@@ -93,7 +94,7 @@ export const authOptions: NextAuthOptions = {
               image: user.image,
               display_name: user.name,
               avatar_url: user.image,
-              emailVerified: new Date(),
+              emailVerified: existingUser.emailVerified || new Date(),
             },
           });
 
@@ -115,14 +116,17 @@ export const authOptions: NextAuthOptions = {
         token.displayName = user.displayName || user.name;
         token.picture = user.image;
         token.defaultCompanyId = user.defaultCompanyId;
+        token.emailVerified = (user as any).emailVerified || null;
         // Carry the onboarding flag if set by signIn callback
         if ((user as any).needsOnboarding) {
           token.needsOnboarding = true;
         }
       }
 
-      // For OAuth users, fetch additional data from database
-      if (account?.provider && token.email) {
+      // Fetch DB dynamically on token refresh if email is unverified
+      // This is crucial: when user clicks the verification link, we need the token
+      // to update without requiring them to log out and log back in.
+      if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },
           include: { companies: true },
@@ -133,6 +137,7 @@ export const authOptions: NextAuthOptions = {
           token.displayName = dbUser.display_name || dbUser.name;
           token.picture = dbUser.avatar_url || dbUser.image;
           token.defaultCompanyId = dbUser.companies.length > 0 ? dbUser.companies[0].id : undefined;
+          token.emailVerified = dbUser.emailVerified;
           // Clear onboarding flag once they have a company
           if (dbUser.companies.length > 0) {
             token.needsOnboarding = false;
@@ -149,6 +154,7 @@ export const authOptions: NextAuthOptions = {
         session.user.image = token.picture;
         session.user.defaultCompanyId = token.defaultCompanyId;
         session.user.needsOnboarding = token.needsOnboarding ?? false;
+        session.user.emailVerified = token.emailVerified;
         // Override next-auth's "name" with our display_name so it's consistent
         if (token.displayName) {
           session.user.name = token.displayName;

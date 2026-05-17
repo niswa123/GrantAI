@@ -129,14 +129,7 @@ export default function CheckEmailPage() {
             )}
           </button>
 
-          {/* Skip for now */}
-          <button
-            onClick={() => router.push("/onboarding")}
-            className="mt-4 text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1 mx-auto"
-          >
-            Skip for now
-            <ArrowRight className="w-3 h-3" />
-          </button>
+          {/* Removed Skip for now button */}
         </motion.div>
       </div>
     </div>
