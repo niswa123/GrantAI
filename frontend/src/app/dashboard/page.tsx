@@ -13,6 +13,7 @@ import {
 } from "@/lib/dashboard-utils";
 import { useWorkspace } from "@/providers/workspace-provider";
 import { ClaimCard, ClaimTable, EmptyState } from "@/components/dashboard/claim-components";
+import { MagicSyncButton } from "@/components/dashboard/magic-sync-button";
 
 // ── Animation Variants ────────────────────────────────────────────────────
 
@@ -203,6 +204,10 @@ export default function DashboardPage() {
                     <span className="xs:hidden">CSV</span>
                   </button>
                 )}
+                <MagicSyncButton
+                  companyId={activeWorkspace.id}
+                  onSuccess={loadClaims}
+                />
                 <Link
                   href="/input"
                   id="start-new-calculation"
