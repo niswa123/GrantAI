@@ -67,6 +67,15 @@ export interface CountryTaxRule {
   /** Revenue threshold to qualify as SME (null = no distinction) */
   smeRevenueThreshold: number | null;
 
+  /** Legal framework/regulation name for prompts */
+  legalFramework: string;
+
+  /** Country-specific terminology used in legal definitions */
+  terminology: {
+    advance: string;
+    uncertainty: string;
+  };
+
   /** Additional notes for claim generation context */
   notes: string;
 }
@@ -96,6 +105,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: 0.40,
     smeRevenueThreshold: 50_000_000,
+    legalFramework: 'WBSO',
+    terminology: { advance: 'technologische vooruitgang', uncertainty: 'technische onzekerheid' },
     notes:
       'WBSO provides wage tax reduction for R&D hours. Starters get 40% on first €350K bracket.',
   },
@@ -119,6 +130,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: 0.2608,
     smeRevenueThreshold: 100_000_000,
+    legalFramework: 'HMRC R&D Tax Relief',
+    terminology: { advance: 'advance in science or technology', uncertainty: 'technological uncertainty' },
     notes:
       'RDEC: 20% above-the-line credit. SME enhanced: 86% additional deduction + 10% payable credit for loss-making.',
   },
@@ -151,6 +164,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'Crédit d\'Impôt Recherche (CIR)',
+    terminology: { advance: 'avancement des connaissances', uncertainty: 'incertitude scientifique ou technique' },
     notes:
       'CIR: 30% on first €100M, 5% above. Overhead calculated as forfait at 43% of salary costs.',
   },
@@ -174,6 +189,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'Forschungszulage',
+    terminology: { advance: 'Stand der Technik überschreiten', uncertainty: 'technische Unsicherheit' },
     notes:
       'Forschungszulage: 25% on eligible salary/contractor costs up to €2M base per category. Max benefit €1M/year.',
   },
@@ -198,6 +215,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'Generic R&D Tax Credit',
+    terminology: { advance: 'technological advance', uncertainty: 'technological uncertainty' },
     notes: 'Fallback rule set: 20% on salary + 65% of contractors. No material/SW credits.',
   },
 
@@ -220,6 +239,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'Belgian R&D Tax Incentives',
+    terminology: { advance: 'technological advance', uncertainty: 'technological uncertainty' },
     notes: 'Belgium offers 80% partial exemption from withholding tax on R&D salaries. Requires researchers with qualifying degrees.',
   },
 
@@ -242,6 +263,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'FoU-avdrag',
+    terminology: { advance: 'vetenskaplig eller teknisk framsteg', uncertainty: 'teknisk osäkerhet' },
     notes: 'Sweden: 20% reduction on employer social security contributions for R&D staff. Max SEK 6M salary base, max SEK 1.2M benefit/year.',
   },
 
@@ -264,6 +287,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: null,
     smeRevenueThreshold: null,
+    legalFramework: 'R&D Tax Credit (Section 766)',
+    terminology: { advance: 'scientific or technological advancement', uncertainty: 'scientific or technological uncertainty' },
     notes: 'Ireland: 30% tax credit on qualifying R&D expenditure. Volume-based (no incremental). Payable credit available for loss-making companies.',
   },
 
@@ -288,6 +313,8 @@ export const COUNTRY_TAX_RULES: Record<string, CountryTaxRule> = {
     minRdScoreThreshold: 0.5,
     smeEnhancedRate: 0.42,
     smeRevenueThreshold: 50_000_000,
+    legalFramework: 'Deducción por I+D+i',
+    terminology: { advance: 'avance tecnológico', uncertainty: 'incertidumbre tecnológica' },
     notes: 'Spain: 25% base deduction for R&D, 42% for projects exceeding prior 2-year average. Additional 17% for qualified R&D staff.',
   },
 };

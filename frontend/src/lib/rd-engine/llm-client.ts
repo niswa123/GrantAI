@@ -91,6 +91,8 @@ export async function callLlm<T>(
       return extractJson<T>(content);
     } catch (err) {
       if (err instanceof LlmApiError && err.code === "PARSE_ERROR") {
+        // Log the raw response so we can debug what the model actually returned
+        console.error("[LLM] PARSE_ERROR — raw response:", err.rawResponse?.slice(0, 2000));
         // Don't retry parse errors — same prompt will produce same bad output
         throw err;
       }
