@@ -92,56 +92,31 @@ const USER_PROMPT_TEMPLATE = `Analyze the following daily work log for R&D quali
 
 Classify this work. Respond with JSON only.`;
 
-// ─── LLM API Call ───────────────────────────────────────────────────────────
-
-interface OpenAIResponse {
-  choices: Array<{ message: { content: string } }>;
-  usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
-  model: string;
-}
+import { callLlm } from '@/lib/rd-engine/llm-client';
 
 async function callLlmApi(workLogText: string): Promise<LlmClassificationResult> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  const baseUrl = process.env.LLM_BASE_URL || 'https://api.openai.com/v1';
-  const model = process.env.LLM_MODEL || 'gpt-4o-mini';
-
-  if (!apiKey) {
-    throw new Error(
-      '[LLM] OPENAI_API_KEY is not set. ' +
-      'Add OPENAI_API_KEY to your environment variables before using the R&D classifier.'
-    );
-  }
-
   const userMessage = USER_PROMPT_TEMPLATE.replace('{work_log}', workLogText);
 
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      temperature: 0.1,
-      max_tokens: 1024,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userMessage },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.text();
-    throw new Error(`LLM API error ${response.status}: ${errorBody}`);
+  // Expected JSON structure from the LLM
+  interface ClassifierJson {
+    classification: string;
+    explanation?: string;
+    confidence_score?: number;
+    criteria_scores?: {
+      novelty?: { score?: number; justification?: string };
+      technical_uncertainty?: { score?: number; justification?: string };
+      systematic_approach?: { score?: number; justification?: string };
+      creative_element?: { score?: number; justification?: string };
+    };
   }
 
-  const result: OpenAIResponse = await response.json();
-  const content = result.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Empty response from LLM');
-
-  const parsed = JSON.parse(content);
+  const parsed = await callLlm<ClassifierJson>([
+    { role: 'system', content: SYSTEM_PROMPT },
+    { role: 'user', content: userMessage }
+  ], {
+    temperature: 0.1,
+    max_tokens: 1024,
+  });
 
   // Validate and normalize
   const classification = parsed.classification === 'R&D' ? 'R&D' : 'Not R&D';
@@ -157,7 +132,7 @@ async function callLlmApi(workLogText: string): Promise<LlmClassificationResult>
       systematicApproach: normalizeScore(parsed.criteria_scores?.systematic_approach),
       creativeElement: normalizeScore(parsed.criteria_scores?.creative_element),
     },
-    model: result.model || model,
+    model: 'kie-ai-classifier',
   };
 }
 

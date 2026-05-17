@@ -101,7 +101,7 @@ const DATASET = [
 
 async function evaluate() {
   console.log(`🧪 Запуск оценки AI Pipeline на ${DATASET.length} логах...`);
-  console.log("ВНИМАНИЕ: Для точных результатов установите OPENAI_API_KEY перед запуском!\n");
+  console.log("ВНИМАНИЕ: Для точных результатов установите KIE_API_KEY перед запуском!\n");
 
   let correct = 0;
   let falsePositives = 0;
