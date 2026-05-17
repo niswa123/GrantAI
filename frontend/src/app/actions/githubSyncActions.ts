@@ -43,8 +43,11 @@ export async function runGitHubSync(params: {
     return { success: false, claimsCreated: 0, error: 'Unauthorized' };
   }
 
-  const cookieStore = cookies();
-  const cookieHeader = cookieStore.toString();
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join('; ');
 
   // ── Step 1: Fetch repos + commits from GitHub ────────────────────────────────
   let syncData: {
