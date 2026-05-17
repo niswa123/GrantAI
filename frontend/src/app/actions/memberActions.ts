@@ -136,21 +136,21 @@ export async function inviteMember(companyId: string, email: string, role: Membe
   });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const inviteUrl = \`\${appUrl}/invite/\${token}\`;
+  const inviteUrl = `${appUrl}/invite/${token}`;
 
   try {
     const res = await resend.emails.send({
       from: 'GrantAI <onboarding@resend.dev>', // Use a verified domain in production
       to: email,
-      subject: \`You have been invited to join \${company.name} on GrantAI\`,
-      html: \`
+      subject: `You have been invited to join ${company.name} on GrantAI`,
+      html: `
         <div style="font-family: sans-serif; max-w: 600px; margin: 0 auto;">
-          <h2>Join \${company.name} on GrantAI</h2>
+          <h2>Join ${company.name} on GrantAI</h2>
           <p>You have been invited to collaborate on GrantAI.</p>
-          <a href="\${inviteUrl}" style="display: inline-block; padding: 12px 24px; background-color: #06b6d4; color: #020617; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 16px;">Accept Invitation</a>
+          <a href="${inviteUrl}" style="display: inline-block; padding: 12px 24px; background-color: #06b6d4; color: #020617; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 16px;">Accept Invitation</a>
           <p style="margin-top: 32px; font-size: 12px; color: #64748b;">If you did not expect this invitation, you can ignore this email.</p>
         </div>
-      \`,
+      `,
     });
     console.log("[Resend] Sent invite to", email, res);
   } catch (err) {
