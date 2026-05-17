@@ -24,14 +24,14 @@ interface CritiqueResult {
 
 // ─── Pass 1: Classify Project ──────────────────────────────────────────────
 
-const CLASSIFY_SYSTEM = `You are a Senior Big 4 R&D Tax Credit Director with 20+ years of experience defending claims before HMRC, Belastingdienst, DGFiP, and Finanzamt.
+const CLASSIFY_SYSTEM = (rules: ReturnType<typeof getTaxRules>) => `You are a Senior Big 4 R&D Tax Credit Director with 20+ years of experience defending claims before HMRC, Belastingdienst, DGFiP, and Finanzamt.
 
-Your sole purpose: rigorously evaluate whether a project meets the OECD Frascati Manual definition of R&D.
+Your sole purpose: rigorously evaluate whether a project meets the ${rules.legalFramework} definition of R&D.
 
 CRITICAL DIRECTIVES — READ CAREFULLY:
 1. Be a SKEPTIC. Not a cheerleader. If in doubt, mark lower.
 2. BUSINESS NOVELTY ≠ TECHNOLOGICAL NOVELTY. Building a new app using existing frameworks is NOT R&D. Solving a genuinely unsolved technical problem IS.
-3. TECHNICAL UNCERTAINTY is the most important criterion. It must be GENUINE uncertainty that a competent engineer in the field could not resolve using existing published knowledge.
+3. ${rules.terminology.uncertainty.toUpperCase()} is the most important criterion. It must be GENUINE uncertainty that a competent engineer in the field could not resolve using existing published knowledge.
 4. ZERO TOLERANCE FOR FALSE POSITIVES. The following activities are NEVER R&D and MUST receive a score < 0.2:
    - Changing UI/UX elements (button colors, layouts, styling)
    - Fixing syntax errors, typos, or simple bugs
@@ -39,6 +39,9 @@ CRITICAL DIRECTIVES — READ CAREFULLY:
    - Upgrading dependencies or migrating frameworks
    - Adopting existing cloud infrastructure (AWS, GCP, Azure)
 5. You MUST reason step-by-step BEFORE scoring (Chain-of-Thought).
+
+${rules.legalFramework} CORE CRITERIA:
+${rules.legalDefinitionPrompt}
 
 SCORING SCALE:
 - 0.0–0.2: Clearly routine / commercial / UI changes / simple fixes
@@ -119,13 +122,13 @@ Critique this classification. Are they too generous? Are they confusing complex 
 
 // ─── Pass 2: Generate Claim Text ───────────────────────────────────────────
 
-const GENERATE_SYSTEM = `You are a Senior R&D Tax Technical Writer at a Big 4 firm. You write audit-proof formal justification reports for submission to national tax authorities.
+const GENERATE_SYSTEM = (rules: ReturnType<typeof getTaxRules>) => `You are a Senior R&D Tax Technical Writer at a Big 4 firm. You write audit-proof formal justification reports for submission to national tax authorities.
 
 CRITICAL DIRECTIVES:
 1. Write in dry, precise, third-person technical language. Zero marketing language.
 2. Focus on TECHNOLOGICAL challenges and unknowns — not business outcomes.
 3. Separate routine commercial work from core R&D activities.
-4. Reference the OECD Frascati Manual definitions where appropriate.
+4. Reference the ${rules.legalFramework} definitions where appropriate. Use terms like "${rules.terminology.advance}" and "${rules.terminology.uncertainty}".
 5. Every claim must be backed by the specific activities described by the company.
 
 Output ONLY valid JSON. NO markdown. NO text before or after the JSON object.`;
@@ -174,8 +177,8 @@ Respond with EXACTLY this JSON:
         "outcomes": "<Technical results — successes, failures, or partial advances>"
       }
     ],
-    "technological_advancement_statement": "<2-3 paragraphs: how does this work advance the state of the art?>",
-    "technological_uncertainty_statement": "<2-3 paragraphs: what was genuinely unknown, and why could competent professionals not solve it routinely?>",
+    "technological_advancement_statement": "<2-3 paragraphs: how does this work achieve '${rules.terminology.advance}'?>",
+    "technological_uncertainty_statement": "<2-3 paragraphs: what was the '${rules.terminology.uncertainty}', and why could competent professionals not solve it routinely?>",
     "expenditure_justification": "<Paragraph linking R&D activities to specific cost categories>"
   },
   "metadata": {
@@ -279,7 +282,7 @@ export async function runRdPipeline(input: PipelineInput): Promise<PipelineResul
   try {
     claimText = await callLlm<ClaimGenerationResult>(
       [
-        { role: "system", content: GENERATE_SYSTEM },
+        { role: "system", content: GENERATE_SYSTEM(getTaxRules(countryCode)) },
         {
           role: "user",
           content: GENERATE_USER(description, countryCode, classification, salaryCosts, devCosts),
@@ -312,7 +315,7 @@ async function runClassificationPass(
   try {
     classification = await callLlm<RdClassificationResult>(
       [
-        { role: "system", content: CLASSIFY_SYSTEM },
+        { role: "system", content: CLASSIFY_SYSTEM(getTaxRules(countryCode)) },
         { role: "user", content: fullContext + "\n\n" + CLASSIFY_USER(description, countryCode, salaryCosts, devCosts) },
       ],
       { temperature, max_tokens: 2500 }
