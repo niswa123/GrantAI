@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Loader2, CheckCircle2, AlertCircle, X, Zap, DollarSign } from "lucide-react";
+import { GitBranch, Loader2, CheckCircle2, AlertCircle, X, Zap, DollarSign } from "lucide-react";
 import { runGitHubSync } from "@/app/actions/githubSyncActions";
 
 type SyncStage = "idle" | "fetching" | "analyzing" | "done" | "error";
@@ -75,7 +75,7 @@ function MagicSyncModal({ companyId, onClose, onSuccess }: MagicSyncModalProps) 
         <div className="relative p-6 pb-4 bg-gradient-to-br from-violet-500/10 via-slate-900 to-cyan-500/10 border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-              <Github className="w-5 h-5 text-violet-400" />
+              <GitBranch className="w-5 h-5 text-violet-400" />
             </div>
             <div>
               <h2 className="text-white font-bold text-lg">Magic Sync via GitHub</h2>
@@ -160,7 +160,7 @@ function MagicSyncModal({ companyId, onClose, onSuccess }: MagicSyncModalProps) 
             <div className="flex flex-col items-center py-6 gap-4">
               <div className="relative">
                 <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
-                  <Github className="w-8 h-8 text-violet-400" />
+                  <GitBranch className="w-8 h-8 text-violet-400" />
                 </div>
                 <Loader2 className="absolute -bottom-1 -right-1 w-5 h-5 text-cyan-400 animate-spin" />
               </div>
@@ -262,7 +262,7 @@ export function MagicSyncButton({
         id="magic-sync-github"
         className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/80 border border-violet-500/30 text-violet-300 hover:text-white hover:bg-violet-500/10 hover:border-violet-400/50 font-bold text-xs sm:text-sm transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] touch-manipulation"
       >
-        <Github className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <GitBranch className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         <span className="hidden xs:inline">Magic Sync</span>
         <span className="xs:hidden">Sync</span>
         <Zap className="w-3 h-3" />
