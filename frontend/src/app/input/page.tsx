@@ -280,7 +280,7 @@ export default function InputPage() {
             </button>
 
             <p className="text-center text-xs text-slate-600">
-              Powered by GPT-4o · Results are estimates only, not legal tax advice.
+              Powered by custom LLM built by the GrantAI Team · Results are estimates only, not legal tax advice.
             </p>
           </form>
         </motion.div>

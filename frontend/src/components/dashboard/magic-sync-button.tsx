@@ -2,10 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GitBranch, Loader2, CheckCircle2, AlertCircle, X, Zap, DollarSign, Layout, Layers } from "lucide-react";
+import {
+  GitBranch, Loader2, CheckCircle2, AlertCircle, X, Zap,
+  DollarSign, Layout, Layers, ArrowRight, Bolt,
+} from "lucide-react";
 import { runUnifiedSync, getConnectedSources, type SyncSource } from "@/app/actions/unifiedSyncActions";
+import { getCompanySyncDefaults, updateCompanySyncDefaults } from "@/app/actions/companyActions";
+import { useSyncContext } from "@/contexts/SyncContext";
+import { useRouter } from "next/navigation";
 
-type SyncStage = "idle" | "fetching" | "analyzing" | "done" | "error";
+type SyncMode = "quick" | "deep";
 
 interface MagicSyncButtonProps {
   companyId: string;
@@ -14,20 +20,31 @@ interface MagicSyncButtonProps {
 }
 
 export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: MagicSyncButtonProps) {
+  const router = useRouter();
+  const { startSync, isSyncing: isBackgroundSyncing, companyId: syncingCompanyId } = useSyncContext();
+
   const [isOpen, setIsOpen] = useState(false);
-  const [stage, setStage] = useState<SyncStage>("idle");
   const [salaryCosts, setSalaryCosts] = useState("100000");
   const [devCosts, setDevCosts] = useState("20000");
   const [sources, setSources] = useState<SyncSource[]>([]);
   const [isLoadingSources, setIsLoadingSources] = useState(false);
-  const [resultMessage, setResultMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [syncMode, setSyncMode] = useState<SyncMode>("quick");
+  const [error, setError] = useState("");
+
+  const isThisCompanySyncing = isBackgroundSyncing && syncingCompanyId === companyId;
 
   useEffect(() => {
     if (isOpen) {
       loadSources();
+      loadDefaults();
     }
   }, [isOpen]);
+
+  const loadDefaults = async () => {
+    const defaults = await getCompanySyncDefaults(companyId);
+    setSalaryCosts(String(defaults.salaries));
+    setDevCosts(String(defaults.devCosts));
+  };
 
   const loadSources = async () => {
     setIsLoadingSources(true);
@@ -42,42 +59,39 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
   };
 
   const handleSync = async () => {
-    setStage("fetching");
     const numSalary = parseInt(salaryCosts.replace(/\D/g, "")) || 0;
     const numDev = parseInt(devCosts.replace(/\D/g, "")) || 0;
 
     const connectedCount = sources.filter((s) => s.connected).length;
     if (connectedCount === 0) {
-      setStage("error");
-      setErrorMessage("Please connect at least one integration in Settings.");
+      setError("Please connect at least one integration in Settings.");
       return;
     }
 
-    try {
+    setError("");
+
+    // Save the inputs for next time
+    await updateCompanySyncDefaults(companyId, numSalary, numDev);
+
+    // Close modal and start background sync
+    setIsOpen(false);
+
+    startSync(companyId, async () => {
       const baseUrl = window.location.origin;
       const res = await runUnifiedSync({
         companyId,
         salaryCosts: numSalary,
         devCosts: numDev,
         baseUrl,
+        isDeepSync: syncMode === "deep",
       });
 
       if (res.success) {
-        setStage("done");
-        setResultMessage(`Analyzed across ${connectedCount} sources. Identified ${res.claimsCreated} R&D projects!`);
-        setTimeout(() => {
-          setIsOpen(false);
-          setStage("idle");
-          onSuccess();
-        }, 3000);
+        onSuccess();
       } else {
-        setStage("error");
-        setErrorMessage(res.error || "Failed to identify R&D activities.");
+        throw new Error(res.error || "Sync failed");
       }
-    } catch (err: any) {
-      setStage("error");
-      setErrorMessage(err.message || "An unexpected error occurred.");
-    }
+    });
   };
 
   const sourceIcon = (provider: string) => {
@@ -98,11 +112,20 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
       <button
         onClick={() => setIsOpen(true)}
         id="magic-sync-unified"
-        className={`flex items-center justify-center gap-2 ${fullWidth ? 'w-full py-3.5 rounded-xl' : 'px-3 sm:px-4 py-2 rounded-xl'} bg-slate-800/80 border border-violet-500/30 text-violet-300 hover:text-white hover:bg-violet-500/10 hover:border-violet-400/50 font-bold text-sm transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] touch-manipulation`}
+        disabled={isThisCompanySyncing}
+        className={`flex items-center justify-center gap-2 ${
+          fullWidth ? "w-full py-3.5 rounded-xl" : "px-3 sm:px-4 py-2 rounded-xl"
+        } bg-slate-800/80 border border-violet-500/30 text-violet-300 hover:text-white hover:bg-violet-500/10 hover:border-violet-400/50 font-bold text-sm transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        <Zap className="w-4 h-4 text-violet-400" />
-        <span className={fullWidth ? '' : 'hidden xs:inline'}>Magic Sync</span>
-        {!fullWidth && <span className="xs:hidden">Sync</span>}
+        {isThisCompanySyncing ? (
+          <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+        ) : (
+          <Zap className="w-4 h-4 text-violet-400" />
+        )}
+        <span className={fullWidth ? "" : "hidden xs:inline"}>
+          {isThisCompanySyncing ? "Syncing..." : "Magic Sync"}
+        </span>
+        {!fullWidth && !isThisCompanySyncing && <span className="xs:hidden">Sync</span>}
       </button>
 
       <AnimatePresence>
@@ -113,9 +136,9 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
-              onClick={() => stage === "idle" && setIsOpen(false)}
+              onClick={() => setIsOpen(false)}
             />
-            
+
             <motion.div
               initial={{ opacity: 0, y: "100%" }}
               animate={{ opacity: 1, y: 0 }}
@@ -135,155 +158,160 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
                     <Zap className="w-5 h-5 text-violet-400" />
                   </div>
                   <div>
-                    <h2 className="text-white font-bold text-lg">Unified Magic Sync</h2>
+                    <h2 className="text-white font-bold text-lg">Magic Sync</h2>
                     <p className="text-slate-400 text-sm">AI analysis of your engineering tools</p>
                   </div>
                 </div>
-                {stage === "idle" && (
-                  <button
-                    onClick={() => setIsOpen(false)}
-                    className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
               {/* Content */}
-              <div className="p-6 space-y-6">
-                {stage === "idle" && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-                    {/* Data Sources */}
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold tracking-wider text-slate-400 uppercase">Data Sources</label>
-                      {isLoadingSources ? (
-                        <div className="flex items-center justify-center py-4">
-                          <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {sources.map((source) => (
-                            <div
-                              key={source.provider}
-                              className={`flex items-center justify-between p-3 rounded-xl border ${
-                                source.connected
-                                  ? "bg-slate-800/50 border-white/10"
-                                  : "bg-slate-900/30 border-white/5 opacity-50"
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                {sourceIcon(source.provider)}
-                                <div>
-                                  <div className="text-sm font-semibold text-white">{source.label}</div>
-                                  <div className="text-xs text-slate-400">{source.description}</div>
-                                </div>
-                              </div>
-                              <div className="text-xs font-medium px-2 py-1 rounded-md">
-                                {source.connected ? (
-                                  <span className="text-emerald-400 bg-emerald-400/10 flex items-center gap-1">
-                                    <CheckCircle2 className="w-3 h-3" /> Connected
-                                  </span>
-                                ) : (
-                                  <span className="text-slate-500 bg-slate-800">Not connected</span>
-                                )}
-                              </div>
+              <div className="p-6 space-y-5">
+                {/* Quick / Deep toggle */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold tracking-wider text-slate-400 uppercase">Sync Mode</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSyncMode("quick")}
+                      className={`flex flex-col items-start gap-1 p-3 rounded-xl border transition-all text-left ${
+                        syncMode === "quick"
+                          ? "bg-violet-500/10 border-violet-500/40 text-white"
+                          : "bg-slate-800/40 border-white/5 text-slate-400 hover:border-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold text-sm">
+                        <Zap className="w-3.5 h-3.5 text-violet-400" /> Quick Sync
+                      </div>
+                      <p className="text-xs opacity-70">New activity since last sync</p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSyncMode("deep")}
+                      className={`flex flex-col items-start gap-1 p-3 rounded-xl border transition-all text-left ${
+                        syncMode === "deep"
+                          ? "bg-cyan-500/10 border-cyan-500/40 text-white"
+                          : "bg-slate-800/40 border-white/5 text-slate-400 hover:border-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 font-bold text-sm">
+                        <Bolt className="w-3.5 h-3.5 text-cyan-400" /> Deep Audit
+                      </div>
+                      <p className="text-xs opacity-70">Full year re-analysis</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Data Sources */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold tracking-wider text-slate-400 uppercase">Data Sources</label>
+                  {isLoadingSources ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {sources.map((source) => (
+                        <div
+                          key={source.provider}
+                          className={`flex items-center justify-between p-3 rounded-xl border ${
+                            source.connected
+                              ? "bg-slate-800/50 border-white/10"
+                              : "bg-slate-900/30 border-white/5"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {sourceIcon(source.provider)}
+                            <div>
+                              <div className="text-sm font-semibold text-white">{source.label}</div>
+                              <div className="text-xs text-slate-400">{source.description}</div>
                             </div>
-                          ))}
+                          </div>
+                          {source.connected ? (
+                            <span className="text-xs font-medium px-2 py-1 rounded-md text-emerald-400 bg-emerald-400/10 flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Connected
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                setIsOpen(false);
+                                router.push("/settings/integrations");
+                              }}
+                              className="text-xs font-bold px-2.5 py-1 rounded-lg bg-violet-500/10 border border-violet-500/30 text-violet-400 hover:bg-violet-500/20 hover:text-violet-300 transition-all flex items-center gap-1"
+                            >
+                              Connect <ArrowRight className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
+                  )}
+                </div>
 
-                    {/* Inputs */}
-                    <div className="space-y-3">
-                      <label className="text-xs font-bold tracking-wider text-slate-400 uppercase">Financial Scope</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <div className="text-xs text-slate-400 mb-1.5 ml-1">Total Salaries (€)</div>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input
-                              type="text"
-                              value={salaryCosts}
-                              onChange={(e) => setSalaryCosts(e.target.value)}
-                              className="w-full bg-slate-950 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-slate-400 mb-1.5 ml-1">Dev Tools & Subs (€)</div>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                            <input
-                              type="text"
-                              value={devCosts}
-                              onChange={(e) => setDevCosts(e.target.value)}
-                              className="w-full bg-slate-950 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
-                            />
-                          </div>
-                        </div>
+                {/* Financial Scope */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold tracking-wider text-slate-400 uppercase">Financial Scope</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-xs text-slate-400 mb-1.5 ml-1">Total Salaries (€)</div>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                          type="text"
+                          value={salaryCosts}
+                          onChange={(e) => setSalaryCosts(e.target.value)}
+                          className="w-full bg-slate-950 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                        />
                       </div>
                     </div>
-
-                    <button
-                      onClick={handleSync}
-                      disabled={!sources.some((s) => s.connected)}
-                      className="w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(139,92,246,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Start Magic Sync
-                    </button>
-                  </motion.div>
-                )}
-
-                {stage === "fetching" && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 flex flex-col items-center text-center space-y-4">
-                    <div className="relative">
-                      <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center">
-                        <Zap className="w-8 h-8 text-violet-400 animate-pulse" />
+                    <div>
+                      <div className="text-xs text-slate-400 mb-1.5 ml-1">Dev Tools & Subs (€)</div>
+                      <div className="relative">
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                          type="text"
+                          value={devCosts}
+                          onChange={(e) => setDevCosts(e.target.value)}
+                          className="w-full bg-slate-950 border border-white/10 rounded-xl py-2 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-all"
+                        />
                       </div>
-                      <Loader2 className="absolute -bottom-2 -right-2 w-6 h-6 text-cyan-400 animate-spin" />
                     </div>
-                    <div>
-                      <h3 className="text-white font-bold text-lg mb-1">Analyzing Workspaces...</h3>
-                      <p className="text-slate-400 text-sm">Fetching commits, sprints, and issues</p>
-                    </div>
-                  </motion.div>
-                )}
+                  </div>
+                </div>
 
-                {stage === "error" && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 flex flex-col items-center text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center">
-                      <AlertCircle className="w-8 h-8 text-rose-500" />
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold text-lg mb-1">Sync Failed</h3>
-                      <p className="text-slate-400 text-sm max-w-[280px]">{errorMessage}</p>
-                    </div>
-                    <button
-                      onClick={() => setStage("idle")}
-                      className="px-6 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+                {/* Error */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex items-center gap-2 text-sm text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3"
                     >
-                      Try Again
-                    </button>
-                  </motion.div>
-                )}
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {stage === "done" && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 flex flex-col items-center text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", bounce: 0.5 }}
-                      >
-                        <CheckCircle2 className="w-8 h-8 text-emerald-500" />
-                      </motion.div>
-                    </div>
-                    <div>
-                      <h3 className="text-white font-bold text-xl mb-1">Sync Complete!</h3>
-                      <p className="text-slate-400 text-sm">{resultMessage}</p>
-                    </div>
-                  </motion.div>
-                )}
+                {/* CTA */}
+                <button
+                  onClick={handleSync}
+                  disabled={!sources.some((s) => s.connected)}
+                  className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                    syncMode === "deep"
+                      ? "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.3)]"
+                      : "bg-violet-600 hover:bg-violet-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                  }`}
+                >
+                  <Zap className="w-4 h-4" />
+                  {syncMode === "deep" ? "Start Deep Audit" : "Start Quick Sync"}
+                </button>
               </div>
             </motion.div>
           </div>

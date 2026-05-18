@@ -1,6 +1,6 @@
 'use server';
 
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -17,17 +17,22 @@ async function requireSession() {
 // ── Get current user profile ──────────────────────────────────────────────
 
 export async function getUserProfile() {
-  const userId = await requireSession();
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { email: true, display_name: true, avatar_url: true, name: true, image: true },
-  });
-  if (!user) return null;
-  return { 
-    email: user.email, 
-    displayName: user.display_name || user.name || '', 
-    avatarUrl: user.avatar_url || user.image || '' 
-  };
+  try {
+    const userId = await requireSession();
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, display_name: true, avatar_url: true, name: true, image: true, two_factor_enabled: true },
+    });
+    if (!user) return null;
+    return { 
+      email: user.email, 
+      displayName: user.display_name || user.name || '', 
+      avatarUrl: user.avatar_url || user.image || '',
+      twoFactorEnabled: user.two_factor_enabled || false
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── Update display name, email, and/or avatar ──────────────────────────────
@@ -63,12 +68,13 @@ export async function changePassword(oldPassword: string, newPassword: string) {
   const userId = await requireSession();
 
   if (newPassword.length < 8) return { error: 'New password must be at least 8 characters' };
+  if (newPassword.length > 72) return { error: 'Password must not exceed 72 characters' };
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { password_hash: true },
   });
-  if (!user) return { error: 'User not found' };
+  if (!user || !user.password_hash) return { error: 'User not found or password not set (OAuth)' };
 
   // Verify old password
   const valid = await bcrypt.compare(oldPassword, user.password_hash);

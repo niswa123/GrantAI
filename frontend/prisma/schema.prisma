@@ -43,6 +43,10 @@ model User {
   emailVerified DateTime?
   image         String?
 
+  // Two-Factor Authentication
+  two_factor_secret  String?  @db.Text
+  two_factor_enabled Boolean  @default(false)
+
   companies       Company[] // Owned companies
   company_members CompanyMember[] // Companies they are members of
   audit_logs      AuditLog[]
@@ -105,6 +109,9 @@ model Company {
   address             String?  @db.Text
   default_hourly_rate Decimal  @default(50.0) @db.Decimal
   tax_credit_rate     Decimal  @default(0.14) @db.Decimal
+  estimated_salaries  Decimal? @db.Decimal // Saved from last Magic Sync
+  estimated_dev_costs Decimal? @db.Decimal // Saved from last Magic Sync
+  last_sync_at        DateTime? // Timestamp of last successful sync
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 
@@ -275,6 +282,17 @@ model DailyValueMap {
 
   @@unique([company_id, date])
   @@map("daily_value_maps")
+}
+
+model PasswordResetToken {
+  id         String   @id @default(uuid()) @db.Uuid
+  email      String   @db.VarChar
+  token      String   @unique @db.VarChar
+  expires_at DateTime
+  created_at DateTime @default(now())
+
+  @@unique([email, token])
+  @@map("password_reset_tokens")
 }
 
 model Payment {

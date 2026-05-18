@@ -290,7 +290,7 @@ export default function DashboardPage() {
                   </div>
                   
                   <h2 className="text-2xl sm:text-4xl font-black text-white mb-3 tracking-tight">
-                    Unlock Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">Engineering Capital</span>
+                    Unlock Your <span className="text-cyan-400">Engineering Capital</span>
                   </h2>
                   
                   <p className="text-slate-400 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">

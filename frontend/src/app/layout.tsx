@@ -9,6 +9,8 @@ import { SessionProvider } from "@/providers/session-provider";
 import { AppHeader } from "@/components/app-header";
 import { MainLayout } from "@/components/main-layout";
 import { EmailVerificationBanner } from "@/components/dashboard/email-verification-banner";
+import { SyncProvider } from "@/contexts/SyncContext";
+import { SyncToast } from "@/components/ui/SyncToast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,15 +66,18 @@ export default function RootLayout({
           <PostHogProvider>
             <SessionProvider>
               <QueryProvider>
-                <WorkspaceProvider>
-                  <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
-                    <AppHeader />
-                    <EmailVerificationBanner />
-                    <MainLayout>
-                      {children}
-                    </MainLayout>
-                  </div>
-                </WorkspaceProvider>
+                <SyncProvider>
+                  <WorkspaceProvider>
+                    <div className="flex flex-col min-h-screen w-full max-w-[100vw] overflow-x-hidden md:overflow-x-clip relative">
+                      <AppHeader />
+                      <EmailVerificationBanner />
+                      <MainLayout>
+                        {children}
+                      </MainLayout>
+                    </div>
+                    <SyncToast />
+                  </WorkspaceProvider>
+                </SyncProvider>
               </QueryProvider>
             </SessionProvider>
           </PostHogProvider>

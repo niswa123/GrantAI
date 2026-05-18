@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import { requireAuth } from '@/lib/action-guard';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 
@@ -36,8 +37,11 @@ export async function getDashboardClaims(companyId?: string) {
 }
 
 export async function updateClaimStatus(claimId: string, status: string) {
-  const session = await getServerSession(authOptions);
-  if (!session) return { error: 'Unauthorized' };
+  try {
+    await requireAuth();
+  } catch {
+    return { error: 'Unauthorized' };
+  }
 
   try {
     const updated = await prisma.claim.update({
@@ -51,8 +55,11 @@ export async function updateClaimStatus(claimId: string, status: string) {
 }
 
 export async function deleteClaim(claimId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session) return { error: 'Unauthorized' };
+  try {
+    await requireAuth();
+  } catch {
+    return { error: 'Unauthorized' };
+  }
 
   try {
     await prisma.claim.delete({

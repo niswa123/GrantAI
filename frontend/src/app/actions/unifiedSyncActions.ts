@@ -66,8 +66,9 @@ export async function runUnifiedSync(params: {
   salaryCosts: number;
   devCosts: number;
   baseUrl: string;
+  isDeepSync?: boolean;
 }): Promise<UnifiedSyncResult> {
-  const { companyId, salaryCosts, devCosts, baseUrl } = params;
+  const { companyId, salaryCosts, devCosts, baseUrl, isDeepSync = false } = params;
 
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

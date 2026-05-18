@@ -1,126 +1,119 @@
 <div align="center">
-  <img src="frontend/public/logo-square.png" alt="GrantAI Logo" width="120" height="120" />
-  
-  # 🚀 GrantAI
-  **The Next-Generation AI R&D Tax Credit Operating System**
-
-  [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-  [![Supabase](https://img.shields.io/badge/Supabase-DB-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com/)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-
-  <p align="center">
-    Automate, optimize, and secure your R&D tax credit claims with our unified AI engine. 
-    <br/><i>Less paperwork. More engineering.</i>
+  <img src="./frontend/public/logo.png" alt="GrantAI Logo" width="200" height="200" style="border-radius: 24px;" />
+  <h1 style="font-size: 3rem; margin-bottom: 0;">GrantAI 🚀</h1>
+  <p style="font-size: 1.2rem; color: #94a3b8;">
+    <strong>The Future of Automated R&D Tax Credits</strong>
+  </p>
+  <p>
+    Convert R&D engineering efforts into audit-proof tax credits using AI-powered precision.<br/>
+    Simple, fast, compliant, and deeply integrated with your existing developer stack.
+  </p>
+  <br/>
+  <p>
+    <a href="#features"><strong>Features</strong></a> ·
+    <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
+    <a href="#getting-started"><strong>Getting Started</strong></a> ·
+    <a href="#security"><strong>Security</strong></a>
   </p>
 </div>
 
 ---
 
-## ✨ Overview
+## 🌟 Overview
 
-**GrantAI** transforms the tedious, manual process of claiming R&D tax credits into a seamless, automated pipeline. By deeply integrating with your existing engineering tools, our platform uses advanced LLMs to identify qualifying R&D activities, generate robust technical justifications, and calculate precise ROI forecasts across multiple global tax jurisdictions (WBSO, CIR, HMRC, and more).
+GrantAI is a modern, enterprise-grade SaaS application that connects directly to your engineering ecosystem (GitHub, Jira, Linear) to analyze commits, issues, and tickets. Using a sophisticated two-pass LLM pipeline, it identifies R&D-eligible work and generates compliant, audit-ready claims in minutes instead of months.
 
-## 💡 Key Features
+Designed for speed, built for compliance, and engineered for maximum security.
 
-- 🔮 **Unified Magic Sync**  
-  One-click synchronization with **GitHub, Jira, and Linear**. We ingest commits, PRs, and tickets to build a holistic timeline of your engineering efforts.
+## ✨ Key Features
 
-- 🧠 **AI Classification Engine**  
-  Our proprietary 2-pass LLM pipeline automatically analyzes your data against strict legal frameworks, identifying *technological uncertainty* and *scientific advancement*.
+- **🪄 Magic Sync:** Non-blocking, background synchronization with your engineering tools. Features a "Labour Illusion" UI to provide transparent, real-time feedback on AI analysis.
+- **🧠 Two-Pass LLM Engine:** Accurately classifies R&D eligible work based on localized tax rules and generates deterministic credit calculations.
+- **🔗 Deep Integrations:** Natively syncs with **GitHub**, **Jira**, and **Linear** via OAuth.
+- **💳 Multi-Provider Billing:** Seamlessly accept fiat subscriptions via **Stripe** and cryptocurrency payments via **NOWPayments**.
+- **🛡️ Enterprise Security:** Fully protected routes, sliding-window rate limiting, Turnstile CAPTCHA bot protection, and resilient bcrypt-hashing implementations.
+- **🔐 Tier-Based Access Control:** Granular access management for Free, Pro, and Enterprise users.
+- **🧑‍💻 Beautiful UI/UX:** Built with modern design principles (glassmorphism, micro-animations, tailored dark mode palettes) for a premium feel.
 
-- 🌍 **Multi-Jurisdiction Support**  
-  Built-in rule registries for **🇳🇱 WBSO, 🇬🇧 HMRC, 🇫🇷 CIR, 🇩🇪 Forschungszulage**, and others.
+## 🛠 Tech Stack
 
-- 💳 **Dual-Provider Billing**  
-  Seamless subscription management supporting both fiat (**Stripe**) and cryptocurrency (**NOWPayments**).
+### Frontend & Core
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **Library:** [React 19](https://react.dev/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) & Vanilla CSS Modules
+- **UI Components:** Shadcn/UI (Radix Primitives)
+- **Animations:** Framer Motion & Lucide Icons
 
-- 🛡️ **Enterprise-Grade Security**  
-  Role-Based Access Control (RBAC), multi-tenant workspaces, and immutable audit trails for every R&D claim.
+### Backend & Data
+- **Database:** PostgreSQL (hosted on [Supabase](https://supabase.com/))
+- **ORM:** [Prisma](https://www.prisma.io/)
+- **Auth:** NextAuth (Google/GitHub/Credentials) + custom 2FA (TOTP)
+- **Background Jobs:** [Inngest](https://www.inngest.com/)
 
----
-
-## 🛠️ Technology Stack
-
-| Category          | Technology                                                                 |
-| ----------------- | -------------------------------------------------------------------------- |
-| **Frontend**      | Next.js 14 (App Router), React, TypeScript                                |
-| **Styling**       | Tailwind CSS, Framer Motion, Lucide Icons                                  |
-| **Backend**       | Next.js API Routes, Server Actions, Node.js                               |
-| **Database**      | PostgreSQL (Supabase), Prisma ORM                                          |
-| **Auth**          | NextAuth.js (Session management, RBAC)                                     |
-| **AI/LLM**        | DeepSeek / OpenAI via specialized `rd-engine` pipelines                    |
-| **Integrations**  | GitHub API, Jira API, Linear API                                           |
-
----
+### Integrations
+- **Payments:** Stripe (Fiat), NOWPayments (Crypto)
+- **AI Processing:** Gemini / KIE.AI (via dedicated API routes)
+- **Email:** Resend & Loops (Marketing Automation)
+- **CRM:** Attio
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+- Node.js (v18+)
+- PostgreSQL Database
+- API Keys for necessary providers (Stripe, Resend, Turnstile, OAuth apps)
 
-- Node.js >= 18.x
-- npm >= 9.x
-- A running Supabase instance
+### 1. Clone & Install
 
-### Local Development
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-org/grantai.git
-   cd grantai
-   ```
-
-2. **Install dependencies**
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-3. **Environment Setup**
-   Copy the example environment file and populate your keys:
-   ```bash
-   cp .env.example .env
-   ```
-   *(Ensure you have your `DATABASE_URL`, `DIRECT_URL`, `NEXTAUTH_SECRET`, Stripe, and LLM API keys configured).*
-
-4. **Database Setup**
-   Push the Prisma schema to your database:
-   ```bash
-   npx prisma db push
-   npx prisma generate
-   ```
-
-5. **Start the Development Server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) to view the application.
-
----
-
-## 🏗️ Architecture
-
-```mermaid
-graph TD;
-    UI[Frontend / Next.js UI] -->|Server Actions| API[Backend API]
-    API -->|OAuth/Tokens| INT[Integrations: GitHub/Jira/Linear]
-    INT -->|Raw Data| SYNC[Magic Sync Aggregator]
-    SYNC -->|Normalized Events| AI[LLM Classification Engine]
-    AI -->|Draft Claims & ROI| DB[(Supabase PostgreSQL)]
-    DB --> UI
+```bash
+git clone https://github.com/your-org/grantai.git
+cd grantai/frontend
+npm install
 ```
 
----
+### 2. Environment Setup
 
-## 🔒 Security & Compliance
+Create a `.env` file in the `frontend/` directory (see `.env.example` if available). 
+Required critical variables:
 
-GrantAI treats your intellectual property with the utmost respect. 
-- **No training:** Your source code and tickets are *never* used to train our AI models.
-- **Audit Trails:** Every claim generation step, modification, and user action is permanently logged via the `AuditLog` subsystem for tax authority reviews.
+```env
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="your-secret"
+NEXTAUTH_URL="http://localhost:3000"
 
----
+# Payments
+STRIPE_SECRET_KEY="..."
+STRIPE_WEBHOOK_SECRET="..."
+NOWPAYMENTS_IPN_SECRET="..."
 
-<div align="center">
-  <b>Built with ❤️ by the GrantAI Engineering Team</b>
-</div>
+# Security
+TURNSTILE_SECRET_KEY="..."
+```
+
+### 3. Database Migration
+
+Generate the Prisma client and push the schema to your database:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 4. Run Development Server
+
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## 🔒 Security Posture
+
+GrantAI handles sensitive financial and engineering data, making security paramount:
+- **Rate Limiting:** Edge-safe, in-memory sliding window rate limits on critical endpoints (Registration, Password Reset, AI Calculation) to prevent abuse.
+- **DoS Protection:** Strict input validation and Bcrypt DoS mitigations (password length enforcement).
+- **Authentication:** Turnstile server-side validation against bots, required email verification gates, and robust NextAuth configuration.
+- **Webhook Integrity:** HMAC-SHA512 validation for NOWPayments and official Stripe signature verification.
+
+## 📄 License
+
+Proprietary Software. All rights reserved by the GrantAI Team.

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ArrowRight, Lock, Mail } from "lucide-react";
+import { Loader2, ArrowRight, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 
 // ── Icons ─────────────────────────────────────────────────────────────────
@@ -35,6 +35,13 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [mounted, setMounted] = useState(false);
 
+  // 2FA State
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+
   useEffect(() => setMounted(true), []);
 
   const handleGoogleSignIn = async () => {
@@ -62,18 +69,29 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
     try {
-      const res = await signIn("credentials", { redirect: false, email, password });
+      const payload: any = { redirect: false, email, password };
+      if (twoFactorRequired) {
+        payload.twoFactorCode = twoFactorCode;
+      }
+
+      const res = await signIn("credentials", payload);
+      
       if (res?.error) {
+        if (res.error === "2FA_REQUIRED") {
+          setTwoFactorRequired(true);
+          setLoading(false);
+          return;
+        }
+        if (res.error === "INVALID_2FA_CODE") {
+          setError("Invalid 2FA code. Please try again.");
+          setLoading(false);
+          return;
+        }
         setError(res.error);
         setLoading(false);
       } else {
-        router.push("/dashboard");
-        router.refresh();
+        window.location.href = "/dashboard";
       }
     } catch {
       setError("An unexpected error occurred.");
@@ -115,10 +133,10 @@ export default function LoginPage() {
         >
           <Logo className="w-12 h-12 mb-6" showText={false} />
           <h1 className="text-2xl font-black text-white tracking-tight mb-1">
-            Welcome back
+            {twoFactorRequired ? "Two-Step Verification" : "Welcome back"}
           </h1>
           <p className="text-slate-400 text-sm">
-            Enter your credentials to access your R&D data.
+            {twoFactorRequired ? "Enter your 2FA code to continue." : "Enter your credentials to access your R&D data."}
           </p>
         </motion.div>
 
@@ -161,46 +179,88 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Email Form */}
           <form onSubmit={handleSubmit} className="space-y-3.5">
-            <div className="space-y-1.5 group">
-              <label htmlFor="email" className="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-cyan-400 transition-colors">
-                Work Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="name@company.com"
-                  required
-                  className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
-                />
-              </div>
-            </div>
+            {!twoFactorRequired ? (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3.5">
+                <div className="space-y-1.5 group">
+                  <label htmlFor="email" className="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-cyan-400 transition-colors">
+                    Work Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@company.com"
+                      required
+                      className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-1.5 group">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-cyan-400 transition-colors">
-                  Password
-                </label>
-                <Link href="#" className="text-xs font-medium text-cyan-500 hover:text-cyan-400 transition-colors">
-                  Forgot?
-                </Link>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                  className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
-                />
-              </div>
-            </div>
+                <div className="space-y-1.5 group">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="password" className="text-xs font-bold text-slate-400 uppercase tracking-wider group-focus-within:text-cyan-400 transition-colors">
+                      Password
+                    </label>
+                    <Link href="/forgot-password" className="text-xs font-medium text-cyan-500 hover:text-cyan-400 transition-colors">
+                      Forgot?
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                    <input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-3.5">
+                <div className="space-y-1.5 group">
+                  <label htmlFor="twoFactorCode" className="text-xs font-bold text-cyan-400 uppercase tracking-wider text-center block">
+                    Authenticator Code
+                  </label>
+                  <p className="text-xs text-slate-400 text-center mb-2">Open your authenticator app and enter the 6-digit code.</p>
+                  <div className="relative">
+                    <input
+                      id="twoFactorCode"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={twoFactorCode}
+                      onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ""))}
+                      placeholder="000000"
+                      required
+                      autoFocus
+                      className="w-full h-12 bg-slate-950/50 border border-white/5 rounded-xl text-center text-2xl tracking-[0.5em] font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all"
+                    />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setTwoFactorRequired(false)}
+                  className="w-full text-center text-xs text-slate-500 hover:text-white transition-colors"
+                >
+                  Cancel / Back
+                </button>
+              </motion.div>
+            )}
 
             <AnimatePresence>
               {error && (

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, ArrowRight, Lock, Mail } from "lucide-react";
+import { Loader2, ArrowRight, Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { registerUser } from "@/app/actions/authActions";
 import { Logo } from "@/components/ui/logo";
 import { Turnstile } from "@/components/turnstile";
@@ -38,6 +38,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -228,14 +230,21 @@ export default function RegisterPage() {
                 <input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
                   minLength={8}
                   value={password}
                   onChange={(e) => { setPassword(e.target.value); setPasswordMismatch(false); }}
-                  className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
+                  className="w-full h-10 bg-slate-950/50 border border-white/5 rounded-xl pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)] transition-all text-sm"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -248,18 +257,25 @@ export default function RegisterPage() {
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="••••••••"
                   required
                   minLength={8}
                   value={confirmPassword}
                   onChange={(e) => { setConfirmPassword(e.target.value); setPasswordMismatch(false); }}
-                  className={`w-full h-10 bg-slate-950/50 border rounded-xl pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none transition-all text-sm ${
+                  className={`w-full h-10 bg-slate-950/50 border rounded-xl pl-10 pr-10 text-white placeholder:text-slate-600 focus:outline-none transition-all text-sm ${
                     passwordMismatch
                       ? 'border-rose-500/60 focus:border-rose-500 focus:shadow-[0_0_0_2px_rgba(239,68,68,0.1)]'
                       : 'border-white/5 focus:border-cyan-500/50 focus:shadow-[0_0_0_2px_rgba(6,182,212,0.1)]'
                   }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
               <AnimatePresence>
                 {passwordMismatch && (
@@ -300,7 +316,7 @@ export default function RegisterPage() {
                 />
                 {!captchaToken && (
                   <p className="text-xs text-slate-500 text-center">
-                    ☝️ Complete the verification above to continue
+                    Complete the verification above to continue
                   </p>
                 )}
               </div>

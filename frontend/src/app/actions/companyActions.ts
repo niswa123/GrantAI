@@ -35,7 +35,7 @@ export async function getUserCompanies() {
   }));
 }
 
-export async function createCompany(name: string, country: string, logoUrl?: string) {
+export async function createCompany(name: string, country: string, logoUrl?: string, registrationNumber?: string, vatNumber?: string) {
   const session = await getServerSession(authOptions);
   
   if (!session || !(session.user as any)?.id) {
@@ -48,6 +48,8 @@ export async function createCompany(name: string, country: string, logoUrl?: str
         name,
         country,
         logo_url: logoUrl,
+        registration_number: registrationNumber || null,
+        vat_number: vatNumber || null,
         user_id: (session.user as any).id,
       }
     });
@@ -106,3 +108,40 @@ export async function updateCompany(id: string, name: string, country: string, d
   }
 }
 
+
+export async function getCompanySyncDefaults(companyId: string): Promise<{ salaries: number; devCosts: number; lastSyncAt: Date | null }> {
+  const session = await getServerSession(authOptions);
+  if (!session || !(session.user as any)?.id) return { salaries: 100000, devCosts: 20000, lastSyncAt: null };
+
+  try {
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      select: { estimated_salaries: true, estimated_dev_costs: true, last_sync_at: true },
+    });
+    return {
+      salaries: company?.estimated_salaries ? Number(company.estimated_salaries) : 100000,
+      devCosts: company?.estimated_dev_costs ? Number(company.estimated_dev_costs) : 20000,
+      lastSyncAt: company?.last_sync_at ?? null,
+    };
+  } catch {
+    return { salaries: 100000, devCosts: 20000, lastSyncAt: null };
+  }
+}
+
+export async function updateCompanySyncDefaults(companyId: string, salaries: number, devCosts: number) {
+  const session = await getServerSession(authOptions);
+  if (!session || !(session.user as any)?.id) return;
+
+  try {
+    await prisma.company.update({
+      where: { id: companyId, user_id: (session.user as any).id },
+      data: {
+        estimated_salaries: salaries,
+        estimated_dev_costs: devCosts,
+        last_sync_at: new Date(),
+      },
+    });
+  } catch {
+    // Non-fatal — sync still completed
+  }
+}

@@ -5,6 +5,7 @@ import GitHubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
+import { verifyTOTPCode } from '@/lib/two-factor';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -35,6 +36,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        twoFactorCode: { label: '2FA Code', type: 'text' },
       },
       async authorize(credentials: Record<string, string> | undefined) {
         if (!credentials?.email || !credentials?.password) {
@@ -59,6 +61,19 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) {
           throw new Error('Invalid password');
         }
+
+        // ── Phase 3: 2FA Check ──────────────────────────────────────────────
+        if (user.two_factor_enabled) {
+          if (!credentials.twoFactorCode) {
+            // Signal to the frontend that a 2FA code is required
+            throw new Error('2FA_REQUIRED');
+          }
+          const isValidOTP = verifyTOTPCode(user.two_factor_secret!, credentials.twoFactorCode);
+          if (!isValidOTP) {
+            throw new Error('INVALID_2FA_CODE');
+          }
+        }
+        // ────────────────────────────────────────────────────────────────────
 
         return {
           id: user.id,

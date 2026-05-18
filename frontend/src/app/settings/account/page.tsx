@@ -7,6 +7,7 @@ import {
   KeyRound, User, Shield, Loader2, RefreshCcw, Upload,
 } from "lucide-react";
 import { getUserProfile, updateUserProfile, changePassword } from "@/app/actions/userActions";
+import { TwoFactorModal } from "@/components/settings/two-factor-modal";
 
 // ── Shared UI components ──────────────────────────────────────────────────
 
@@ -135,6 +136,8 @@ function ProfileSection() {
         setInitialName(profile.displayName);
         setInitialEmail(profile.email);
         setInitialAvatar(fetchedAvatar);
+        // We trigger an event so other components (like SecuritySection) can read the 2FA status
+        document.dispatchEvent(new CustomEvent('profileLoaded', { detail: profile }));
       }
       setLoading(false);
     });
@@ -296,39 +299,124 @@ function PasswordSection() {
 // ── Security section ──────────────────────────────────────────────────────
 
 function SecuritySection() {
-  const [twofa, setTwofa] = useState(false);
-  return (
-    <Section title="Security" description="Protect your account with additional verification." icon={Shield}>
-      <div className="flex items-center justify-between py-1">
-        <div>
-          <div className="text-sm font-semibold text-white">Two-Factor Authentication</div>
-          <div className="text-xs text-slate-400 mt-0.5">Require a code in addition to your password.</div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setTwofa((v) => !v)}
-          className={`relative w-11 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 ${twofa ? "bg-cyan-500" : "bg-slate-700"}`}
-        >
-          <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ${twofa ? "translate-x-5" : "translate-x-0"}`} />
-        </button>
-      </div>
-      {twofa && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}
-          className="px-3 py-2.5 rounded-xl bg-cyan-500/5 border border-cyan-500/15 text-xs text-cyan-300">
-          2FA setup coming in a future release.
-        </motion.div>
-      )}
+  const [twofaEnabled, setTwofaEnabled] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [disabling, setDisabling] = useState(false);
+  const [code, setCode] = useState("");
+  const [showDisableForm, setShowDisableForm] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-      <div className="flex items-center justify-between py-1 border-t border-white/5 pt-4 mt-2">
-        <div>
-          <div className="text-sm font-semibold text-white">Active Sessions</div>
-          <div className="text-xs text-slate-400 mt-0.5">1 active session · Current device</div>
+  useEffect(() => {
+    const handleProfile = (e: any) => {
+      setTwofaEnabled(e.detail.twoFactorEnabled);
+    };
+    document.addEventListener('profileLoaded', handleProfile);
+    // Fetch directly if component mounts later
+    getUserProfile().then((p) => {
+      if (p) setTwofaEnabled(p.twoFactorEnabled);
+    });
+    return () => document.removeEventListener('profileLoaded', handleProfile);
+  }, []);
+
+  const handleToggleClick = () => {
+    if (!twofaEnabled) {
+      setShowModal(true);
+    } else {
+      setShowDisableForm(!showDisableForm);
+    }
+  };
+
+  const handleDisableSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.length !== 6) {
+      setErrorMsg("Please enter a 6-digit code.");
+      return;
+    }
+    setDisabling(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch("/api/auth/2fa/disable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTwofaEnabled(false);
+        setShowDisableForm(false);
+        setCode("");
+      } else {
+        setErrorMsg(data.error || "Invalid code.");
+      }
+    } catch {
+      setErrorMsg("Network error.");
+    } finally {
+      setDisabling(false);
+    }
+  };
+
+  return (
+    <>
+      <Section title="Security" description="Protect your account with additional verification." icon={Shield}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between py-1 gap-4">
+          <div>
+            <div className="text-sm font-semibold text-white flex items-center gap-2">
+              Two-Factor Authentication
+              {twofaEnabled && <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">Enabled</span>}
+            </div>
+            <div className="text-xs text-slate-400 mt-0.5">Require a code from an authenticator app in addition to your password.</div>
+          </div>
+          <button
+            type="button"
+            onClick={handleToggleClick}
+            className={`relative w-11 h-6 rounded-full flex-shrink-0 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 ${twofaEnabled ? "bg-cyan-500" : "bg-slate-700"}`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ${twofaEnabled ? "translate-x-5" : "translate-x-0"}`} />
+          </button>
         </div>
-        <button className="px-3 py-1.5 rounded-lg border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10 transition-colors">
-          Revoke All
-        </button>
-      </div>
-    </Section>
+
+        <AnimatePresence>
+          {showDisableForm && twofaEnabled && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+              <form onSubmit={handleDisableSubmit} className="mt-2 p-4 rounded-xl bg-rose-500/5 border border-rose-500/20">
+                <p className="text-xs text-rose-300 mb-3">To disable 2FA, please enter the current 6-digit code from your authenticator app.</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                    placeholder="000000"
+                    className="flex-1 h-10 bg-slate-950/50 border border-white/10 rounded-lg px-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/50 transition-all font-mono tracking-widest"
+                  />
+                  <button type="submit" disabled={disabling || code.length !== 6} className="px-4 h-10 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-lg transition-colors flex items-center justify-center min-w-[100px] disabled:opacity-50">
+                    {disabling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Disable"}
+                  </button>
+                </div>
+                {errorMsg && <p className="text-xs text-rose-400 mt-2">{errorMsg}</p>}
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center justify-between py-1 border-t border-white/5 pt-4 mt-2">
+          <div>
+            <div className="text-sm font-semibold text-white">Active Sessions</div>
+            <div className="text-xs text-slate-400 mt-0.5">1 active session · Current device</div>
+          </div>
+          <button className="px-3 py-1.5 rounded-lg border border-rose-500/30 text-rose-400 text-xs font-semibold hover:bg-rose-500/10 transition-colors">
+            Revoke All
+          </button>
+        </div>
+      </Section>
+
+      <TwoFactorModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSuccess={() => setTwofaEnabled(true)}
+      />
+    </>
   );
 }
 

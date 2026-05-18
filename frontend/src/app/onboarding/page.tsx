@@ -22,6 +22,8 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
 
   const [companyName, setCompanyName] = useState("");
+  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [vatNumber, setVatNumber] = useState("");
   const [country, setCountry] = useState("");
 
   const userName = session?.user?.name?.split(" ")[0] || "there";
@@ -36,7 +38,13 @@ export default function OnboardingPage() {
     setError("");
 
     try {
-      const result = await createCompany(companyName.trim(), country);
+      const result = await createCompany(
+        companyName.trim(),
+        country,
+        undefined,
+        registrationNumber.trim() || undefined,
+        vatNumber.trim() || undefined
+      );
       if (result.error) {
         setError(result.error);
         setLoading(false);
@@ -44,7 +52,9 @@ export default function OnboardingPage() {
       }
       // Show success step briefly, then redirect
       setStep(3);
-      setTimeout(() => router.push("/dashboard"), 1500);
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1500);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -128,41 +138,70 @@ export default function OnboardingPage() {
                   Step 2 of 2
                 </div>
 
-                <h2 className="text-2xl font-black text-white tracking-tighter mb-1">
-                  Your Workspace
+                <h2 className="text-xl font-bold text-white mb-1">
+                  Legal Identity
                 </h2>
-                <p className="text-slate-400 text-sm mb-7">
-                  Tell us about your company so we can apply the right tax rules.
+                <p className="text-slate-400 text-sm mb-6">
+                  Details of your registered legal entity.
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Company Name */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-                      Company Name
+                    <label className="text-sm font-semibold text-white">
+                      Legal Entity Name
                     </label>
                     <input
                       type="text"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="Acme Technologies B.V."
+                      placeholder="CodeChain"
                       required
-                      className="w-full h-12 px-4 rounded-xl bg-slate-800/60 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all text-sm"
+                      className="w-full h-11 px-4 rounded-xl bg-slate-900/60 border border-white/10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm"
                     />
                   </div>
 
+                  {/* Reg Number & VAT */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-white">
+                        Registration Number
+                      </label>
+                      <input
+                        type="text"
+                        value={registrationNumber}
+                        onChange={(e) => setRegistrationNumber(e.target.value)}
+                        placeholder="KVK 12345678"
+                        className="w-full h-11 px-4 rounded-xl bg-slate-900/60 border border-white/10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm"
+                      />
+                      <p className="text-xs text-slate-500 mt-1.5">
+                        Chamber of Commerce / company registration number
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-white">
+                        VAT Number
+                      </label>
+                      <input
+                        type="text"
+                        value={vatNumber}
+                        onChange={(e) => setVatNumber(e.target.value)}
+                        placeholder="NL123456789B01"
+                        className="w-full h-11 px-4 rounded-xl bg-slate-900/60 border border-white/10 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+
                   {/* Country */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                      Country / Jurisdiction
+                  <div className="space-y-2 pt-2">
+                    <label className="text-sm font-semibold text-white">
+                      Country
                     </label>
                     <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
                       required
-                      className="w-full h-12 px-4 rounded-xl bg-slate-800/60 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50 focus:shadow-[0_0_0_3px_rgba(6,182,212,0.1)] transition-all text-sm appearance-none cursor-pointer"
+                      className="w-full h-11 px-4 rounded-xl bg-slate-900/60 border border-white/10 text-white focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-sm appearance-none cursor-pointer"
                     >
                       <option value="" className="bg-slate-900">Select your country...</option>
                       {COUNTRIES.map((c) => (

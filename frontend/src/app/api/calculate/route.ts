@@ -20,6 +20,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { runRdPipeline } from "@/lib/rd-engine/pipeline";
 import { computeCredit } from "@/lib/rd-engine/credit-calculator";
+import { rateLimit, getClientIp } from "@/lib/rate-limiter";
 
 // Allow up to 60s for this AI-heavy route (Vercel Hobby max)
 export const maxDuration = 60;
@@ -81,10 +82,28 @@ export async function POST(request: NextRequest) {
   try {
     // ── Auth & Access Control ──────────────────────────────────────────────
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id as string | undefined;
+    const user = session?.user as any;
+    const userId = user?.id as string | undefined;
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
+    }
+
+    // Fix #1: Block unverified email users from spending AI credits
+    if (!user?.emailVerified) {
+      return NextResponse.json(
+        { error: "Please verify your email address before generating claims." },
+        { status: 403 }
+      );
+    }
+
+    // Fix #4: Rate limit calculate endpoint (10 claims per user per hour)
+    const { allowed: rateLimited } = rateLimit(`calculate:${userId}`, 10, 60 * 60 * 1000);
+    if (!rateLimited) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. You can generate up to 10 claims per hour." },
+        { status: 429 }
+      );
     }
 
     const { getUserAccessLevel } = await import("@/lib/access-control");
