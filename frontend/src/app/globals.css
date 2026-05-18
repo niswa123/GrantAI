@@ -30,6 +30,11 @@
   html {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Ensure all interactive buttons show a pointer cursor unless disabled */
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer utilities {
