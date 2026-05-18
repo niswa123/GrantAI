@@ -110,44 +110,101 @@ export function ZoomThroughTransition() {
             {/* Screen Content - Minimalist Linear/Stripe style */}
             <div className="absolute inset-0 bg-slate-950 p-8 flex flex-col justify-between">
               
-              {/* Top header - technical/clean */}
-              <div className="flex items-center justify-between w-full border-b border-white/10 pb-4">
+              {/* Top header - Technical & Futuristic */}
+              <div className="flex items-center justify-between w-full border-b border-white/5 pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
-                  <span className="text-xs uppercase tracking-[0.2em] text-slate-400 font-mono">Engine.Active</span>
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 absolute" />
+                    <motion.div 
+                      animate={{ scale: [1, 2.5, 1], opacity: [0.5, 0, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-2 h-2 rounded-full bg-emerald-400 absolute"
+                    />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-300 font-mono ml-2">Neural.Sync</span>
+                  <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-wider border border-emerald-500/20 ml-1">Live</span>
                 </div>
-                <span className="text-xs uppercase tracking-widest text-slate-600 font-mono">v2.4.0</span>
+                <span className="text-[10px] uppercase tracking-widest text-slate-600 font-mono flex items-center gap-1.5">
+                  <span className="w-1 h-1 bg-slate-600 rounded-full" />
+                  Model_v4
+                </span>
               </div>
               
-              {/* Center metric - pure typography */}
-              <div className="flex flex-col items-start justify-center flex-1">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="flex items-baseline gap-2"
-                >
-                  <span className="text-7xl font-light tracking-tighter text-white font-mono">24</span>
-                  <span className="text-2xl text-slate-500 font-mono">h</span>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="mt-2 text-sm text-cyan-400/80 uppercase tracking-widest font-semibold"
-                >
-                  Avg. Processing
-                </motion.div>
+              {/* Center Core - Dynamic Holographic Display */}
+              <div className="flex flex-row items-center justify-between flex-1 mt-2">
+                {/* Left side: Value & Status */}
+                <div className="flex flex-col items-start justify-center h-full">
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 }}
+                    className="flex flex-col"
+                  >
+                    <span className="text-[10px] text-cyan-400/70 uppercase tracking-[0.2em] font-mono mb-1">Uncertainty Found</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-black tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 text-transparent bg-clip-text">
+                        99.8
+                      </span>
+                      <span className="text-2xl font-bold text-cyan-500">%</span>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="mt-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.05]"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                    <span className="text-[9px] text-slate-400 uppercase tracking-widest">Processing Commits</span>
+                  </motion.div>
+                </div>
+
+                {/* Right side: Abstract Animated Scanner */}
+                <div className="relative w-28 h-28 flex items-center justify-center -mr-2">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 border-[1px] border-dashed border-cyan-500/30 rounded-full"
+                  />
+                  <motion.div
+                    animate={{ rotate: -360 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-3 border-[1px] border-white/10 rounded-full flex items-center justify-center"
+                  >
+                     <div className="w-full h-[1px] bg-white/20 absolute" />
+                     <div className="h-full w-[1px] bg-white/20 absolute" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ scale: [0.8, 1.2, 0.8], opacity: [0.3, 0.8, 0.3] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-8 bg-cyan-500/20 rounded-full blur-md"
+                  />
+                  {/* Central Core Icon */}
+                  <div className="z-10 bg-slate-950 p-2 rounded-full border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                  </div>
+                </div>
               </div>
 
-              {/* Bottom abstract progress line */}
-              <div className="w-full h-[1px] bg-white/5 relative overflow-hidden">
-                <motion.div
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                  className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"
-                />
+              {/* Bottom abstract progress line / Waveform */}
+              <div className="w-full h-4 relative flex flex-col justify-end overflow-hidden mt-4 gap-0.5">
+                <div className="flex items-end h-full gap-[2px] opacity-40">
+                  {[...Array(30)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ height: ['20%', '100%', '20%'] }}
+                      transition={{ 
+                        duration: 1.5, 
+                        repeat: Infinity, 
+                        delay: i * 0.05,
+                        ease: "easeInOut" 
+                      }}
+                      className="flex-1 bg-cyan-500/50 rounded-t-sm"
+                    />
+                  ))}
+                </div>
+                <div className="w-full h-[1px] bg-gradient-to-r from-cyan-500/10 via-cyan-500/60 to-cyan-500/10" />
               </div>
             </div>
           </motion.div>
