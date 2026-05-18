@@ -279,18 +279,18 @@ export default function DashboardPage() {
           {/* ── CTA (when empty) or Toolbar (when has data) ── */}
           {history.length === 0 ? (
             <motion.div variants={item}>
-              <div className="group w-full relative overflow-hidden rounded-3xl border border-violet-500/30 bg-slate-900/80 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+              <div className="group w-full relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-slate-900/80 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
                 {/* Background effects */}
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-cyan-500/5 to-transparent pointer-events-none" />
-                <div className="absolute -top-24 -right-24 w-64 h-64 bg-violet-500/20 blur-[80px] rounded-full pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-teal-500/5 to-transparent pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-500/10 blur-[80px] rounded-full pointer-events-none" />
                 
                 <div className="relative p-6 sm:p-10 flex flex-col items-center text-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
-                    <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-violet-400" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                    <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-400" />
                   </div>
                   
                   <h2 className="text-2xl sm:text-4xl font-black text-white mb-3 tracking-tight">
-                    Unlock Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Engineering Capital</span>
+                    Unlock Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">Engineering Capital</span>
                   </h2>
                   
                   <p className="text-slate-400 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">
