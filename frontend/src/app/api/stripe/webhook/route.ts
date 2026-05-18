@@ -5,7 +5,7 @@ import { loopsOnSubscriptionActivated, loopsOnSubscriptionCancelled } from '@/li
 import { attioOnSubscriptionActivated, attioOnSubscriptionCancelled } from '@/lib/attio';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2026-04-22.dahlia',
 });
 
 /**
@@ -115,9 +115,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         ? session.subscription
         : session.subscription.id;
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
     stripeSubscriptionId = subscription.id;
-    periodEnd = new Date(subscription.current_period_end * 1000);
+    periodEnd = new Date((subscription as any).current_period_end * 1000);
   } else if (session.mode === 'payment') {
     // One-time payment → grant 30 days of access
     periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -170,14 +170,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
  * Fires on each successful subscription renewal. Updates current_period_end.
  */
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
+  const invoiceSub = (invoice as any).subscription;
   const subscriptionId =
-    typeof invoice.subscription === 'string'
-      ? invoice.subscription
-      : invoice.subscription?.id;
+    typeof invoiceSub === 'string'
+      ? invoiceSub
+      : invoiceSub?.id;
 
   if (!subscriptionId) return;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = (await stripe.subscriptions.retrieve(subscriptionId)) as unknown as Stripe.Subscription;
   const userId = subscription.metadata?.userId;
 
   if (!userId) {
@@ -185,7 +186,7 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
     return;
   }
 
-  const periodEnd = new Date(subscription.current_period_end * 1000);
+  const periodEnd = new Date((subscription as any).current_period_end * 1000);
 
   await prisma.user.update({
     where: { id: userId },

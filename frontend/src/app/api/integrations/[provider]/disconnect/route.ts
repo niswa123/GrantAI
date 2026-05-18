@@ -11,14 +11,14 @@ import prisma from "@/lib/prisma";
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: { provider: string } }
+  { params }: { params: Promise<{ provider: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { provider } = params;
+  const { provider } = await params;
   const { searchParams } = new URL(request.url);
   const companyId = searchParams.get("companyId");
 

@@ -132,6 +132,7 @@ export default function WorkspaceSettingsPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeWorkspace?.id) return;
     setSaving(true);
     
     // Update local storage for extra fields

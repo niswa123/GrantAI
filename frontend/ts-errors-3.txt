@@ -1,0 +1,10 @@
+scripts/ai-evaluation.ts(133,47): error TS18046: 'e' is of type 'unknown'.
+src/app/api/inngest/route.ts(1,23): error TS2307: Cannot find module 'inngest/next' or its corresponding type declarations.
+src/app/api/stripe/webhook/route.ts(120,39): error TS2339: Property 'current_period_end' does not exist on type 'Subscription'.
+src/app/api/stripe/webhook/route.ts(189,43): error TS2339: Property 'current_period_end' does not exist on type 'Subscription'.
+src/app/dashboard/events/page.tsx(107,41): error TS18047: 'activeWorkspace' is possibly 'null'.
+src/app/payment/success/page.tsx(8,22): error TS2307: Cannot find module 'canvas-confetti' or its corresponding type declarations.
+src/app/settings/workspace/page.tsx(138,44): error TS18047: 'activeWorkspace' is possibly 'null'.
+src/inngest/client.ts(1,25): error TS2307: Cannot find module 'inngest' or its corresponding type declarations.
+src/inngest/functions.ts(7,12): error TS7031: Binding element 'event' implicitly has an 'any' type.
+src/inngest/functions.ts(7,19): error TS7031: Binding element 'step' implicitly has an 'any' type.

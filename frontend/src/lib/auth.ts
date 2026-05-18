@@ -9,7 +9,7 @@ import { verifyTOTPCode } from '@/lib/two-factor';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  // Increase timeout for OAuth token exchange (default 3500ms is too short)
+  // @ts-ignore: NextAuth internal option for timeout
   httpOptions: {
     timeout: 15000,
   },

@@ -1,0 +1,31 @@
+.next/dev/types/validator.ts(351,31): error TS2344: Type 'typeof import("/Users/ape.ces/Desktop/GrantAi/frontend/src/app/api/integrations/[provider]/disconnect/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/integrations/[provider]/disconnect">'.
+  Types of property 'DELETE' are incompatible.
+    Type '(request: Request, { params }: { params: { provider: string; }; }) => Promise<NextResponse<{ error: string; }> | NextResponse<{ success: boolean; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ provider: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ provider: string; }>; }' is not assignable to type '{ params: { provider: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'provider' is missing in type 'Promise<{ provider: string; }>' but required in type '{ provider: string; }'.
+.next/types/validator.ts(306,31): error TS2344: Type 'typeof import("/Users/ape.ces/Desktop/GrantAi/frontend/src/app/api/integrations/[provider]/disconnect/route")' does not satisfy the constraint 'RouteHandlerConfig<"/api/integrations/[provider]/disconnect">'.
+  Types of property 'DELETE' are incompatible.
+    Type '(request: Request, { params }: { params: { provider: string; }; }) => Promise<NextResponse<{ error: string; }> | NextResponse<{ success: boolean; }>>' is not assignable to type '(request: NextRequest, context: { params: Promise<{ provider: string; }>; }) => void | Response | Promise<void | Response>'.
+      Types of parameters '__1' and 'context' are incompatible.
+        Type '{ params: Promise<{ provider: string; }>; }' is not assignable to type '{ params: { provider: string; }; }'.
+          Types of property 'params' are incompatible.
+            Property 'provider' is missing in type 'Promise<{ provider: string; }>' but required in type '{ provider: string; }'.
+next.config.ts(6,5): error TS2353: Object literal may only specify known properties, and 'serverActionsBodySizeLimit' does not exist in type 'ExperimentalConfig'.
+scripts/ai-evaluation.ts(133,47): error TS18046: 'e' is of type 'unknown'.
+src/app/actions/billingActions.ts(9,3): error TS2322: Type '"2025-04-30.basil"' is not assignable to type '"2026-04-22.dahlia"'.
+src/app/api/inngest/route.ts(1,23): error TS2307: Cannot find module 'inngest/next' or its corresponding type declarations.
+src/app/api/stripe/checkout/route.ts(8,3): error TS2322: Type '"2025-04-30.basil"' is not assignable to type '"2026-04-22.dahlia"'.
+src/app/api/stripe/webhook/route.ts(8,3): error TS2322: Type '"2025-04-30.basil"' is not assignable to type '"2026-04-22.dahlia"'.
+src/app/api/stripe/webhook/route.ts(120,39): error TS2339: Property 'current_period_end' does not exist on type 'Response<Subscription>'.
+src/app/api/stripe/webhook/route.ts(174,20): error TS2339: Property 'subscription' does not exist on type 'Invoice'.
+src/app/api/stripe/webhook/route.ts(175,17): error TS2339: Property 'subscription' does not exist on type 'Invoice'.
+src/app/api/stripe/webhook/route.ts(176,17): error TS2339: Property 'subscription' does not exist on type 'Invoice'.
+src/app/api/stripe/webhook/route.ts(188,43): error TS2339: Property 'current_period_end' does not exist on type 'Response<Subscription>'.
+src/app/dashboard/events/page.tsx(107,41): error TS18047: 'activeWorkspace' is possibly 'null'.
+src/app/payment/success/page.tsx(8,22): error TS2307: Cannot find module 'canvas-confetti' or its corresponding type declarations.
+src/app/settings/workspace/page.tsx(138,44): error TS18047: 'activeWorkspace' is possibly 'null'.
+src/inngest/client.ts(1,25): error TS2307: Cannot find module 'inngest' or its corresponding type declarations.
+src/inngest/functions.ts(7,12): error TS7031: Binding element 'event' implicitly has an 'any' type.
+src/inngest/functions.ts(7,19): error TS7031: Binding element 'step' implicitly has an 'any' type.

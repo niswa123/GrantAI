@@ -130,7 +130,7 @@ async function evaluate() {
         console.log(`Объяснение LLM: ${result.explanation}\n`);
       }
     } catch (e) {
-      console.error(`\nОшибка на логе ${i}:`, e.message);
+      console.error(`\nОшибка на логе ${i}:`, (e as any).message);
     }
   }
 

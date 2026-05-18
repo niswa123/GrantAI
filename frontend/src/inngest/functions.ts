@@ -4,7 +4,7 @@ import { analyzeEngineeringEvent as runEventAnalyzer } from "@/lib/rd-engine/eve
 export const analyzeEngineeringEvent = inngest.createFunction(
   { id: "analyze-engineering-event" },
   { event: "engineering/event.received" },
-  async ({ event, step }) => {
+  async ({ event, step }: { event: any; step: any }) => {
     const { eventId } = event.data;
 
     // Call the real R&D Engine to classify via LLM and persist the AnalyzedLog

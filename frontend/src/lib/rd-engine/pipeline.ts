@@ -41,7 +41,8 @@ CRITICAL DIRECTIVES — READ CAREFULLY:
 5. You MUST reason step-by-step BEFORE scoring (Chain-of-Thought).
 
 ${rules.legalFramework} CORE CRITERIA:
-${rules.legalDefinitionPrompt}
+1. Must achieve an "${rules.terminology.advance}".
+2. Must overcome "${rules.terminology.uncertainty}".
 
 SCORING SCALE:
 - 0.0–0.2: Clearly routine / commercial / UI changes / simple fixes

@@ -104,7 +104,7 @@ export default function EventsPage() {
                 </h1>
               </div>
               <p className="text-sm text-slate-400">
-                AI pipeline evaluating {activeWorkspace.name} engineering events for R&D qualification.
+                AI pipeline evaluating {activeWorkspace?.name || "your workspace's"} engineering events for R&D qualification.
               </p>
             </div>
 
