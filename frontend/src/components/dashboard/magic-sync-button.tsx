@@ -10,9 +10,10 @@ type SyncStage = "idle" | "fetching" | "analyzing" | "done" | "error";
 interface MagicSyncButtonProps {
   companyId: string;
   onSuccess: () => void;
+  fullWidth?: boolean;
 }
 
-export function MagicSyncButton({ companyId, onSuccess }: MagicSyncButtonProps) {
+export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: MagicSyncButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [stage, setStage] = useState<SyncStage>("idle");
   const [salaryCosts, setSalaryCosts] = useState("100000");
@@ -97,16 +98,16 @@ export function MagicSyncButton({ companyId, onSuccess }: MagicSyncButtonProps) 
       <button
         onClick={() => setIsOpen(true)}
         id="magic-sync-unified"
-        className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/80 border border-violet-500/30 text-violet-300 hover:text-white hover:bg-violet-500/10 hover:border-violet-400/50 font-bold text-xs sm:text-sm transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] touch-manipulation"
+        className={`flex items-center justify-center gap-2 ${fullWidth ? 'w-full py-3.5 rounded-xl' : 'px-3 sm:px-4 py-2 rounded-xl'} bg-slate-800/80 border border-violet-500/30 text-violet-300 hover:text-white hover:bg-violet-500/10 hover:border-violet-400/50 font-bold text-sm transition-all shadow-[0_0_15px_rgba(139,92,246,0.1)] hover:shadow-[0_0_25px_rgba(139,92,246,0.25)] touch-manipulation`}
       >
-        <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-violet-400" />
-        <span className="hidden xs:inline">Magic Sync</span>
-        <span className="xs:hidden">Sync</span>
+        <Zap className="w-4 h-4 text-violet-400" />
+        <span className={fullWidth ? '' : 'hidden xs:inline'}>Magic Sync</span>
+        {!fullWidth && <span className="xs:hidden">Sync</span>}
       </button>
 
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -116,13 +117,19 @@ export function MagicSyncButton({ companyId, onSuccess }: MagicSyncButtonProps) 
             />
             
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-slate-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-full max-w-lg bg-slate-900 border-t md:border border-white/10 rounded-t-[2rem] md:rounded-2xl shadow-[0_-20px_50px_rgba(0,0,0,0.5)] overflow-hidden max-h-[90vh] overflow-y-auto overscroll-none"
             >
+              {/* Mobile grab handle */}
+              <div className="w-full flex justify-center pt-3 pb-1 md:hidden bg-slate-900 absolute top-0 z-20">
+                <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+              </div>
+
               {/* Header */}
-              <div className="relative p-6 pb-4 bg-gradient-to-br from-violet-500/10 via-slate-900 to-cyan-500/10 border-b border-white/5">
+              <div className="relative p-6 pt-10 md:pt-6 pb-4 bg-gradient-to-br from-violet-500/10 via-slate-900 to-cyan-500/10 border-b border-white/5">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-slate-800 border border-white/10 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                     <Zap className="w-5 h-5 text-violet-400" />

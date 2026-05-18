@@ -28,12 +28,13 @@ const item: Variants = {
 
 // ── Stat Card ─────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub, icon: Icon, color, glow }: {
+function StatCard({ label, value, sub, icon: Icon, color, glow, className = "" }: {
   label: string; value: string | number; sub?: string;
   icon: React.ElementType; color: string; glow: string;
+  className?: string;
 }) {
   return (
-    <div className={`bg-slate-900/50 backdrop-blur-xl border border-white/8 rounded-xl sm:rounded-2xl p-4 sm:p-5 ${glow}`}>
+    <div className={`bg-slate-900/50 backdrop-blur-xl border border-white/8 rounded-xl sm:rounded-2xl p-4 sm:p-5 ${glow} ${className}`}>
       <div className="flex items-center gap-2 mb-2">
         <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${color}`} />
         <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
@@ -176,7 +177,7 @@ export default function DashboardPage() {
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-32 sm:pb-20">
         {/* Sticky summary (appears after scrolling past stats) */}
         <StickySummaryBar totalRefund={totalRefund} count={filtered.length} show={showStickyBar && history.length > 0} />
 
@@ -193,16 +194,15 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-500 mt-0.5">Track and manage your R&amp;D tax credit applications</p>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-2">
+              {/* Actions - Desktop Only (Mobile uses Bottom FAB) */}
+              <div className="hidden md:flex items-center gap-2">
                 {history.length > 0 && (
                   <button
                     onClick={() => exportToCSV(filtered)}
                     className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-slate-800/80 border border-white/10 text-slate-300 hover:text-white hover:border-white/20 text-xs sm:text-sm font-semibold transition-all touch-manipulation"
                   >
                     <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="hidden xs:inline">Export CSV</span>
-                    <span className="xs:hidden">CSV</span>
+                    <span>Export CSV</span>
                   </button>
                 )}
                 <MagicSyncButton
@@ -215,8 +215,7 @@ export default function DashboardPage() {
                   className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs sm:text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] touch-manipulation"
                 >
                   <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">New Calculation</span>
-                  <span className="xs:hidden">New</span>
+                  <span>New Calculation</span>
                   <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </Link>
               </div>
@@ -225,7 +224,7 @@ export default function DashboardPage() {
 
           {/* ── Stats ── */}
           {history.length > 0 && (
-            <motion.div ref={statsRef} variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+            <motion.div ref={statsRef} variants={item} className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4 sm:pb-0 sm:-mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 sm:mb-8">
               <StatCard
                 label="Total Refund"
                 value={`€${totalRefund.toLocaleString("en-EU", { maximumFractionDigits: 0 })}`}
@@ -233,6 +232,7 @@ export default function DashboardPage() {
                 icon={Euro}
                 color="text-cyan-400"
                 glow="shadow-[0_0_20px_rgba(6,182,212,0.1)]"
+                className="min-w-[85vw] sm:min-w-0 snap-center"
               />
               <StatCard
                 label="Effective ROI"
@@ -241,6 +241,7 @@ export default function DashboardPage() {
                 icon={TrendingUp}
                 color="text-emerald-400"
                 glow="shadow-[0_0_20px_rgba(52,211,153,0.1)]"
+                className="min-w-[85vw] sm:min-w-0 snap-center"
               />
               <StatCard
                 label="R&D Projects"
@@ -249,6 +250,7 @@ export default function DashboardPage() {
                 icon={BarChart3}
                 color="text-violet-400"
                 glow="shadow-[0_0_20px_rgba(139,92,246,0.1)]"
+                className="min-w-[85vw] sm:min-w-0 snap-center"
               />
               {riskyCount > 0 ? (
                 <StatCard
@@ -258,6 +260,7 @@ export default function DashboardPage() {
                   icon={BarChart3}
                   color="text-rose-400"
                   glow="shadow-[0_0_20px_rgba(244,63,94,0.1)]"
+                  className="min-w-[85vw] sm:min-w-0 snap-center"
                 />
               ) : (
                 <StatCard
@@ -267,6 +270,7 @@ export default function DashboardPage() {
                   icon={BarChart3}
                   color="text-slate-300"
                   glow=""
+                  className="min-w-[85vw] sm:min-w-0 snap-center"
                 />
               )}
             </motion.div>
@@ -275,25 +279,39 @@ export default function DashboardPage() {
           {/* ── CTA (when empty) or Toolbar (when has data) ── */}
           {history.length === 0 ? (
             <motion.div variants={item}>
-              <Link
-                href="/input"
-                id="start-new-calculation"
-                className="group block w-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 via-slate-900/80 to-violet-500/10 p-6 sm:p-8 md:p-10 hover:border-cyan-400/40 transition-all duration-500 hover:shadow-[0_0_60px_rgba(6,182,212,0.15)]"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl sm:rounded-3xl" />
-                <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6">
-                  <div>
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] mb-3 sm:mb-4 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-shadow">
-                      <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
-                    </div>
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-2">Start New R&amp;D Calculation</h2>
-                    <p className="text-slate-400 text-sm sm:text-base max-w-md">Describe your project and enter costs — our AI scores R&amp;D eligibility and estimates your refund in seconds.</p>
+              <div className="group w-full relative overflow-hidden rounded-3xl border border-violet-500/30 bg-slate-900/80 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
+                {/* Background effects */}
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-cyan-500/5 to-transparent pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-violet-500/20 blur-[80px] rounded-full pointer-events-none" />
+                
+                <div className="relative p-6 sm:p-10 flex flex-col items-center text-center">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-violet-500/20 to-cyan-500/20 border border-violet-500/30 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
+                    <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-violet-400" />
                   </div>
-                  <div className="flex-shrink-0 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-cyan-500 rounded-full font-bold text-slate-950 text-sm group-hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] group-hover:scale-105 transition-all duration-300 touch-manipulation">
-                    Get Started <ArrowUpRight className="w-4 h-4" />
+                  
+                  <h2 className="text-2xl sm:text-4xl font-black text-white mb-3 tracking-tight">
+                    Unlock Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400">Engineering Capital</span>
+                  </h2>
+                  
+                  <p className="text-slate-400 text-sm sm:text-base max-w-lg mb-8 leading-relaxed">
+                    Companies like yours average <strong className="text-white">€45,000</strong> in R&D tax credits. Connect your tools and let our AI discover your hidden cash.
+                  </p>
+
+                  {/* Desktop CTA */}
+                  <div className="hidden md:flex items-center gap-4 w-full max-w-md">
+                    <div className="flex-1">
+                      <MagicSyncButton companyId={activeWorkspace?.id || ""} onSuccess={loadClaims} fullWidth />
+                    </div>
+                  </div>
+                  
+                  {/* Mobile instruction (CTA is in FAB) */}
+                  <div className="md:hidden animate-bounce mt-4">
+                    <p className="text-[10px] text-cyan-400 uppercase tracking-widest font-black">
+                      Use the buttons below to start ↓
+                    </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             </motion.div>
           ) : (
             /* ── Toolbar: FY filter + view toggle ── */
@@ -352,6 +370,22 @@ export default function DashboardPage() {
           </motion.div>
 
         </motion.div>
+      </div>
+
+      {/* ── Mobile Floating Action Bar (FAB) ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-3 w-full max-w-md mx-auto">
+          <div className="flex-1">
+            <MagicSyncButton companyId={activeWorkspace?.id || ""} onSuccess={loadClaims} fullWidth />
+          </div>
+          <Link
+            href="/input"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-cyan-500 active:bg-cyan-400 text-slate-950 font-black text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] touch-manipulation"
+          >
+            <Plus className="w-4 h-4" />
+            New
+          </Link>
+        </div>
       </div>
     </div>
   );
