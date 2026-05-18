@@ -369,7 +369,7 @@ function AnimatedDashboard({ progress, features }: { progress: any, features: Fe
         style={{
           top: useTransform(progress, [0, 1], ['-10%', '110%'])
         }}
-        className="absolute left-0 w-full h-24 bg-gradient-to-b from-cyan-500/20 to-transparent pointer-events-none -translate-y-24"
+        className="absolute left-0 w-full h-24 bg-gradient-to-t from-cyan-500/20 to-transparent pointer-events-none -translate-y-24"
       />
     </motion.div>
   );
