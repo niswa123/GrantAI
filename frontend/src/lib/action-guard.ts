@@ -1,4 +1,4 @@
-'use server';
+// Note: No 'use server' here — this is a utility library imported by Server Action files.
 
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';

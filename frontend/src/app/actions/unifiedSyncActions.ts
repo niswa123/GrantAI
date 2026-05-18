@@ -151,7 +151,12 @@ export async function runUnifiedSync(params: {
             isSme: true,
           }));
 
-          if (calcRes.ok) claimed++;
+          if (calcRes.ok) {
+            claimed++;
+          } else {
+            const errData = await calcRes.json().catch(() => ({}));
+            throw new Error(errData.error || `Calculation failed with status ${calcRes.status}`);
+          }
         }
 
         results.push({ provider: 'github', claims: claimed });
@@ -201,7 +206,12 @@ export async function runUnifiedSync(params: {
             isSme: true,
           }));
 
-          if (calcRes.ok) claimed++;
+          if (calcRes.ok) {
+            claimed++;
+          } else {
+            const errData = await calcRes.json().catch(() => ({}));
+            throw new Error(errData.error || `Calculation failed with status ${calcRes.status}`);
+          }
         }
 
         results.push({ provider: 'linear', claims: claimed });
@@ -251,7 +261,12 @@ export async function runUnifiedSync(params: {
             isSme: true,
           }));
 
-          if (calcRes.ok) claimed++;
+          if (calcRes.ok) {
+            claimed++;
+          } else {
+            const errData = await calcRes.json().catch(() => ({}));
+            throw new Error(errData.error || `Calculation failed with status ${calcRes.status}`);
+          }
         }
 
         results.push({ provider: 'jira', claims: claimed });
@@ -264,10 +279,16 @@ export async function runUnifiedSync(params: {
     }
   }
 
+  const criticalError = results.find(r => 
+    r.error && 
+    !r.error.includes('No commits') && 
+    !r.error.includes('No completed')
+  )?.error;
+
   return {
     success: totalClaims > 0,
     claimsCreated: totalClaims,
-    error: totalClaims === 0 ? 'No R&D activities identified across connected sources.' : undefined,
+    error: totalClaims === 0 ? (criticalError || 'No R&D activities identified across connected sources.') : undefined,
     sources: results,
   };
 }

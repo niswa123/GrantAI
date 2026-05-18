@@ -10,8 +10,8 @@
 
 const KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions";
 const MAX_RETRIES = 2;
-const BASE_DELAY_MS = 500;
-const TIMEOUT_MS = 15_000;
+const BASE_DELAY_MS = 1000;
+const TIMEOUT_MS = 90_000; // 90s — large prompts need time
 
 export class LlmApiError extends Error {
   constructor(
@@ -97,6 +97,11 @@ export async function callLlm<T>(
         throw err;
       }
       lastError = err instanceof Error ? err : new Error(String(err));
+
+      // If request was explicitly aborted (timeout), give a cleaner message
+      if ((err as any)?.name === 'AbortError') {
+        lastError = new Error(`LLM request timed out after ${TIMEOUT_MS / 1000}s`);
+      }
 
       if (attempt < MAX_RETRIES) {
         const delay = BASE_DELAY_MS * Math.pow(2, attempt - 1);
