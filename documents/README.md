@@ -34,6 +34,7 @@
 
 #### OAuth Setup
 - **[OAuth Setup Guide](./OAUTH_SETUP_GUIDE.md)** - Настройка Google, GitHub, Jira, Linear
+- **[Production OAuth Setup](./PRODUCTION_OAUTH_SETUP.md)** ⚡ - Обновление Callback URLs для продакшена
 
 **Включает**:
 - Google OAuth (login)
@@ -41,6 +42,7 @@
 - GitHub Integration (repo access)
 - Jira Integration
 - Linear Integration
+- Production Callback URLs
 
 ---
 

@@ -35,27 +35,35 @@
 - [ ] OAuth провайдеры настроены:
   - [ ] Google OAuth (Client ID + Secret)
   - [ ] GitHub OAuth (Client ID + Secret)
-- [ ] Callback URLs добавлены в OAuth приложения:
-  - Google: `https://yourdomain.com/api/auth/callback/google`
-  - GitHub: `https://yourdomain.com/api/auth/callback/github`
+- [ ] **Callback URLs обновлены на продакшен домен**:
+  - [ ] Google: `https://grantai.com/api/auth/callback/google`
+  - [ ] GitHub: `https://grantai.com/api/auth/callback/github`
+- [ ] Localhost URLs оставлены для разработки
 
-**Документация**: [OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md)
+**Документация**: [OAUTH_SETUP_GUIDE.md](./OAUTH_SETUP_GUIDE.md) | [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)
 
 ---
 
 ### 4. Integrations (GitHub, Jira, Linear)
 
-- [ ] GitHub Integration OAuth App создан
+- [ ] **GitHub Integration OAuth App создан**
   - [ ] `GITHUB_INTEGRATION_CLIENT_ID`
   - [ ] `GITHUB_INTEGRATION_CLIENT_SECRET`
-  - [ ] Callback URL: `https://yourdomain.com/api/integrations/github/callback`
-- [ ] Jira Integration настроен
+  - [ ] Callback URL: `https://grantai.com/api/integrations/github/callback`
+  - [ ] Localhost URL оставлен: `http://localhost:3000/api/integrations/github/callback`
+- [ ] **Jira Integration настроен**
   - [ ] `JIRA_CLIENT_ID`
   - [ ] `JIRA_CLIENT_SECRET`
-- [ ] Linear Integration настроен
+  - [ ] Callback URL: `https://grantai.com/api/integrations/jira/callback`
+  - [ ] Localhost URL оставлен: `http://localhost:3000/api/integrations/jira/callback`
+- [ ] **Linear Integration настроен**
   - [ ] `LINEAR_CLIENT_ID`
   - [ ] `LINEAR_CLIENT_SECRET`
+  - [ ] Callback URL: `https://grantai.com/api/integrations/linear/callback`
+  - [ ] Localhost URL оставлен: `http://localhost:3000/api/integrations/linear/callback`
 - [ ] `ENCRYPTION_KEY` сгенерирован: `openssl rand -hex 32`
+
+**Документация**: [PRODUCTION_OAUTH_SETUP.md](./PRODUCTION_OAUTH_SETUP.md)
 
 ---
 
