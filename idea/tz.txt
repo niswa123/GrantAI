@@ -1,0 +1,204 @@
+⚙️ MVP GRANTAI (РЕАЛЬНАЯ ВЕРСИЯ ДЛЯ ЗАПУСКА)
+🎯 Цель MVP
+
+Не система и не архитектура.
+
+👉 Цель MVP:
+
+пользователь вводит данные → получает оценку денег → получает черновик заявки
+
+ВСЁ.
+
+🧱 1. АРХИТЕКТУРА (УПРОЩЁННАЯ В 10 РАЗ)
+
+❌ убираем:
+
+очереди (BullMQ)
+workers
+microservices
+Redis (на старте не нужен)
+сложный RBAC
+✅ Остаётся:
+
+Frontend + Backend монолит
+
+Next.js (frontend + API routes)
+↓
+PostgreSQL (Supabase / Neon)
+↓
+OpenAI API (или любой LLM)
+
+👉 всё
+
+🧠 2. ДАННЫЕ (УПРОЩЁННАЯ МОДЕЛЬ)
+Users
+id
+email
+password
+Company
+id
+user_id
+name
+country
+InputData (ВАЖНО — вместо Projects + Expenses)
+{
+  company_id,
+  description: string,
+  total_salary_cost: number,
+  total_dev_cost: number
+}
+
+👉 ты НЕ строишь бухгалтерию
+
+Result
+{
+  estimated_rd_amount,
+  rd_score,
+  claim_text
+}
+🚀 3. ОСНОВНОЙ ФЛОУ (MVP)
+Шаг 1
+
+User создаёт компанию
+
+Шаг 2
+
+Вводит:
+
+описание проекта
+расходы (2 поля максимум)
+Шаг 3
+
+Жмёт:
+
+👉 “Calculate R&D”
+
+Шаг 4
+
+Backend:
+
+простая формула
+LLM текст
+Шаг 5
+
+Показываешь:
+
+“€X можно вернуть”
+“вот текст заявки”
+🧮 4. БИЗНЕС-ЛОГИКА (УЛЬТРА УПРОЩЁННАЯ)
+
+❌ никаких project scoring систем
+
+Формула:
+rd_amount = total_salary_cost * 0.25
+
+или
+
+rd_amount = (total_salary_cost + total_dev_cost) * 0.2
+RD score:
+if description contains ["build", "platform", "AI", "system"]:
+    score = 0.7
+else:
+    score = 0.3
+
+👉 ВСЁ. никаких усложнений
+
+🤖 5. LLM (ТОЛЬКО 1 ВЫЗОВ)
+Prompt:
+You are an R&D tax assistant.
+
+Write a short justification for R&D tax credit based on:
+
+Company description:
+{description}
+
+Make it formal, 8–12 sentences.
+Focus on technical uncertainty and innovation.
+
+👉 один API вызов = один результат
+
+🖥️ 6. FRONTEND (3 ЭКРАНА)
+1. Dashboard
+“Estimated R&D refund: €X”
+2. Input page
+description
+salary cost
+dev cost
+button
+3. Result page
+number
+generated text
+“Download PDF” (optional)
+❌ ЧТО УБРАНО ПОЛНОСТЬЮ
+проекты
+expenses система
+анализ runs
+очереди
+интеграции GitHub
+multi-country logic
+роли пользователей
+сложная архитектура
+claim lifecycle
+🧪 7. ЧТО ТЫ ТЕСТИРУЕШЬ НА САМОМ ДЕЛЕ
+
+Не продукт.
+
+Ты тестируешь:
+
+“люди верят числу и тексту настолько, что хотят использовать это для денег”
+
+📊 8. МЕТРИКА MVP
+
+Смотришь только:
+
+% людей, которые дошли до результата
+% которые сказали “хочу подать”
+% которые вернулись
+🚀 9. ПЛАН 7–10 ДНЕЙ
+День 1
+
+Next.js + DB
+
+День 2
+
+форма ввода
+
+День 3
+
+формула расчёта
+
+День 4
+
+LLM генерация текста
+
+День 5
+
+result page
+
+День 6–7
+
+первые пользователи (10–20 компаний)
+
+🧠 СУТЬ ЭТОГО MVP
+
+Ты НЕ строишь систему налогов.
+
+Ты строишь:
+
+“калькулятор денег + генератор обоснования”
+
+💥 ЧЕСТНЫЙ ИНСАЙТ
+
+90% твоего изначального ТЗ — это:
+
+преждевременная инженерия
+
+Она убивает скорость и проверку идеи.
+
+🧨 ЕСЛИ ОЧЕНЬ КОРОТКО
+
+👉 Было:
+“финансовая платформа с автоматизацией”
+
+👉 Стало:
+“форма → число → текст → интерес”
