@@ -2,8 +2,7 @@ import { inngest } from "./client";
 import { analyzeEngineeringEvent as runEventAnalyzer } from "@/lib/rd-engine/event-analyzer";
 
 export const analyzeEngineeringEvent = inngest.createFunction(
-  { id: "analyze-engineering-event" },
-  { event: "engineering/event.received" },
+  { id: "analyze-engineering-event", event: "engineering/event.received" },
   async ({ event, step }: { event: any; step: any }) => {
     const { eventId } = event.data;
 
