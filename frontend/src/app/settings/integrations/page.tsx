@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plug, CheckCircle2, AlertCircle, Loader2, Trash2, ExternalLink } from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
@@ -51,7 +51,7 @@ const PROVIDERS = [
 ];
 
 
-export default function IntegrationsPage() {
+function IntegrationsContent() {
   const { activeWorkspace, isLoading: workspaceLoading } = useWorkspace();
   const searchParams = useSearchParams();
   
@@ -241,5 +241,18 @@ export default function IntegrationsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function IntegrationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-20 text-slate-500 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+        <p className="text-sm">Loading integrations...</p>
+      </div>
+    }>
+      <IntegrationsContent />
+    </Suspense>
   );
 }
