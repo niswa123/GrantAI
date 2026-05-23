@@ -46,8 +46,11 @@ export async function POST(request: NextRequest) {
     const access = await getUserAccessLevel(userId);
 
     if (!access.hasAccess) {
+      const errorMsg = access.isFreeTierLimitReached
+        ? "You have reached the limit of 3 free AI analyses. Please upgrade to a premium tier for unlimited logs."
+        : "Payment Required. Please upgrade to a premium tier for unlimited logs.";
       return NextResponse.json(
-        { error: "Payment Required. Please upgrade to a premium tier for unlimited logs." },
+        { error: errorMsg },
         { status: 403 }
       );
     }

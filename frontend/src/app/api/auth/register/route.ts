@@ -5,6 +5,7 @@ import { loopsOnUserRegistered } from "@/lib/loops";
 import { attioOnUserRegistered } from "@/lib/attio";
 import { verifyTurnstileToken } from "@/lib/turnstile-server";
 import { rateLimit, getClientIp } from "@/lib/rate-limiter";
+import { captureServerEvent } from "@/lib/analytics";
 
 // Max password length — bcrypt silently truncates at 72 bytes anyway,
 // and hashing very long strings is a DoS vector.
@@ -83,6 +84,17 @@ export async function POST(req: Request) {
 
     loopsOnUserRegistered({ email: user.email, name: name || undefined });
     attioOnUserRegistered({ userId: user.id, email: user.email, name: name || undefined });
+
+    // Track registration in PostHog — link anonymous browser session to user ID
+    captureServerEvent({
+      distinctId: user.id,
+      event: 'User Registered',
+      properties: {
+        email: user.email,
+        name: name || null,
+        $set: { email: user.email, name: name || null },
+      },
+    });
 
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });
   } catch (err: any) {

@@ -1,5 +1,4 @@
-'use server';
-
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
@@ -8,20 +7,11 @@ import { runLinearSync } from '@/lib/integrations/linear-sync';
 import { runJiraSync } from '@/lib/integrations/jira-sync';
 import { runRdPipeline } from '@/lib/rd-engine/pipeline';
 import { computeCredit } from '@/lib/rd-engine/credit-calculator';
+import { getUserAccessLevel } from '@/lib/access-control';
 
-export interface SyncSource {
-  provider: 'github' | 'linear' | 'jira';
-  connected: boolean;
-  label: string;
-  description: string;
-}
-
-export interface UnifiedSyncResult {
-  success: boolean;
-  claimsCreated: number;
-  error?: string;
-  sources: Array<{ provider: string; claims: number; error?: string }>;
-}
+// Extend the default route segment config to allow long-running requests
+export const maxDuration = 300; // 5 minutes
+export const dynamic = 'force-dynamic';
 
 // ── Country normalization ────────────────────────────────────────────────────
 
@@ -39,88 +29,54 @@ function normalizeCountryToCode(countryName: string): string {
     sverige: 'SE',
     ireland: 'IE',
     spain: 'ES',
-    españa: 'ES',
+    'españa': 'ES',
   };
   return map[countryName.toLowerCase().trim()] ?? 'DEFAULT';
 }
 
-// ── Auth helper ──────────────────────────────────────────────────────────────
-
-async function requireSession() {
+/**
+ * POST /api/sync
+ *
+ * Runs the unified sync pipeline as an API route (not a Server Action)
+ * to avoid Next.js Server Action timeout limits.
+ *
+ * Body: { companyId, salaryCosts, devCosts, isDeepSync? }
+ */
+export async function POST(request: Request) {
+  // ── Auth ─────────────────────────────────────────────────────────────────
   const session = await getServerSession(authOptions);
   const userId = (session?.user as any)?.id as string | undefined;
-  if (!userId) throw new Error('Unauthorized');
-  return { userId, session };
-}
+  if (!userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
 
-/**
- * getConnectedSources — returns which providers the company has connected.
- */
-export async function getConnectedSources(companyId: string): Promise<SyncSource[]> {
-  const session = await getServerSession(authOptions);
-  if (!(session?.user as any)?.id) return [];
+  // ── Parse body ────────────────────────────────────────────────────────────
+  let body: any;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
+  }
 
-  const integrations = await prisma.integration.findMany({
-    where: { company_id: companyId, status: 'active' },
-    select: { provider: true },
-  });
-  const connected = new Set(integrations.map((i) => i.provider));
+  const { companyId, salaryCosts, devCosts, isDeepSync = false } = body;
+  if (!companyId) {
+    return NextResponse.json({ success: false, error: 'Missing companyId' }, { status: 400 });
+  }
 
-  return [
-    {
-      provider: 'github',
-      connected: connected.has('github'),
-      label: 'GitHub',
-      description: 'Commits & pull requests → R&D evidence',
-    },
-    {
-      provider: 'linear',
-      connected: connected.has('linear'),
-      label: 'Linear',
-      description: 'Engineering cycles & completed issues',
-    },
-    {
-      provider: 'jira',
-      connected: connected.has('jira'),
-      label: 'Jira',
-      description: 'Sprint epics & completed tickets',
-    },
-  ];
-}
-
-/**
- * runUnifiedSync — Server Action
- *
- * Orchestrates the full "Magic Sync" flow across ALL connected sources.
- * Calls integration logic DIRECTLY (no HTTP self-fetch) to avoid network
- * round-trip issues on self-hosted VPS deployments.
- */
-export async function runUnifiedSync(params: {
-  companyId: string;
-  salaryCosts: number;
-  devCosts: number;
-  baseUrl: string; // kept for API compatibility, no longer used for self-fetch
-  isDeepSync?: boolean;
-}): Promise<UnifiedSyncResult> {
-  const { companyId, salaryCosts, devCosts, isDeepSync = false } = params;
-
-  const { userId } = await requireSession();
-
-  // Fetch user's access level
-  const { getUserAccessLevel } = await import('@/lib/access-control');
+  // ── Access control ─────────────────────────────────────────────────────────
   const access = await getUserAccessLevel(userId);
   if (!access.hasAccess) {
-    return {
+    return NextResponse.json({
       success: false,
       claimsCreated: 0,
       error: access.isFreeTierLimitReached
         ? 'You have reached the limit of 3 free AI claims. Please upgrade to a premium tier.'
         : 'Payment Required. Please upgrade to a premium tier to generate claims.',
       sources: [],
-    };
+    });
   }
 
-  // Determine company country for tax rules
+  // ── Country code ───────────────────────────────────────────────────────────
   let countryCode = 'DEFAULT';
   try {
     const company = await prisma.company.findUnique({
@@ -131,34 +87,36 @@ export async function runUnifiedSync(params: {
       countryCode = normalizeCountryToCode(company.country);
     }
   } catch {
-    // Non-fatal — fall back to DEFAULT
+    // Non-fatal
   }
 
-  // Check which sources are connected
-  const sources = await getConnectedSources(companyId);
-  const connectedSources = sources.filter((s) => s.connected);
+  // ── Connected sources ──────────────────────────────────────────────────────
+  const integrations = await prisma.integration.findMany({
+    where: { company_id: companyId, status: 'active' },
+    select: { provider: true },
+  });
+  const connected = new Set(integrations.map((i) => i.provider));
 
-  if (connectedSources.length === 0) {
-    return {
+  const connectedProviders = ['github', 'linear', 'jira'].filter((p) => connected.has(p));
+
+  if (connectedProviders.length === 0) {
+    return NextResponse.json({
       success: false,
       claimsCreated: 0,
       error: 'No integrations connected. Go to Settings → Integrations to connect GitHub, Linear, or Jira.',
       sources: [],
-    };
+    });
   }
 
-  const costPerSource = salaryCosts / connectedSources.length;
-  const devPerSource = devCosts / connectedSources.length;
+  const costPerSource = salaryCosts / connectedProviders.length;
+  const devPerSource = devCosts / connectedProviders.length;
   const timeframeDays = isDeepSync ? 365 : 90;
   const sinceDate = new Date(Date.now() - timeframeDays * 24 * 60 * 60 * 1000).toISOString();
 
-  const results: UnifiedSyncResult['sources'] = [];
+  const results: Array<{ provider: string; claims: number; error?: string }> = [];
   let totalClaims = 0;
 
-  /**
-   * runCalculation — calls the R&D pipeline and persists the claim directly,
-   * without going through the HTTP /api/calculate route.
-   */
+  // ── Run calculation helper ─────────────────────────────────────────────────
   async function runCalculation(description: string, salary: number, dev: number): Promise<boolean> {
     try {
       const pipeline = await runRdPipeline({
@@ -172,7 +130,7 @@ export async function runUnifiedSync(params: {
       const credit = computeCredit(
         countryCode,
         { salary, contractor: dev, materials: 0, software: 0 },
-        true // isSme
+        true
       );
 
       await prisma.claim.create({
@@ -182,7 +140,7 @@ export async function runUnifiedSync(params: {
           total_dev_cost: dev,
           estimated_rd_amount: credit.creditAmount,
           rd_score: pipeline.classification.rd_score,
-          claim_text: '', // populated separately if needed
+          claim_text: '',
           status: 'Draft',
           company_id: companyId,
         },
@@ -190,13 +148,13 @@ export async function runUnifiedSync(params: {
 
       return true;
     } catch (err: any) {
-      console.error('[UnifiedSync] runCalculation failed:', err?.message);
+      console.error('[API Sync] runCalculation failed:', err?.message);
       return false;
     }
   }
 
   // ── GitHub ──────────────────────────────────────────────────────────────────
-  if (connectedSources.find((s) => s.provider === 'github')) {
+  if (connected.has('github')) {
     try {
       const syncData = await runGithubSync(companyId, userId, sinceDate);
       const commits = syncData.commits;
@@ -245,7 +203,7 @@ export async function runUnifiedSync(params: {
   }
 
   // ── Linear ──────────────────────────────────────────────────────────────────
-  if (connectedSources.find((s) => s.provider === 'linear')) {
+  if (connected.has('linear')) {
     try {
       const syncData = await runLinearSync(companyId, userId, sinceDate);
       const groups = syncData.groups;
@@ -286,7 +244,7 @@ export async function runUnifiedSync(params: {
   }
 
   // ── Jira ────────────────────────────────────────────────────────────────────
-  if (connectedSources.find((s) => s.provider === 'jira')) {
+  if (connected.has('jira')) {
     try {
       const syncData = await runJiraSync(companyId, userId, sinceDate);
       const groups = syncData.groups;
@@ -327,7 +285,7 @@ export async function runUnifiedSync(params: {
     }
   }
 
-  // ── Determine final error message ────────────────────────────────────────────
+  // ── Final result ──────────────────────────────────────────────────────────
   const criticalError = results.find(
     (r) => r.error && !r.error.includes('No commits') && !r.error.includes('No completed')
   )?.error;
@@ -338,15 +296,15 @@ export async function runUnifiedSync(params: {
       finalError = criticalError;
     } else {
       finalError = isDeepSync
-        ? 'No recent commits or completed tasks found in the last 365 days across connected sources. Please verify that your connected repositories or projects have active development.'
-        : 'No recent commits or completed tasks found in the last 90 days across connected sources. Please commit some new code or try running a Deep Audit to scan the last 365 days.';
+        ? 'No recent commits or completed tasks found in the last 365 days across connected sources.'
+        : 'No recent commits or completed tasks found in the last 90 days. Try a Deep Audit.';
     }
   }
 
-  return {
+  return NextResponse.json({
     success: totalClaims > 0,
     claimsCreated: totalClaims,
     error: finalError,
     sources: results,
-  };
+  });
 }

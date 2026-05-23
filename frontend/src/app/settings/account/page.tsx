@@ -298,8 +298,8 @@ function PasswordSection() {
 
 // ── Security section ──────────────────────────────────────────────────────
 
-function SecuritySection() {
-  const [twofaEnabled, setTwofaEnabled] = useState(false);
+function SecuritySection({ initialTwofaEnabled }: { initialTwofaEnabled: boolean }) {
+  const [twofaEnabled, setTwofaEnabled] = useState(initialTwofaEnabled);
   const [showModal, setShowModal] = useState(false);
   const [disabling, setDisabling] = useState(false);
   const [code, setCode] = useState("");
@@ -311,10 +311,6 @@ function SecuritySection() {
       setTwofaEnabled(e.detail.twoFactorEnabled);
     };
     document.addEventListener('profileLoaded', handleProfile);
-    // Fetch directly if component mounts later
-    getUserProfile().then((p) => {
-      if (p) setTwofaEnabled(p.twoFactorEnabled);
-    });
     return () => document.removeEventListener('profileLoaded', handleProfile);
   }, []);
 
@@ -423,6 +419,17 @@ function SecuritySection() {
 // ── Main Page ─────────────────────────────────────────────────────────────
 
 export default function AccountPage() {
+  const [twofaEnabled, setTwofaEnabled] = useState(false);
+
+  // Listen for the profile loaded event from ProfileSection
+  useEffect(() => {
+    const handleProfile = (e: any) => {
+      setTwofaEnabled(e.detail.twoFactorEnabled);
+    };
+    document.addEventListener('profileLoaded', handleProfile);
+    return () => document.removeEventListener('profileLoaded', handleProfile);
+  }, []);
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
       {/* Header */}
@@ -439,7 +446,7 @@ export default function AccountPage() {
       <div className="space-y-4 sm:space-y-5">
         <ProfileSection />
         <PasswordSection />
-        <SecuritySection />
+        <SecuritySection initialTwofaEnabled={twofaEnabled} />
       </div>
     </div>
   );

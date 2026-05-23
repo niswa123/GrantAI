@@ -1,4 +1,3 @@
-import { getUserSubscription } from '@/app/actions/billingActions';
 import BillingClient from './billing-client';
 
 export const metadata = {
@@ -6,8 +5,6 @@ export const metadata = {
   description: 'Manage your GrantAI subscription and billing details.',
 };
 
-export default async function BillingPage() {
-  const subscription = await getUserSubscription();
-
-  return <BillingClient subscription={subscription} />;
+export default function BillingPage() {
+  return <BillingClient />;
 }

@@ -56,7 +56,7 @@ function IntegrationsContent() {
   const searchParams = useSearchParams();
   
   const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true); // true only on first mount
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -73,13 +73,17 @@ function IntegrationsContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!workspaceReady) {
-      setLoading(false);
+    if (workspaceLoading) {
+      return;
+    }
+
+    if (!activeWorkspace) {
+      setInitialLoad(false);
       return;
     }
 
     async function fetchIntegrations() {
-      setLoading(true);
+      // Don't reset to loading skeleton if we already have data — prevents flicker
       try {
         const res = await fetch(`/api/integrations?companyId=${activeWorkspace!.id}`);
         if (res.ok) {
@@ -89,12 +93,12 @@ function IntegrationsContent() {
       } catch (err) {
         console.error("Failed to fetch integrations", err);
       } finally {
-        setLoading(false);
+        setInitialLoad(false);
       }
     }
 
     fetchIntegrations();
-  }, [activeWorkspace?.id, workspaceReady]);
+  }, [activeWorkspace?.id, workspaceLoading]);
 
   const handleConnect = (providerId: string) => {
     if (!workspaceReady || !activeWorkspace) return;
@@ -166,79 +170,76 @@ function IntegrationsContent() {
 
       {/* Integrations List */}
       <div className="space-y-4">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500 space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
-            <p className="text-sm">Loading integrations...</p>
-          </div>
-        ) : (
-          PROVIDERS.map((provider, i) => {
-            const integration = integrations.find((inv) => inv.provider === provider.id);
-            const isConnected = !!integration;
-            const isLoading = actionLoading === provider.id;
+        {PROVIDERS.map((provider, i) => {
+          const integration = integrations.find((inv) => inv.provider === provider.id);
+          const isConnected = !initialLoad && !!integration;
+          const isLoading = actionLoading === provider.id;
 
-            return (
-              <motion.div
-                key={provider.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.05 }}
-                className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border transition-all gap-4 ${
-                  isConnected 
-                    ? "bg-slate-900/60 border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.05)]" 
-                    : "bg-slate-900/40 border-white/5"
-                }`}
-              >
-                <div className="flex gap-3 sm:gap-4 items-start sm:items-center w-full">
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${provider.color} border border-white/10`}>
-                    {provider.icon}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                      <h3 className="text-sm sm:text-base font-bold text-white">{provider.name}</h3>
-                      {isConnected && (
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wide">
-                          Connected
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md">{provider.description}</p>
-                    
-                    {isConnected && integration.updated_at && (
-                      <p className="text-xs text-slate-500 mt-1.5">
-                        Last synced: {new Date(integration.updated_at).toLocaleDateString()}
-                      </p>
+          return (
+            <motion.div
+              key={provider.id}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.05 }}
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-xl sm:rounded-2xl border transition-all duration-300 gap-4 ${
+                isConnected 
+                  ? "bg-slate-900/60 border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.05)]" 
+                  : "bg-slate-900/40 border-white/5"
+              }`}
+            >
+              <div className="flex gap-3 sm:gap-4 items-start sm:items-center w-full">
+                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br ${provider.color} border border-white/10`}>
+                  {provider.icon}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <h3 className="text-sm sm:text-base font-bold text-white">{provider.name}</h3>
+                    {isConnected && (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wide animate-fade-in">
+                        Connected
+                      </span>
                     )}
                   </div>
-                </div>
-
-                <div className="ml-13 sm:ml-4 shrink-0 self-start sm:self-auto">
-                  {isConnected ? (
-                    <button
-                      onClick={() => handleDisconnect(provider.id)}
-                      disabled={isLoading}
-                      className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all disabled:opacity-50 touch-manipulation"
-                    >
-                      {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                      Disconnect
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleConnect(provider.id)}
-                      disabled={isLoading || !workspaceReady}
-                      title={!workspaceReady ? "Loading workspace..." : undefined}
-                      className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
-                    >
-                      {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
-                      {workspaceReady ? "Connect" : "Loading..."}
-                    </button>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 max-w-md">{provider.description}</p>
+                  
+                  {isConnected && integration.updated_at && (
+                    <p className="text-xs text-slate-500 mt-1.5">
+                      Last synced: {new Date(integration.updated_at).toLocaleDateString()}
+                    </p>
                   )}
                 </div>
-              </motion.div>
-            );
-          })
-        )}
+              </div>
+
+              <div className="ml-13 sm:ml-4 shrink-0 self-start sm:self-auto">
+                {initialLoad ? (
+                  <div className="w-24 h-9 sm:w-28 rounded-xl bg-white/5 border border-white/10 animate-pulse flex items-center justify-center">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500 opacity-50" />
+                  </div>
+                ) : isConnected ? (
+                  <button
+                    onClick={() => handleDisconnect(provider.id)}
+                    disabled={isLoading}
+                    className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-400 bg-white/5 border border-white/10 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 transition-all disabled:opacity-50 touch-manipulation"
+                  >
+                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    Disconnect
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleConnect(provider.id)}
+                    disabled={isLoading || !workspaceReady}
+                    title={!workspaceReady ? "Loading workspace..." : undefined}
+                    className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-950 bg-white hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+                  >
+                    {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
+                    {workspaceReady ? "Connect" : "Loading..."}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, ExternalLink, Calendar, Zap, AlertCircle, Bitcoin } from "lucide-react";
 
-import { getUserSubscription, createStripePortalSession } from "@/app/actions/billingActions";
+import { getUserSubscription } from "@/app/actions/billingActions";
 
 export default function SettingsPage() {
   const [currency, setCurrency] = useState("EUR");
@@ -22,7 +22,7 @@ export default function SettingsPage() {
           tier: sub.tier,
           status: sub.status,
           periodEnd: sub.periodEnd,
-          provider: sub.hasStripeCustomer ? 'stripe' : (sub.tier !== 'FREE' ? 'nowpayments' : null),
+          provider: sub.hasLavaSubscription ? 'lava' : (sub.tier !== 'FREE' ? 'nowpayments' : null),
         });
       } catch (err) {
         console.error("Failed to load subscription", err);
@@ -33,16 +33,24 @@ export default function SettingsPage() {
     loadSub();
   }, []);
 
-  const handlePortalRedirect = async () => {
+  const handleLavaRenew = async () => {
     setIsLoadingPortal(true);
     try {
-      const { url } = await createStripePortalSession();
-      window.location.href = url;
-      
-      // Simulate API delay
+      const res = await fetch('/api/lava/checkout', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: subscription?.tier || 'PRO' }) 
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
       setTimeout(() => setIsLoadingPortal(false), 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      alert(error?.message || 'Failed to start checkout. Please try again.');
       setIsLoadingPortal(false);
     }
   };
@@ -50,18 +58,21 @@ export default function SettingsPage() {
   const handleCryptoRenew = async () => {
     setIsLoadingPortal(true);
     try {
-      const res = await fetch('/api/nowpayments/invoice', { method: 'POST', body: JSON.stringify({ plan: subscription?.tier || 'PRO' }) });
+      const res = await fetch('/api/nowpayments/invoice', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: subscription?.tier || 'PRO' }) 
+      });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error(data.error);
+        throw new Error(data.error || 'Failed to create crypto invoice');
       }
-      
-      // Simulate API delay
       setTimeout(() => setIsLoadingPortal(false), 1500);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      alert(error?.message || 'Failed to create crypto invoice. Please try again.');
       setIsLoadingPortal(false);
     }
   };
@@ -160,13 +171,13 @@ export default function SettingsPage() {
               <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border shadow-lg ${
-                    subscription.provider === 'stripe' 
-                      ? 'bg-[#635BFF]/10 border-[#635BFF]/20 text-[#635BFF]' 
+                    subscription.provider === 'lava' 
+                      ? 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400' 
                       : subscription.provider === 'nowpayments'
                       ? 'bg-[#F7931A]/10 border-[#F7931A]/20 text-[#F7931A]'
                       : 'bg-slate-800 border-slate-700 text-slate-400'
                   }`}>
-                    {subscription.provider === 'stripe' ? (
+                    {subscription.provider === 'lava' ? (
                       <CreditCard className="w-7 h-7" />
                     ) : subscription.provider === 'nowpayments' ? (
                       <Bitcoin className="w-7 h-7" />
@@ -187,7 +198,7 @@ export default function SettingsPage() {
                       )}
                     </div>
                     <div className="text-sm text-slate-400 font-medium">
-                      {subscription.provider === 'stripe' ? 'Managed via Stripe' : subscription.provider === 'nowpayments' ? 'Paid with Crypto (NOWPayments)' : 'No active payment method'}
+                      {subscription.provider === 'lava' ? 'Paid via Lava.top' : subscription.provider === 'nowpayments' ? 'Paid with Crypto (NOWPayments)' : 'No active payment method'}
                     </div>
                   </div>
                 </div>
@@ -225,15 +236,20 @@ export default function SettingsPage() {
               )}
 
               <div className="pt-6 border-t border-white/5 relative z-10">
-                {subscription.provider === 'stripe' ? (
-                  <button 
-                    onClick={handlePortalRedirect}
-                    disabled={isLoadingPortal}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/10"
-                  >
-                    <span>Manage in Stripe Portal</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </button>
+                {subscription.provider === 'lava' ? (
+                  <div className="flex flex-col sm:flex-row items-center gap-4">
+                    <button 
+                      onClick={handleLavaRenew}
+                      disabled={isLoadingPortal}
+                      className="w-full sm:w-auto px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      <CreditCard className="w-5 h-5" />
+                      <span>Renew via Lava.top</span>
+                    </button>
+                    <p className="text-xs text-slate-500">
+                      Managed via Lava.top payment platform.
+                    </p>
+                  </div>
                 ) : subscription.provider === 'nowpayments' ? (
                   <div className="flex flex-col sm:flex-row items-center gap-4">
                     <button 

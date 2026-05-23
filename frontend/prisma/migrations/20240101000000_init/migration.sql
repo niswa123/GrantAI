@@ -1,4 +1,5 @@
 -- CreateTable
+
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "email" VARCHAR NOT NULL,

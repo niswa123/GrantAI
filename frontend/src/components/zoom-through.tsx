@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Sparkles, Zap, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 
@@ -8,6 +8,10 @@ import { Sparkles, Zap, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
  * ZOOM-THROUGH EFFECT
  * Fly into screen with massive scale transformation
  * Creates immersive "portal" effect
+ * 
+ * Re-designed with a highly creative, ultra-minimalist 
+ * Asymmetric Compliance Matrix stats section that completely 
+ * replaces the generic card grid, matching the NEURAL.SYNC cockpit aesthetic.
  */
 
 export function ZoomThroughTransition() {
@@ -121,7 +125,7 @@ export function ZoomThroughTransition() {
                       className="w-2 h-2 rounded-full bg-emerald-400 absolute"
                     />
                   </div>
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-300 font-mono ml-2">Neural.Sync</span>
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-300 font-mono ml-2">NEURAL.SYNC</span>
                   <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded uppercase tracking-wider border border-emerald-500/20 ml-1">Live</span>
                 </div>
                 <span className="text-[10px] uppercase tracking-widest text-slate-600 font-mono flex items-center gap-1.5">
@@ -142,10 +146,10 @@ export function ZoomThroughTransition() {
                   >
                     <span className="text-[10px] text-cyan-400/70 uppercase tracking-[0.2em] font-mono mb-1">Uncertainty Found</span>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-black tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 text-transparent bg-clip-text">
+                      <span className="text-5xl font-black tracking-tighter bg-gradient-to-br from-white via-slate-200 to-slate-500 text-transparent bg-clip-text font-mono">
                         99.8
                       </span>
-                      <span className="text-2xl font-bold text-cyan-500">%</span>
+                      <span className="text-2xl font-bold text-cyan-500 font-mono">%</span>
                     </div>
                   </motion.div>
                   
@@ -234,8 +238,8 @@ export function ZoomThroughTransition() {
                     >
                       <Zap className="w-5 h-5 text-cyan-400" />
                     </motion.div>
-                    <span className="text-cyan-400 font-bold uppercase tracking-wider">
-                      Lightning Fast Processing
+                    <span className="text-cyan-400 font-bold uppercase tracking-wider font-mono text-[10px]">
+                      LIGHTNING FAST PROCESSING
                     </span>
                   </div>
                 </div>
@@ -246,7 +250,7 @@ export function ZoomThroughTransition() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-[1.1]"
+                className="text-6xl md:text-[5.5rem] font-black text-white mb-8 tracking-tighter leading-[1.05]"
               >
                 A paradigm shift in{" "}
                 <span className="text-cyan-400 drop-shadow-sm">
@@ -259,37 +263,131 @@ export function ZoomThroughTransition() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9 }}
-                className="text-2xl md:text-3xl text-slate-400 font-medium max-w-3xl mx-auto mb-12"
+                className="text-lg md:text-xl text-slate-400 font-medium max-w-2xl mx-auto mb-14 leading-relaxed"
               >
                 Stop losing daily R&D value. Welcome to real-time engineering capitalization.
               </motion.p>
 
-              {/* Stats row */}
+              {/* Asymmetric Compliance Matrix Panel */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
+                className="w-full max-w-4xl mx-auto border border-white/5 bg-[#060813]/60 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] relative text-left"
               >
-                <StatCard
-                  icon={Clock}
-                  value="Daily"
-                  label="Sync"
-                  color="cyan"
-                />
-                <StatCard
-                  icon={TrendingUp}
-                  value="99.8%"
-                  label="AI Confidence"
-                  color="purple"
-                />
-                <StatCard
-                  icon={CheckCircle2}
-                  value="Real-time"
-                  label="Tracker"
-                  color="emerald"
-                />
+                {/* Top status bar */}
+                <div className="flex items-center justify-between px-6 py-3 border-b border-white/5 bg-white/[0.01] select-none">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="font-mono text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                      GRANT_AI // TRANSACTION METRICS // SECURED
+                    </span>
+                  </div>
+                  <span className="font-mono text-[8px] text-slate-500 font-bold uppercase">
+                    ACTIVE TELEMETRY
+                  </span>
+                </div>
+
+                {/* Main panel - 3 asymmetric modules */}
+                <div className="grid grid-cols-1 md:grid-cols-10 divide-y md:divide-y-0 md:divide-x divide-white/5">
+                  
+                  {/* Module 1: Daily Sync (Left - ColSpan 3) */}
+                  <div className="md:col-span-3 p-6 flex flex-col justify-between min-h-[160px] relative group hover:bg-white/[0.01] transition-colors duration-300">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-cyan-400">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-widest">01 // AUTOMATED FLOW</span>
+                      </div>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span className="text-4xl font-black text-white tracking-tight">Daily</span>
+                        <span className="text-lg font-black text-cyan-400 font-mono">Sync</span>
+                      </div>
+                    </div>
+
+                    {/* Micro Log Ticker */}
+                    <div className="mt-4 bg-black/40 border border-white/5 rounded-lg p-2.5 font-mono text-[8px] text-slate-400 h-11 overflow-hidden relative select-none">
+                      <div className="flex flex-col gap-1 absolute top-2.5 left-2.5 right-2.5">
+                        <motion.div 
+                          animate={{ y: [0, -14, -28, 0] }}
+                          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", times: [0, 0.33, 0.66, 1] }}
+                          className="flex flex-col gap-1"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-cyan-400 font-bold">[INGEST]</span>
+                            <span className="truncate">Webhook synced from @kmason</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-purple-400 font-bold">[SCORE]</span>
+                            <span className="truncate">Technical uncertainty: 99.8%</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-emerald-400 font-bold">[LEDGER]</span>
+                            <span className="truncate">Transaction sealed #82f1b</span>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Module 2: AI Confidence / Accuracy (Center - ColSpan 4) */}
+                  <div className="md:col-span-4 p-6 flex flex-col justify-between min-h-[160px] relative group hover:bg-white/[0.01] transition-colors duration-300">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-pink-400">
+                        <TrendingUp className="w-4 h-4" />
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-widest">02 // DETERMINISTIC EVAL</span>
+                      </div>
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span className="text-4xl font-black text-white tracking-tight font-mono">99.8</span>
+                        <span className="text-2xl font-black text-pink-400 font-mono">%</span>
+                        <span className="text-[9px] text-slate-500 font-mono font-bold uppercase ml-1">AI CONFIDENCE</span>
+                      </div>
+                    </div>
+
+                    {/* Precision Interval Gauge */}
+                    <div className="mt-4 flex flex-col gap-1.5 font-mono text-[8px] select-none">
+                      <div className="flex justify-between text-slate-500 font-bold">
+                        <span>ACCURACY VECTOR</span>
+                        <span className="text-pink-400 font-black">99.82% / 100</span>
+                      </div>
+                      <div className="w-full h-1 bg-white/5 rounded-full relative overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: "99.82%" }}
+                          transition={{ duration: 1.5, ease: "easeOut" }}
+                          className="h-full bg-gradient-to-r from-pink-600 to-pink-400 rounded-full" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Module 3: Real-time Tracker / Accumulator (Right - ColSpan 3) */}
+                  <div className="md:col-span-3 p-6 flex flex-col justify-between min-h-[160px] relative group hover:bg-white/[0.01] transition-colors duration-300">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-emerald-400">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-widest">03 // R&D LEDGER</span>
+                      </div>
+                      <div className="flex flex-col mt-1">
+                        <span className="text-2xl font-black text-white tracking-tight leading-none">Real-time</span>
+                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mt-1">Tracker</span>
+                      </div>
+                    </div>
+
+                    {/* Real-time Ticking Currency Accumulator Counter */}
+                    <div className="mt-4 bg-[#0a1112]/50 border border-emerald-500/10 rounded-lg p-2.5 flex justify-between items-center font-mono">
+                      <div className="flex flex-col">
+                        <span className="text-[7.5px] text-slate-500 font-bold uppercase">CAPITAL TRACKED</span>
+                        <RealTimeLedgerTicker />
+                      </div>
+                      <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-bold select-none">
+                        LIVE ROI
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
               </motion.div>
+
             </div>
           </motion.div>
 
@@ -324,10 +422,9 @@ export function ZoomThroughTransition() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8 backdrop-blur-md"
+            className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 mb-6 sm:mb-8 tracking-wider uppercase backdrop-blur-md"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-cyan-400">Lightning Fast</span>
+            [ LIGHTNING FAST ]
           </motion.div>
 
           {/* Typography Shift */}
@@ -354,64 +451,59 @@ export function ZoomThroughTransition() {
             Stop losing daily R&D value. Welcome to real-time capitalization.
           </motion.p>
 
-          {/* Premium Vertical Glass Cards */}
-          <div className="w-full max-w-sm flex flex-col gap-4">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="relative overflow-hidden p-[1px] rounded-2xl bg-gradient-to-b from-cyan-500/30 to-white/5"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-transparent" />
-              <div className="relative bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 flex items-center gap-5 shadow-2xl">
-                <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
-                  <Clock className="w-6 h-6 text-cyan-400" />
+          {/* Stacking Asymmetric Mobile Compliance Matrix Panel */}
+          <div className="w-full max-w-sm border border-white/5 bg-[#060813]/60 backdrop-blur-xl rounded-2xl overflow-hidden shadow-2xl relative text-left">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-white/5 bg-white/[0.01]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-mono text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                TRANSACTION METRICS // LIVE
+              </span>
+            </div>
+            
+            <div className="flex flex-col divide-y divide-white/5">
+              
+              {/* Daily Sync */}
+              <div className="p-5 flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-cyan-400">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest">DAILY SYNC</span>
                 </div>
-                <div>
-                  <div className="text-2xl font-black text-white tracking-tight">Daily</div>
-                  <div className="text-sm font-medium text-cyan-400 uppercase tracking-wider">Sync</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-black text-white tracking-tight">Daily</span>
+                  <span className="text-sm font-black text-cyan-400 font-mono">Sync</span>
                 </div>
               </div>
-            </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="relative overflow-hidden p-[1px] rounded-2xl bg-gradient-to-b from-purple-500/30 to-white/5"
-            >
-              <div className="absolute inset-0 bg-gradient-to-l from-purple-500/10 to-transparent" />
-              <div className="relative bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 flex items-center gap-5 shadow-2xl">
-                <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
-                  <TrendingUp className="w-6 h-6 text-purple-400" />
+              {/* AI Confidence */}
+              <div className="p-5 flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-purple-400">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest">AI CONFIDENCE</span>
                 </div>
-                <div>
-                  <div className="text-2xl font-black text-white tracking-tight">99.8%</div>
-                  <div className="text-sm font-medium text-purple-400 uppercase tracking-wider">AI Confidence</div>
+                <div className="flex items-baseline gap-1 font-mono">
+                  <span className="text-3xl font-black text-white tracking-tight">99.8</span>
+                  <span className="text-lg font-black text-purple-400">%</span>
                 </div>
               </div>
-            </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-              className="relative overflow-hidden p-[1px] rounded-2xl bg-gradient-to-b from-emerald-500/30 to-white/5"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent" />
-              <div className="relative bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 flex items-center gap-5 shadow-2xl">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+              {/* Real-time Tracker */}
+              <div className="p-5 flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span className="font-mono text-[8px] font-bold uppercase tracking-widest">COMPLIANCE TRACKER</span>
                 </div>
-                <div>
-                  <div className="text-2xl font-black text-white tracking-tight">Real-time</div>
-                  <div className="text-sm font-medium text-emerald-400 uppercase tracking-wider">Tracker</div>
+                <div className="flex flex-col">
+                  <span className="text-xl font-black text-white tracking-tight">Real-time Tracker</span>
+                  <div className="mt-2.5 bg-[#0a1112]/50 border border-emerald-500/10 rounded-lg p-2 flex justify-between items-center font-mono">
+                    <div className="flex flex-col">
+                      <span className="text-[7px] text-slate-500 font-bold uppercase">CAPITAL TRACKED</span>
+                      <RealTimeLedgerTicker />
+                    </div>
+                  </div>
                 </div>
               </div>
-            </motion.div>
+
+            </div>
           </div>
 
         </div>
@@ -420,64 +512,30 @@ export function ZoomThroughTransition() {
   );
 }
 
-// Stat Card Component
-function StatCard({ 
-  icon: Icon, 
-  value, 
-  label, 
-  color 
-}: { 
-  icon: any, 
-  value: string, 
-  label: string, 
-  color: string 
-}) {
-  const colorMap: Record<string, { bg: string, border: string, text: string, glow: string }> = {
-    cyan: {
-      bg: 'rgba(6,182,212,0.1)',
-      border: 'rgba(6,182,212,0.3)',
-      text: '#22d3ee',
-      glow: 'rgba(6,182,212,0.5)'
-    },
-    purple: {
-      bg: 'rgba(168,85,247,0.1)',
-      border: 'rgba(168,85,247,0.3)',
-      text: '#c084fc',
-      glow: 'rgba(168,85,247,0.5)'
-    },
-    emerald: {
-      bg: 'rgba(16,185,129,0.1)',
-      border: 'rgba(16,185,129,0.3)',
-      text: '#34d399',
-      glow: 'rgba(16,185,129,0.5)'
-    }
-  };
+/**
+ * RealTimeLedgerTicker Component
+ * Continuously increments and format currency for compliance matrix
+ */
+function RealTimeLedgerTicker() {
+  const [value, setValue] = useState(1458720.00);
 
-  const colors = colorMap[color];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setValue(prev => prev + parseFloat((Math.random() * 0.12).toFixed(4)));
+    }, 850);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.05, y: -5 }}
-      className="relative p-8 rounded-2xl backdrop-blur-xl"
-      style={{
-        backgroundColor: colors.bg,
-        borderWidth: '1px',
-        borderColor: colors.border
-      }}
-    >
-      {/* Glow effect */}
-      <div 
-        className="absolute inset-0 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"
-        style={{ backgroundColor: colors.glow }}
-      />
-      
-      <div className="relative z-10">
-        <Icon className="w-12 h-12 mx-auto mb-4" style={{ color: colors.text }} />
-        <div className="text-5xl font-black mb-2" style={{ color: colors.text }}>
-          {value}
-        </div>
-        <div className="text-slate-400 font-medium">{label}</div>
-      </div>
-    </motion.div>
+    <span className="text-xs font-black text-white select-all">
+      {formatter.format(value)}
+    </span>
   );
 }

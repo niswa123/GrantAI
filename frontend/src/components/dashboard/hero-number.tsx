@@ -42,9 +42,8 @@ export function HeroNumber({ value, currency = "€" }: HeroNumberProps) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-cyan-400">Live ROI Dashboard</span>
+          <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 tracking-wider uppercase backdrop-blur-md">
+            [ LIVE ROI DASHBOARD ]
           </div>
         </motion.div>
 

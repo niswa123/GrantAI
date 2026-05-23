@@ -42,10 +42,9 @@ function BeforeAfterMobile() {
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-4 sm:mb-6 backdrop-blur-md"
+          className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[10px] sm:text-xs text-slate-400 mb-4 sm:mb-6 tracking-wider uppercase backdrop-blur-md"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-cyan-400">The Paradigm Shift</span>
+          [ THE PARADIGM SHIFT ]
         </motion.div>
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -218,10 +217,9 @@ function BeforeAfterDesktop() {
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-6 sm:mb-8 backdrop-blur-md"
+            className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 mb-6 sm:mb-8 tracking-wider uppercase backdrop-blur-md"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-cyan-400">The Paradigm Shift</span>
+            [ THE PARADIGM SHIFT ]
           </motion.div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}

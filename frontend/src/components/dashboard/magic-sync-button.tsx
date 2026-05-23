@@ -6,7 +6,7 @@ import {
   GitBranch, Loader2, CheckCircle2, AlertCircle, X, Zap,
   DollarSign, Layout, Layers, ArrowRight, Bolt,
 } from "lucide-react";
-import { runUnifiedSync, getConnectedSources, type SyncSource } from "@/app/actions/unifiedSyncActions";
+import { getConnectedSources, type SyncSource } from "@/app/actions/unifiedSyncActions";
 import { getCompanySyncDefaults, updateCompanySyncDefaults } from "@/app/actions/companyActions";
 import { useSyncContext } from "@/contexts/SyncContext";
 import { useRouter } from "next/navigation";
@@ -70,26 +70,42 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
 
     setError("");
 
-    // Save the inputs for next time
-    await updateCompanySyncDefaults(companyId, numSalary, numDev);
-
-    // Close modal and start background sync
+    // Close modal instantly for seamless UX
     setIsOpen(false);
 
+    // Save the inputs in the background without blocking the UI transition
+    updateCompanySyncDefaults(companyId, numSalary, numDev).catch((err) =>
+      console.error("Failed to save sync defaults:", err)
+    );
+
     startSync(companyId, async () => {
-      const baseUrl = window.location.origin;
-      const res = await runUnifiedSync({
-        companyId,
-        salaryCosts: numSalary,
-        devCosts: numDev,
-        baseUrl,
-        isDeepSync: syncMode === "deep",
+      // Use fetch to API route instead of Server Action to avoid timeout
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId,
+          salaryCosts: numSalary,
+          devCosts: numDev,
+          isDeepSync: syncMode === "deep",
+        }),
       });
 
-      if (res.success) {
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error (${res.status})`);
+      }
+
+      const data = await res.json();
+
+      // Always refresh dashboard if any claims were created
+      if (data.claimsCreated > 0) {
         onSuccess();
-      } else {
-        throw new Error(res.error || "Sync failed");
+      }
+
+      // Only throw if zero claims and there's an error
+      if (!data.success && data.claimsCreated === 0) {
+        throw new Error(data.error || "Sync failed");
       }
     });
   };

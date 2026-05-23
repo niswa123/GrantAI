@@ -8,7 +8,48 @@ import prisma from '@/lib/prisma';
 import { verifyTOTPCode } from '@/lib/two-factor';
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: {
+    ...PrismaAdapter(prisma),
+    getUserByEmail: async (email: string) => {
+      // Returning null here bypasses next-auth's automatic OAuthAccountNotLinked block,
+      // forcing it to call createUser where we can link the existing user safely.
+      return null;
+    },
+    createUser: async (user: any) => {
+      const adapter = PrismaAdapter(prisma);
+      const existingUser = await prisma.user.findUnique({
+        where: { email: user.email },
+      });
+      if (existingUser) {
+        console.log(`[NextAuth Adapter] createUser found existing user for ${user.email}, linking instead of creating.`);
+        return existingUser;
+      }
+      return await adapter.createUser(user);
+    },
+    linkAccount: async (account: any) => {
+      try {
+        const adapter = PrismaAdapter(prisma);
+        if (adapter.linkAccount) {
+          return await adapter.linkAccount(account);
+        }
+      } catch (err: any) {
+        // If it is a unique constraint violation (P2002), the account is already linked, so safely ignore
+        if (err.code === 'P2002') {
+          console.log('[NextAuth Adapter] linkAccount unique constraint P2002 occurred, ignoring.');
+          const existing = await prisma.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+              },
+            },
+          });
+          return existing as any;
+        }
+        throw err;
+      }
+    },
+  },
   // @ts-ignore: NextAuth internal option for timeout
   httpOptions: {
     timeout: 15000,
@@ -90,52 +131,105 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production' ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+      },
+    },
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Allow OAuth sign-ins (Google & GitHub)
-      if (account?.provider === 'google' || account?.provider === 'github') {
-        const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          include: { companies: true },
-        });
+      // Allow Credentials sign-ins immediately
+      if (account?.provider === 'credentials') {
+        return true;
+      }
 
-        if (existingUser) {
-          // Update user info from OAuth profile
-          await prisma.user.update({
-            where: { id: existingUser.id },
-            data: {
-              name: user.name,
-              image: user.image,
-              display_name: user.name,
-              avatar_url: user.image,
-              emailVerified: existingUser.emailVerified || new Date(),
-            },
+      // Handle OAuth sign-ins (Google & GitHub)
+      if (account?.provider === 'google' || account?.provider === 'github') {
+        console.log(`[NextAuth signIn] OAuth attempt: provider=${account.provider}, email=${user.email}, userId=${user.id}`);
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+            include: { companies: true, accounts: true },
           });
 
-          // If this is an existing user with NO companies yet, mark for onboarding
-          if (existingUser.companies.length === 0) {
-            // Signal to the JWT callback that onboarding is needed
-            (user as any).needsOnboarding = true;
+          if (existingUser) {
+            console.log(`[NextAuth signIn] Found existing user: id=${existingUser.id}, email=${existingUser.email}`);
+            // Check if this OAuth account is already linked
+            const existingAccount = existingUser.accounts.find(
+              (acc) => acc.provider === account.provider && acc.providerAccountId === account.providerAccountId
+            );
+
+            if (!existingAccount) {
+              console.log(`[NextAuth signIn] Linking new ${account.provider} account to existing user ${existingUser.id}`);
+              // Manually link the OAuth account to the existing user.
+              // This is necessary to fix OAuthAccountNotLinked when the user
+              // was originally registered via CredentialsProvider (email+password).
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  refresh_token: account.refresh_token ?? null,
+                  access_token: account.access_token ?? null,
+                  expires_at: account.expires_at ?? null,
+                  token_type: account.token_type ?? null,
+                  scope: account.scope ?? null,
+                  id_token: account.id_token ?? null,
+                  session_state: (account.session_state as string) ?? null,
+                },
+              });
+            } else {
+              console.log(`[NextAuth signIn] Account already linked for ${account.provider}`);
+            }
+
+            // Sync user info from OAuth profile
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: user.name,
+                image: user.image,
+                display_name: user.name,
+                avatar_url: user.image,
+                emailVerified: existingUser.emailVerified || new Date(),
+              },
+            });
+
+            // Pass the correct DB id into the JWT pipeline
+            user.id = existingUser.id;
+          } else {
+            console.log(`[NextAuth signIn] No existing user found for ${user.email} — PrismaAdapter will create new user`);
           }
-        } else {
-          // Brand new OAuth user — will be created by PrismaAdapter, needs onboarding
-          (user as any).needsOnboarding = true;
+          // else: brand new OAuth user — PrismaAdapter will create them automatically
+        } catch (err) {
+          console.error('[NextAuth signIn] Failed to link OAuth account:', err);
+          return false;
         }
       }
+
       return true;
     },
+
     async jwt({ token, user, account }: { token: any; user?: any; account?: any }) {
+      // ── CRITICAL: On initial sign-in, always set token from the fresh user object ──
+      // This prevents stale email from a previous session from polluting the lookup.
       if (user) {
         token.id = user.id;
+        token.email = user.email; // ← Force email from fresh OAuth/Credentials response
         token.displayName = user.displayName || user.name;
         token.picture = user.image;
         token.defaultCompanyId = user.defaultCompanyId;
         token.emailVerified = (user as any).emailVerified || null;
-        // Carry the onboarding flag if set by signIn callback
-        if ((user as any).needsOnboarding) {
-          token.needsOnboarding = true;
-        }
+        console.log(`[NextAuth JWT] Initial sign-in: id=${user.id}, email=${user.email}`);
       }
 
       // Fetch DB dynamically on token refresh if email is unverified
@@ -160,12 +254,12 @@ export const authOptions: NextAuthOptions = {
             token.emailVerified = dbUser.emailVerified;
           }
           
-          // Clear onboarding flag once they have a company
-          if (dbUser.companies.length > 0) {
-            token.needsOnboarding = false;
-          }
+          
+          // Set onboarding flag based on whether they have a company
+          token.needsOnboarding = dbUser.companies.length === 0;
         }
       }
+
 
       return token;
     },

@@ -3,13 +3,13 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
-import { acceptInvite } from '@/app/actions/memberActions';
-import { Building2, Check, AlertCircle } from 'lucide-react';
+import { Building2, AlertCircle } from 'lucide-react';
+import AcceptInviteButton from './AcceptInviteButton';
 
 export default async function InvitePage(props: { params: Promise<{ token: string }> }) {
   const params = await props.params;
   const token = params.token;
-  
+
   // 1. Fetch Invite
   const invite = await prisma.workspaceInvite.findUnique({
     where: { token },
@@ -31,15 +31,17 @@ export default async function InvitePage(props: { params: Promise<{ token: strin
     );
   }
 
-  // 2. Check Session
+  // 2. Check Session — server-side getServerSession works reliably here
   const session = await getServerSession(authOptions);
-  
+
   if (!session || !session.user) {
-    // Redirect to login/register with a callback URL
     redirect(`/auth/login?callbackUrl=${encodeURIComponent(`/invite/${token}`)}`);
   }
 
   const userEmail = session.user.email;
+  // Pass userId from server session directly to the client button to avoid
+  // session() returning null inside the Server Action on production VPS
+  const userId = (session.user as any).id as string;
   const isEmailMatch = userEmail?.toLowerCase() === invite.email.toLowerCase();
 
   return (
@@ -48,11 +50,11 @@ export default async function InvitePage(props: { params: Promise<{ token: strin
         <div className="w-16 h-16 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <Building2 className="w-8 h-8 text-cyan-400" />
         </div>
-        
+
         <h1 className="text-2xl font-black text-white mb-2 tracking-tight">
           Join {invite.company.name}
         </h1>
-        
+
         <p className="text-sm text-slate-400 mb-8">
           You have been invited to collaborate as <strong className="text-white">{invite.role}</strong>.
         </p>
@@ -64,29 +66,14 @@ export default async function InvitePage(props: { params: Promise<{ token: strin
               Account Mismatch
             </h3>
             <p className="text-xs text-rose-300">
-              This invite was sent to <strong>{invite.email}</strong>, but you are logged in as <strong>{userEmail}</strong>. 
-              Please log out and log in with the correct account to accept this invitation.
+              This invite was sent to <strong>{invite.email}</strong>, but you are logged in as <strong>{userEmail}</strong>.
+              Please log out and log in with the correct account.
             </p>
           </div>
         ) : (
-          <form action={async () => {
-            "use server";
-            const res = await acceptInvite(token);
-            if (res.success) {
-              redirect('/dashboard');
-            } else {
-              // Redirect or show error (simplified for now)
-              redirect(`/invite/${token}?error=${res.error}`);
-            }
-          }}>
-            <button
-              type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.2)]"
-            >
-              <Check className="w-5 h-5" />
-              Accept Invitation
-            </button>
-          </form>
+          // Client component gets the verified userId from the server session
+          // so it doesn't need to re-call getServerSession inside the action
+          <AcceptInviteButton token={token} userId={userId} />
         )}
       </div>
     </div>

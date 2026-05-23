@@ -16,7 +16,7 @@ export function SyncToast() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 80, scale: 0.9 }}
           transition={{ type: "spring", damping: 22, stiffness: 280 }}
-          className="fixed bottom-6 right-6 z-[200] w-80 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(6,182,212,0.15)]"
+          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 z-[200] sm:w-80 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_0_1px_rgba(6,182,212,0.15)]"
         >
           {/* Header */}
           <div className="flex items-center gap-3 mb-3">
@@ -38,7 +38,7 @@ export function SyncToast() {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="text-xs text-slate-400 truncate mt-0.5"
+                className={`text-xs text-slate-400 mt-0.5 ${error ? "whitespace-normal break-words" : "truncate"}`}
               >
                 {statusMessage}
               </motion.div>

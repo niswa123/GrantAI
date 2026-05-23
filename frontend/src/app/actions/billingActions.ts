@@ -18,28 +18,62 @@ async function requireSession() {
 /**
  * Fetches the user's current subscription details from the database.
  */
-export async function getUserSubscription() {
+export async function getUserSubscription(companyId?: string) {
   const userId = await requireSession();
-  
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      subscription_tier: true,
-      subscription_status: true,
-      current_period_end: true,
-      stripe_customer_id: true,
-    },
-  });
 
-  if (!user) {
-    throw new Error('User not found');
+  // Batch 1: fetch user + lava payments + companies in parallel
+  const [user, lavaPaymentCount, userCompanies] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        subscription_tier: true,
+        subscription_status: true,
+        current_period_end: true,
+        stripe_customer_id: true,
+      },
+    }),
+    prisma.payment.count({
+      where: { user_id: userId, provider: 'lava', status: 'succeeded' },
+    }),
+    prisma.company.findMany({
+      where: {
+        OR: [
+          { user_id: userId },
+          { members: { some: { user_id: userId } } },
+        ],
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  if (!user) throw new Error('User not found');
+
+  const companyIds = userCompanies.map((c) => c.id);
+  const targetCompanyId = companyId && companyIds.includes(companyId)
+    ? companyId
+    : (companyIds[0] || null);
+
+  // Batch 2: fetch usage counts in parallel (only if we have a company)
+  let claimCount = 0;
+  let memberCount = 0;
+  if (targetCompanyId) {
+    const [claims, members] = await Promise.all([
+      prisma.claim.count({ where: { company_id: targetCompanyId } }),
+      prisma.companyMember.count({ where: { company_id: targetCompanyId } }),
+    ]);
+    claimCount = claims;
+    memberCount = members;
   }
 
   return {
-    tier: user.subscription_tier, // 'FREE' | 'PRO' | 'ENTERPRISE' | 'UNLIMITED'
+    tier: user.subscription_tier,
     status: user.subscription_status,
     periodEnd: user.current_period_end,
-    hasStripeCustomer: !!user.stripe_customer_id,
+    hasLavaSubscription: lavaPaymentCount > 0 || (!user.stripe_customer_id && user.subscription_tier !== 'FREE' && user.subscription_tier !== 'UNLIMITED'),
+    usage: {
+      calculations: claimCount,
+      members: memberCount,
+    },
   };
 }
 

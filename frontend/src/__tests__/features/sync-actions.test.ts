@@ -8,28 +8,87 @@ vi.mock('next-auth/next', () => ({
   getServerSession: vi.fn().mockResolvedValue({ user: { id: 'test-user-id' } }),
 }));
 
-// Mock next/headers (cookies) — required by runUnifiedSync
+// Mock next/headers
 vi.mock('next/headers', () => ({
-  cookies: vi.fn().mockResolvedValue({
-    getAll: () => [],
+  cookies: vi.fn().mockResolvedValue({ getAll: () => [] }),
+}));
+
+// Mock access-control to always grant access
+vi.mock('@/lib/access-control', () => ({
+  getUserAccessLevel: vi.fn().mockResolvedValue({
+    hasAccess: true,
+    isFreeTierLimitReached: false,
+    tier: 'PRO',
   }),
+}));
+
+// Mock rd-engine modules so no actual LLM calls happen
+vi.mock('@/lib/rd-engine/pipeline', () => ({
+  runRdPipeline: vi.fn().mockResolvedValue({
+    classification: {
+      rd_score: 0.8,
+      is_rd_eligible: true,
+      criteria_scores: {},
+      key_innovations: [],
+      disqualifying_factors_found: [],
+      risk_flags: [],
+      recommended_evidence: [],
+      step_by_step_analysis: '',
+    },
+    claimText: { claim_text: { company_overview: 'Test' }, metadata: {} },
+  }),
+}));
+
+vi.mock('@/lib/rd-engine/credit-calculator', () => ({
+  computeCredit: vi.fn().mockReturnValue({
+    creditAmount: 10000,
+    qualifyingExpenditure: 50000,
+    appliedRate: 0.2,
+    program: 'TEST',
+    breakdown: {},
+    tieredBreakdown: [],
+    smeApplied: true,
+  }),
+}));
+
+// Mock integration sync libs to return empty results (no external network calls)
+vi.mock('@/lib/integrations/github-sync', () => ({
+  runGithubSync: vi.fn().mockResolvedValue({ repos: [], commits: [], summary: '', scannedSince: '' }),
+}));
+
+vi.mock('@/lib/integrations/linear-sync', () => ({
+  runLinearSync: vi.fn().mockResolvedValue({ groups: [], summary: '', scannedSince: '' }),
+}));
+
+vi.mock('@/lib/integrations/jira-sync', () => ({
+  runJiraSync: vi.fn().mockResolvedValue({ groups: [], summary: '', cloudName: 'Test', scannedSince: '' }),
 }));
 
 // Mock Prisma
 vi.mock('@/lib/prisma', () => ({
   default: {
     company: {
-      findUnique: vi.fn(),
+      findUnique: vi.fn().mockResolvedValue({ country: 'Netherlands' }),
+      findFirst: vi.fn().mockResolvedValue({ id: 'test-company', name: 'Test Co' }),
       update: vi.fn(),
     },
     integration: {
       findMany: vi.fn(),
+      findFirst: vi.fn(),
+    },
+    claim: {
+      create: vi.fn().mockResolvedValue({ id: 'claim-1' }),
+    },
+    user: {
+      findUnique: vi.fn().mockResolvedValue({
+        email: 'test@test.com',
+        subscription_tier: 'PRO',
+        subscription_status: 'active',
+        claim_count: 0,
+      }),
     },
   },
 }));
-
-// Mock fetch for unifiedSyncActions
-global.fetch = vi.fn();
 
 describe('Backend Feature 2: Auto-fill (Financial Memory)', () => {
   beforeEach(() => {
@@ -56,7 +115,6 @@ describe('Backend Feature 2: Auto-fill (Financial Memory)', () => {
   it('updateCompanySyncDefaults saves new salary and dev cost values', async () => {
     await companyActions.updateCompanySyncDefaults('company-123', 300000, 50000);
 
-    // Use objectContaining — real code also sets user_id and last_sync_at
     expect(prisma.company.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
@@ -71,18 +129,13 @@ describe('Backend Feature 2: Auto-fill (Financial Memory)', () => {
 describe('Backend Feature 5: Quick Sync vs Deep Sync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (prisma.integration.findMany as any).mockResolvedValue([
-      { provider: 'github' }, // One connected integration
-    ]);
+    (prisma.integration.findMany as any).mockResolvedValue([{ provider: 'github' }]);
+    (prisma.company.findFirst as any).mockResolvedValue({ id: 'test-company', name: 'Test Co' });
+    (prisma.company.findUnique as any).mockResolvedValue({ country: 'Netherlands' });
+    (prisma.claim.create as any).mockResolvedValue({ id: 'claim-1' });
   });
 
   it('runUnifiedSync runs without error for Quick Sync (isDeepSync=false)', async () => {
-    // Mock the github/sync API response returning no commits
-    (global.fetch as any).mockResolvedValue({
-      ok: true,
-      json: async () => ({ commits: [], repos: [] }),
-    });
-
     const result = await unifiedSyncActions.runUnifiedSync({
       companyId: 'test-company',
       salaryCosts: 100000,
@@ -91,20 +144,12 @@ describe('Backend Feature 5: Quick Sync vs Deep Sync', () => {
       isDeepSync: false,
     });
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost/api/integrations/github/sync',
-      expect.objectContaining({ method: 'POST' })
-    );
-    // 0 commits → 0 claims → success=false but no thrown error
+    // 0 commits returned by mock → 0 claims → success=false but no thrown error
+    expect(result).toHaveProperty('sources');
     expect(result.sources[0].provider).toBe('github');
   });
 
   it('runUnifiedSync runs without error for Deep Audit (isDeepSync=true)', async () => {
-    (global.fetch as any).mockResolvedValue({
-      ok: true,
-      json: async () => ({ commits: [], repos: [] }),
-    });
-
     const result = await unifiedSyncActions.runUnifiedSync({
       companyId: 'test-company',
       salaryCosts: 100000,
@@ -113,8 +158,6 @@ describe('Backend Feature 5: Quick Sync vs Deep Sync', () => {
       isDeepSync: true,
     });
 
-    // Function should accept the flag without crashing
-    expect(global.fetch).toHaveBeenCalled();
     expect(result).toHaveProperty('sources');
   });
 });

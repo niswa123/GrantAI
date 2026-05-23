@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   Plus, Euro, BarChart3, TrendingUp, Download,
@@ -69,28 +70,25 @@ function FYTabs({ fyOptions, selected, onSelect }: { fyOptions: string[]; select
 }
 
 // ── Sticky Summary Bar ────────────────────────────────────────────────────
+// Uses CSS transitions instead of AnimatePresence to avoid DOM insertion/removal
+// during scroll, which causes layout shift and scroll position jumps on iOS.
 
 function StickySummaryBar({ totalRefund, count, show }: { totalRefund: number; count: number; show: boolean }) {
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -16 }}
-          transition={{ duration: 0.25 }}
-          className="sticky top-14 sm:top-16 z-20 -mx-4 px-4 py-2.5 bg-slate-950/90 backdrop-blur-xl border-b border-white/5 flex items-center justify-between"
-        >
-          <span className="text-xs text-slate-400 font-medium">{count} claim{count !== 1 ? "s" : ""}</span>
-          <div className="flex items-center gap-1.5 text-sm font-black text-cyan-400">
-            <Euro className="w-4 h-4" />
-            <span className="hidden xs:inline">{totalRefund.toLocaleString("en-EU", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-            <span className="xs:hidden">{(totalRefund / 1000).toFixed(1)}k</span>
-            <span className="text-xs text-slate-500 font-normal hidden sm:inline">total refund</span>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      aria-hidden={!show}
+      className={`sticky top-14 sm:top-16 z-20 -mx-4 px-4 py-2.5 bg-slate-950 border-b border-white/5 flex items-center justify-between transition-all duration-200 ease-out ${
+        show ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+      }`}
+    >
+      <span className="text-xs text-slate-400 font-medium">{count} claim{count !== 1 ? "s" : ""}</span>
+      <div className="flex items-center gap-1.5 text-sm font-black text-cyan-400">
+        <Euro className="w-4 h-4" />
+        <span className="hidden xs:inline">{totalRefund.toLocaleString("en-EU", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+        <span className="xs:hidden">{(totalRefund / 1000).toFixed(1)}k</span>
+        <span className="text-xs text-slate-500 font-normal hidden sm:inline">total refund</span>
+      </div>
+    </div>
   );
 }
 
@@ -98,7 +96,7 @@ function StickySummaryBar({ totalRefund, count, show }: { totalRefund: number; c
 
 import { getDashboardClaims, deleteClaim as dbDeleteClaim, updateClaimStatus as dbUpdateClaimStatus } from "@/app/actions/claimActions";
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [history, setHistory] = useState<CalculationRecord[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [fyFilter, setFyFilter] = useState("All Time");
@@ -108,7 +106,21 @@ export default function DashboardPage() {
   const [showStickyBar, setShowStickyBar] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  const { activeWorkspace } = useWorkspace();
+  const { activeWorkspace, workspaces, setActiveWorkspace } = useWorkspace();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Auto-switch workspace when arriving from invite link (?ws=COMPANY_ID)
+  useEffect(() => {
+    const wsId = searchParams.get("ws");
+    if (!wsId || workspaces.length === 0) return;
+    const target = workspaces.find((w) => w.id === wsId);
+    if (target) {
+      setActiveWorkspace(target);
+    }
+    // Clean URL without re-rendering
+    router.replace("/dashboard", { scroll: false });
+  }, [searchParams, workspaces, setActiveWorkspace, router]);
 
   // Load history from DB
   const loadClaims = useCallback(async () => {
@@ -172,12 +184,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
-      {/* Ambient glows */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-[100dvh] bg-slate-950 relative">
+      {/* Ambient glows - pointer-events-none so they don't interfere with scroll */}
+      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-32 sm:pb-20">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 pb-28 sm:pb-20">
         {/* Sticky summary (appears after scrolling past stats) */}
         <StickySummaryBar totalRefund={totalRefund} count={filtered.length} show={showStickyBar && history.length > 0} />
 
@@ -224,7 +236,7 @@ export default function DashboardPage() {
 
           {/* ── Stats ── */}
           {history.length > 0 && (
-            <motion.div ref={statsRef} variants={item} className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 -mx-4 px-4 sm:pb-0 sm:-mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 sm:mb-8">
+            <motion.div ref={statsRef} variants={item} className="flex overflow-x-auto snap-x snap-proximity scrollbar-hide pb-4 -mx-4 px-4 sm:pb-0 sm:-mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4 sm:mb-8">
               <StatCard
                 label="Total Refund"
                 value={`€${totalRefund.toLocaleString("en-EU", { maximumFractionDigits: 0 })}`}
@@ -343,15 +355,10 @@ export default function DashboardPage() {
                 <EmptyState key="empty" />
               ) : viewMode === "cards" ? (
                 <motion.div key="cards" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
-                  {filtered.map((record, i) => (
-                    <motion.div
-                      key={record.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                    >
+                  {filtered.map((record) => (
+                    <div key={record.id}>
                       <ClaimCard record={record} onStatusChange={handleStatusChange} onDelete={handleDelete} />
-                    </motion.div>
+                    </div>
                   ))}
                 </motion.div>
               ) : (
@@ -373,14 +380,15 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Mobile Floating Action Bar (FAB) ── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      {/* Fully opaque bg — no backdrop-blur to avoid expensive GPU recompositing on every scroll frame on iOS */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-4 bg-slate-950 border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="flex items-center gap-3 w-full max-w-md mx-auto">
           <div className="flex-1">
             <MagicSyncButton companyId={activeWorkspace?.id || ""} onSuccess={loadClaims} fullWidth />
           </div>
           <Link
             href="/input"
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-cyan-500 active:bg-cyan-400 text-slate-950 font-black text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] touch-manipulation"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl bg-cyan-500 active:bg-cyan-400 text-slate-950 font-black text-sm transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] touch-manipulation select-none"
           >
             <Plus className="w-4 h-4" />
             New
@@ -388,5 +396,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" /></div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

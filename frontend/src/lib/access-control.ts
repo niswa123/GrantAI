@@ -9,6 +9,8 @@ export interface AccessLevel {
   status: SubscriptionStatus;
   hasAccess: boolean;
   isAdmin: boolean;
+  freeUsageCount?: number;
+  isFreeTierLimitReached?: boolean;
 }
 
 export async function getUserAccessLevel(userId: string): Promise<AccessLevel> {
@@ -22,7 +24,9 @@ export async function getUserAccessLevel(userId: string): Promise<AccessLevel> {
       tier: 'FREE',
       status: 'NONE',
       hasAccess: false,
-      isAdmin: false
+      isAdmin: false,
+      freeUsageCount: 0,
+      isFreeTierLimitReached: true
     };
   }
 
@@ -32,19 +36,50 @@ export async function getUserAccessLevel(userId: string): Promise<AccessLevel> {
       tier: 'UNLIMITED',
       status: 'ACTIVE',
       hasAccess: true,
-      isAdmin: true
+      isAdmin: true,
+      freeUsageCount: 0,
+      isFreeTierLimitReached: false
     };
   }
 
   // General Access Logic (PRO or ENTERPRISE with ACTIVE status, or UNLIMITED)
   const isPremiumTier = ['PRO', 'ENTERPRISE', 'UNLIMITED'].includes(user.subscription_tier);
   const isActive = user.subscription_status === 'ACTIVE' || user.subscription_tier === 'UNLIMITED';
-  const hasAccess = isPremiumTier && isActive;
+  let hasAccess = isPremiumTier && isActive;
+
+  let freeUsageCount = 0;
+  let isFreeTierLimitReached = false;
+
+  // Free Tier Exception: Allow up to 3 claims/analyses
+  if (!hasAccess && user.subscription_tier === 'FREE') {
+    const companies = await prisma.company.findMany({
+      where: { user_id: userId },
+      select: { id: true }
+    });
+    const companyIds = companies.map(c => c.id);
+
+    const claimCount = await prisma.claim.count({
+      where: { company_id: { in: companyIds } }
+    });
+
+    const analyzedLogCount = await prisma.analyzedLog.count({
+      where: { company_id: { in: companyIds } }
+    });
+
+    freeUsageCount = claimCount + analyzedLogCount;
+    isFreeTierLimitReached = freeUsageCount >= 3;
+
+    if (!isFreeTierLimitReached) {
+      hasAccess = true;
+    }
+  }
 
   return {
     tier: user.subscription_tier,
     status: user.subscription_status,
     hasAccess,
-    isAdmin: false
+    isAdmin: false,
+    freeUsageCount,
+    isFreeTierLimitReached
   };
 }

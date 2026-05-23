@@ -4,14 +4,16 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   
-  --color-background: #020617;
-  --color-foreground: #f8fafc;
+  --color-background: oklch(14.07% 0.006 250);
+  --color-foreground: oklch(97.23% 0.002 250);
+  --color-muted: oklch(62.3% 0.005 250);
   
-  --color-brand-primary: #06b6d4;
-  --color-brand-secondary: #8b5cf6;
+  --color-brand-primary: oklch(76.12% 0.156 210);
+  --color-brand-secondary: oklch(79.3% 0.134 145);
+  --color-brand-warning: oklch(71.2% 0.165 45);
   
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
   
   --breakpoint-xs: 475px;
   --breakpoint-sm: 640px;
@@ -23,7 +25,7 @@
 
 @layer base {
   * {
-    @apply border-white/10;
+    @apply border-white/5;
     font-variant-numeric: tabular-nums;
   }
   
@@ -39,16 +41,19 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/[0.03] backdrop-blur-xl border border-white/10;
-    box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
   
   .glass-darker {
-    @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+    background-color: rgba(2, 6, 23, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.04);
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white/90 to-white/40;
+    color: var(--color-foreground);
   }
 
   .animate-slow-spin {
@@ -108,20 +113,11 @@
   --foreground: #f8fafc;
 }
 
-/* ===== MOBILE: overflow-x: hidden (safe because sticky sections are already static on mobile) ===== */
-@media (max-width: 767px) {
-  html, body {
-    overflow-x: hidden !important;
-    max-width: 100vw !important;
-    width: 100% !important;
-  }
-}
-
-/* ===== DESKTOP: overflow-x: clip (preserves position: sticky) ===== */
-@media (min-width: 768px) {
-  html, body {
-    overflow-x: clip;
-  }
+/* ===== Prevent horizontal scroll without creating new scroll context ===== */
+/* overflow-x: clip does NOT create a BFC, so vertical scrolling stays native */
+html, body {
+  overflow-x: clip;
+  max-width: 100vw;
 }
 
 body {
@@ -131,5 +127,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
   max-width: 100vw;
   position: relative;
+  /* Prevent iOS rubber-band bounce causing scroll position jumps */
+  overscroll-behavior-y: none;
 }
+
+/* Smooth momentum scrolling on iOS WebKit */
+@supports (-webkit-overflow-scrolling: touch) {
+  html {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Accessibility: Respect system preferences for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-delay: -1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    background-attachment: scroll !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0s !important;
+    transition-duration: 0s !important;
+  }
+}
+
 

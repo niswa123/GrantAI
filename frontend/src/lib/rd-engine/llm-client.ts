@@ -5,7 +5,7 @@
  * - Retry logic with exponential backoff (3 attempts)
  * - JSON extraction with fallback parsing (handles markdown-wrapped JSON)
  * - Structured error types
- * - Timeout guard (30s)
+ * - Timeout guard (90s)
  */
 
 const KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions";
@@ -82,23 +82,37 @@ export async function callLlm<T>(
       }
 
       const data = await response.json();
+
+      // Check for explicit API error returned in the body (even with 200 OK)
+      if (data?.error) {
+        const errMsg = data.error.message || JSON.stringify(data.error);
+        console.error("[LLM] KIE.AI Error:", errMsg);
+        throw new LlmApiError(
+          "API_ERROR",
+          `KIE.AI Error: ${errMsg}`,
+          JSON.stringify(data)
+        );
+      }
+
       const content: string = data?.choices?.[0]?.message?.content ?? "";
 
       if (!content) {
-        throw new LlmApiError("INVALID_RESPONSE", "Empty content in LLM response", JSON.stringify(data));
+        console.error("[LLM] Empty content. Full response data:", JSON.stringify(data));
+        throw new LlmApiError(
+          "INVALID_RESPONSE", 
+          `Empty content in LLM response (choices: ${data?.choices ? "present but empty" : "missing"}). Full response: ${JSON.stringify(data)}`, 
+          JSON.stringify(data)
+        );
       }
 
       return extractJson<T>(content);
     } catch (err) {
       if (err instanceof LlmApiError && err.code === "PARSE_ERROR") {
-        // Log the raw response so we can debug what the model actually returned
         console.error("[LLM] PARSE_ERROR — raw response:", err.rawResponse?.slice(0, 2000));
-        // Don't retry parse errors — same prompt will produce same bad output
         throw err;
       }
       lastError = err instanceof Error ? err : new Error(String(err));
 
-      // If request was explicitly aborted (timeout), give a cleaner message
       if ((err as any)?.name === 'AbortError') {
         lastError = new Error(`LLM request timed out after ${TIMEOUT_MS / 1000}s`);
       }

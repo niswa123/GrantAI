@@ -111,8 +111,11 @@ export async function POST(request: NextRequest) {
 
     // Lock enterprise claim generation behind tier check
     if (!access.hasAccess) {
+      const errorMsg = access.isFreeTierLimitReached
+        ? "You have reached the limit of 3 free AI claims. Please upgrade to a premium tier to generate more claims."
+        : "Payment Required. Please upgrade to a premium tier to generate claims.";
       return NextResponse.json(
-        { error: "Payment Required. Please upgrade to a premium tier to generate claims." },
+        { error: errorMsg },
         { status: 403 }
       );
     }

@@ -4,9 +4,11 @@ import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 import { ArrowRight, Cpu, FileCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { usePostHog } from "posthog-js/react"
 
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null)
+  const posthog = usePostHog()
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -30,13 +32,12 @@ export function Hero() {
 
         {/* Shine Badge */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold uppercase tracking-widest mb-4 sm:mb-8 backdrop-blur-md"
+          transition={{ duration: 0.6 }}
+          className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[10px] sm:text-xs text-slate-400 mb-4 sm:mb-8 tracking-wider uppercase"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-cyan-400">GrantAI Engine v2.0 Live</span>
+          [ COMPLIANCE ENGINE // V2.0.DETERMINISTIC ]
         </motion.div>
         
         {/* Main Title */}
@@ -44,11 +45,11 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-          className="text-4xl leading-[1.15] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-3 sm:mb-8 text-white max-w-5xl mx-auto px-4 sm:px-6 break-words hyphens-auto"
+          className="text-4xl leading-[1.1] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-4 sm:mb-8 text-white max-w-5xl mx-auto px-4 sm:px-6 break-words"
           style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Turn Code into{" "}
-          <span className="text-cyan-400 drop-shadow-sm block sm:inline">
+          Turn Code into<br />
+          <span className="text-cyan-400">
             Financial Capital.
           </span>
         </motion.h1>
@@ -58,10 +59,10 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-sm sm:text-lg md:text-xl lg:text-2xl text-slate-400 max-w-3xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-4 sm:px-6"
+          className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-400 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-4 sm:px-6"
           style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Track Continuous R&D Value Flow. Maximize your engineering capital transparently.
+          Continuous OECD Frascati R&D valuation. Turn your engineering logs into a verified, audit-ready financial asset.
         </motion.p>
         
         {/* Buttons */}
@@ -69,113 +70,126 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6 w-full max-w-2xl"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 px-4 sm:px-6 w-full max-w-md"
         >
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:flex-1 sm:max-w-xs">
-            <Button size="xl" className="group w-full px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full overflow-hidden bg-white hover:bg-slate-100 text-black border border-white shadow-[0_0_30px_rgba(255,255,255,0.2)] touch-manipulation whitespace-nowrap">
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className="w-full sm:flex-1">
+            <Button
+              size="xl"
+              onClick={() => posthog?.capture('Clicked Start Tracking', { location: 'hero' })}
+              className="group w-full px-5 sm:px-8 py-3.5 sm:py-5 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-sm bg-white hover:bg-slate-100 text-black border border-white transition-all shadow-[0_4px_20px_rgba(255,255,255,0.08)] whitespace-nowrap"
+            >
               Start Tracking
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform" />
             </Button>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full sm:flex-1 sm:max-w-xs">
-            <Button variant="premium" size="xl" className="w-full px-5 sm:px-8 py-4 sm:py-6 text-sm sm:text-base rounded-full border border-white/10 bg-slate-900/50 hover:bg-slate-800 touch-manipulation whitespace-nowrap">
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }} className="w-full sm:flex-1">
+            <Button
+              variant="premium"
+              size="xl"
+              onClick={() => posthog?.capture('Clicked How it Works', { location: 'hero' })}
+              className="w-full px-5 sm:px-8 py-3.5 sm:py-5 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-sm border border-white/10 bg-slate-900/50 hover:bg-slate-800 transition-all whitespace-nowrap"
+            >
               How it Works
             </Button>
           </motion.div>
         </motion.div>
 
-        {/* Hero 3D Dashboard Mockup (The WOW Effect) */}
+        {/* Hero 3D Dashboard Mockup (Terminal-Native precision) */}
         <motion.div 
-          initial={{ opacity: 0, y: 120, rotateX: 15, scale: 0.9 }}
+          initial={{ opacity: 0, y: 60, rotateX: 5, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.5, type: "spring", stiffness: 45, damping: 20 }}
-          style={{ perspective: 1500 }}
-          className="mt-6 sm:mt-16 md:mt-20 w-full max-w-5xl mx-auto relative group px-2 sm:px-4 flex-grow flex flex-col justify-end"
+          transition={{ duration: 1.0, delay: 0.4, ease: "easeOut" }}
+          style={{ perspective: 1200 }}
+          className="mt-12 sm:mt-20 w-full max-w-5xl mx-auto relative group px-2 sm:px-4 flex-grow flex flex-col justify-end"
         >
-          {/* Ambient Mockup Glow */}
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/30 to-cyan-400/30 rounded-[40px] blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-1000" />
-          
-          <div className="relative rounded-t-2xl sm:rounded-t-3xl md:rounded-t-[40px] border-t border-x border-white/15 bg-slate-950/80 backdrop-blur-2xl p-4 sm:p-6 md:p-10 overflow-hidden shadow-2xl h-[280px] sm:h-[400px] md:h-[450px] flex flex-col transition-transform duration-700 ease-out group-hover:-translate-y-2">
+          <div className="relative rounded-t-xl border-t border-x border-white/10 bg-slate-950/90 p-4 sm:p-6 md:p-8 overflow-hidden shadow-2xl h-[300px] sm:h-[400px] md:h-[420px] flex flex-col">
             
             {/* Dashboard Mock Header */}
-            <div className="flex flex-row items-center justify-between border-b border-white/5 pb-3 sm:pb-6 mb-3 sm:mb-6 gap-2 sm:gap-4">
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl sm:rounded-2xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                  <Cpu className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-cyan-400" />
+            <div className="flex flex-row items-center justify-between border-b border-white/5 pb-4 mb-4 gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-sm bg-white/[0.02] flex items-center justify-center border border-white/10 text-slate-400">
+                  <Cpu className="w-4 h-4" />
                 </div>
-                <div className="text-left">
-                  <div className="text-white font-bold text-base sm:text-lg md:text-xl tracking-tight">AI Engine v2.0</div>
-                  <div className="text-cyan-400 text-xs sm:text-sm font-medium flex items-center gap-2 mt-0.5 sm:mt-1">
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400 animate-pulse" /> 
-                    <span className="hidden xs:inline">Scanning Jira & GitHub...</span>
-                    <span className="xs:hidden">Scanning...</span>
+                <div className="text-left font-mono">
+                  <div className="text-white font-bold text-xs sm:text-sm tracking-tight uppercase">Claims Inspector</div>
+                  <div className="text-cyan-400 text-[10px] sm:text-xs font-semibold flex items-center gap-2 mt-0.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> 
+                    <span>Sync Mode: ACTIVE // Tracking repository streams</span>
                   </div>
                 </div>
               </div>
-              <div className="flex gap-2 sm:gap-3">
-                <div className="px-2 sm:px-4 md:px-5 py-1 sm:py-2 md:py-2.5 rounded-full border border-white/5 bg-white/5 text-[10px] sm:text-sm font-medium text-slate-300">
-                  <span className="hidden xs:inline">Confidence: </span>
-                  <span className="text-white font-bold">99.8%</span>
+              <div>
+                <div className="px-3 py-1 rounded-sm border border-white/5 bg-white/[0.02] text-[10px] sm:text-xs font-mono text-slate-400">
+                  CONFIDENCE: <span className="text-white font-bold">99.8%</span>
                 </div>
               </div>
             </div>
 
             {/* Dashboard Mock Body - Code & Report side by side */}
-            <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 relative">
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 relative">
               {/* Left: Code Box */}
-              <div className="min-w-0 rounded-2xl sm:rounded-3xl bg-black/50 border border-white/5 p-3 sm:p-4 md:p-6 font-mono text-xs sm:text-sm text-slate-400 overflow-hidden relative shadow-inner">
-                <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-600">Terminal</div>
+              <div className="min-w-0 rounded-lg bg-black/60 border border-white/5 p-4 sm:p-5 font-mono text-[10px] sm:text-xs text-slate-400 overflow-hidden relative">
+                <div className="absolute top-2 right-3 text-[9px] font-bold uppercase tracking-widest text-slate-600">AST Parser</div>
                 <motion.div 
                   initial={{ y: 0 }} 
-                  animate={{ y: -60 }} 
-                  transition={{ duration: 12, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
-                  className="space-y-3 opacity-70 break-all sm:break-words whitespace-pre-wrap"
+                  animate={{ y: -50 }} 
+                  transition={{ duration: 15, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
+                  className="space-y-3 opacity-90 break-all sm:break-words whitespace-pre-wrap text-left"
                 >
-                  <p><span className="text-emerald-400">root@grantai:~#</span> analyze ./repo</p>
-                  <p><span className="text-slate-300">commit</span> 8a3f2b1 integration of new AI caching layer...</p>
-                  <p><span className="text-cyan-400">feat:</span> build dynamic AST parser for semantic code graph</p>
-                  <p><span className="text-slate-500">// Requires extensive trial and error scaling</span></p>
-                  <p><span className="text-cyan-400">perf:</span> offload heavy tensor ops to highly parallelized workers</p>
-                  <p className="text-yellow-400">Found Technical Uncertainty: 154 instances</p>
-                  <p><span className="text-slate-300">commit</span> 2d9a1f5 resolver for cyclic dependency deadlocks...</p>
+                  <p className="text-slate-500">// ANALYZING: commit/8a3f2b1 [Frascati compliance evaluation]</p>
+                  <p><span className="text-slate-300">class</span> ComplianceAnalyzer {"{"}</p>
+                  <p className="pl-4"><span className="text-cyan-400">evaluateUncertainty</span>(ast) {"{"}</p>
+                  <p className="pl-8 text-slate-500">// Searching for system design deadlocks / algorithm constraints</p>
+                  <p className="pl-8 text-emerald-400">STATUS: True (Algorithmic Uncertainty Identified)</p>
+                  <p className="pl-8 text-slate-400">confidence_score: 0.998</p>
+                  <p className="pl-8 text-slate-400">overhead_ratio: 0.43 (French Code General Impôts)</p>
+                  <p className="pl-4">{"}"}</p>
+                  <p>{"}"}</p>
                 </motion.div>
-                {/* Floating Analysis Scanner Line */}
+                {/* Clean monospaced scanner scanbar */}
                 <motion.div 
                   animate={{ top: ["0%", "100%", "0%"] }} 
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute left-0 right-0 h-[2px] bg-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.8)] pointer-events-none"
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute left-0 right-0 h-[1px] bg-cyan-400/40 pointer-events-none"
                 />
               </div>
 
               {/* Right: Generated Claim */}
-              <div className="rounded-2xl sm:rounded-3xl bg-gradient-to-br from-cyan-950/30 to-slate-900/50 border border-cyan-500/20 p-3 sm:p-4 md:p-6 relative">
-                <div className="absolute top-3 sm:top-4 md:top-6 right-3 sm:right-4 md:right-6">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-400/30">
-                    <FileCheck className="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-emerald-400" />
+              <div className="rounded-lg bg-slate-900/40 border border-white/5 p-4 sm:p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-3">
+                    <span className="text-xs font-mono uppercase text-slate-400">R&D Capital Asset Log</span>
+                    <span className="text-emerald-400 text-xs font-mono">VERIFIED</span>
+                  </div>
+                  <div className="space-y-3 text-left">
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs text-slate-400">Total Capital Tracked</span>
+                      <span className="text-lg font-mono font-black text-white">€1,240.00</span>
+                    </div>
+                    <div className="w-full bg-white/5 h-[3px] rounded-full overflow-hidden">
+                      <div className="bg-cyan-400 w-[73%] h-full" />
+                    </div>
+                    <div className="flex items-baseline justify-between">
+                      <span className="text-xs text-slate-400">Tax Credit Qualified</span>
+                      <span className="text-sm font-mono font-bold text-emerald-400">€533.20</span>
+                    </div>
                   </div>
                 </div>
-                <div className="text-white font-bold text-sm sm:text-base md:text-lg mb-4 sm:mb-5 md:mb-6">Real-time Value Dashboard</div>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">Total R&D Value Generated</span>
-                    <span className="text-emerald-400 font-bold">€1,240</span>
+                <div className="grid grid-cols-2 gap-2 text-left pt-4">
+                  <div className="bg-black/30 rounded-sm p-2 border border-white/5">
+                    <div className="text-[9px] text-slate-500 font-mono uppercase">OECD Cat</div>
+                    <div className="text-xs font-bold text-white uppercase tracking-tight">Software</div>
                   </div>
-                  <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ duration: 3, repeat: Infinity }} className="w-full h-4 rounded bg-cyan-400/20" />
-                  <div className="flex items-center justify-between text-sm mt-4">
-                    <span className="text-slate-400">AI Confidence</span>
-                    <span className="text-white font-bold">99.8%</span>
-                  </div>
-                  <div className="w-11/12 h-4 rounded bg-cyan-500/10" />
-                  <div className="w-full h-4 rounded flex gap-3 mt-8">
-                    <div className="w-1/3 h-full bg-emerald-600/40 rounded" />
-                    <div className="w-2/3 h-full bg-cyan-500/20 rounded" />
+                  <div className="bg-black/30 rounded-sm p-2 border border-white/5">
+                    <div className="text-[9px] text-slate-500 font-mono uppercase">Jurisdiction</div>
+                    <div className="text-xs font-bold text-white uppercase tracking-tight">EU (Frascati)</div>
                   </div>
                 </div>
               </div>
             </div>
             
               {/* Fade Out Graphic at the bottom */}
-              <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-950 to-transparent z-20 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-slate-950 to-transparent z-20 pointer-events-none" />
             </div>
           </motion.div>
         </div>

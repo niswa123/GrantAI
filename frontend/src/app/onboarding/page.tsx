@@ -16,7 +16,7 @@ const COUNTRIES = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +52,8 @@ export default function OnboardingPage() {
       }
       // Show success step briefly, then redirect
       setStep(3);
+      // Force next-auth to refresh session and evaluate company existence
+      await update();
       setTimeout(() => {
         window.location.href = "/dashboard";
       }, 1500);

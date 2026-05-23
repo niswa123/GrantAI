@@ -315,7 +315,13 @@ function UserMenu() {
               </Link>
               <div className="border-t border-white/5 my-1" />
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={async () => {
+                  await signOut({ redirect: false });
+                  // Force a hard navigation to bypass mobile browser bfcache.
+                  // Using window.location prevents the browser from restoring
+                  // a cached version of the previous protected page.
+                  window.location.href = "/";
+                }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
               >
                 <LogOut className="w-4 h-4" />

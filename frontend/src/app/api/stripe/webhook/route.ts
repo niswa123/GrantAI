@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 import { loopsOnSubscriptionActivated, loopsOnSubscriptionCancelled } from '@/lib/loops';
 import { attioOnSubscriptionActivated, attioOnSubscriptionCancelled } from '@/lib/attio';
+import { captureServerEvent } from '@/lib/analytics';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-04-22.dahlia',
@@ -162,6 +163,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     loopsOnSubscriptionActivated({ email: userEmail.email, plan });
     attioOnSubscriptionActivated({ email: userEmail.email, plan });
   }
+
+  // 📊 PostHog: track payment success for funnel analysis
+  captureServerEvent({
+    distinctId: userId,
+    event: 'Payment Success',
+    properties: {
+      plan,
+      amount: (session.amount_total ?? 0) / 100,
+      currency: session.currency ?? 'usd',
+      mode: session.mode,
+      $set: { subscription_tier: plan, is_paying: true },
+    },
+  });
 }
 
 /**

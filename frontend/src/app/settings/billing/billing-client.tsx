@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CreditCard, Zap, Check, ExternalLink, Loader2, X, Bitcoin } from 'lucide-react';
-import { createStripePortalSession } from '@/app/actions/billingActions';
 import { useRouter } from 'next/navigation';
+import { getUserSubscription } from '@/app/actions/billingActions';
+import { useWorkspace } from '@/providers/workspace-provider';
 
 interface BillingClientProps {
-  subscription: {
+  subscription?: {
     tier: string;
     status: string;
     periodEnd: Date | null;
-    hasStripeCustomer: boolean;
+    hasLavaSubscription: boolean;
   };
 }
 
@@ -40,34 +41,86 @@ const plansConfig = [
   },
 ];
 
-export default function BillingClient({ subscription }: BillingClientProps) {
+function BillingSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-10">
+      {/* Header Skeleton */}
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800/80 animate-pulse border border-white/5" />
+            <div className="h-7 w-48 bg-slate-800/80 animate-pulse rounded-lg" />
+          </div>
+          <div className="h-4 w-64 bg-slate-900/80 animate-pulse rounded-lg ml-11 sm:ml-12" />
+        </div>
+      </div>
+
+      {/* Grid Skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className={`relative rounded-xl sm:rounded-2xl border border-white/5 bg-slate-900/20 p-4 sm:p-6 flex flex-col space-y-5 min-h-[350px] ${
+              i === 2 ? 'border-cyan-500/20 bg-cyan-500/5 shadow-[0_0_20px_rgba(6,182,212,0.05)]' : ''
+            }`}
+          >
+            <div className="space-y-3 animate-pulse">
+              <div className="h-4 w-1/3 bg-slate-800/80 rounded-md" />
+              <div className="h-8 w-1/2 bg-slate-800/80 rounded-md" />
+            </div>
+
+            <div className="space-y-3 flex-1 animate-pulse">
+              {[1, 2, 3, 4].map((j) => (
+                <div key={j} className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 rounded-full bg-slate-800/80 flex-shrink-0" />
+                  <div className="h-3 bg-slate-800/80 rounded-md flex-1" />
+                </div>
+              ))}
+            </div>
+
+            <div className="h-10 bg-slate-800/80 rounded-xl w-full animate-pulse" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function BillingClient({ subscription: initialSubscription }: BillingClientProps) {
   const router = useRouter();
+  const { activeWorkspace } = useWorkspace();
+  const [subscription, setSubscription] = useState<any>(initialSubscription || null);
+  const [loading, setLoading] = useState(!initialSubscription);
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState<string | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string>('PRO');
 
-  const handleStripePortal = async () => {
-    setLoadingPortal(true);
-    try {
-      const { url } = await createStripePortalSession();
-      window.location.href = url;
-    } catch (error) {
-      console.error('Failed to open Stripe portal', error);
-      alert('Failed to open billing portal. Please try again.');
-      setLoadingPortal(false);
+  useEffect(() => {
+    if (!initialSubscription) {
+      const loadSubscription = async () => {
+        try {
+          const fetched = await getUserSubscription(activeWorkspace?.id);
+          setSubscription(fetched);
+        } catch (err) {
+          console.error('Failed to load subscription:', err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadSubscription();
     }
-  };
+  }, [initialSubscription, activeWorkspace?.id]);
 
   const handlePlanSelect = (planId: string) => {
     setSelectedPlan(planId);
     setIsPaymentModalOpen(true);
   };
 
-  const handleCheckout = async (provider: 'stripe' | 'nowpayments') => {
+  const handleCheckout = async (provider: 'lava' | 'nowpayments') => {
     setLoadingCheckout(provider);
     try {
-      const endpoint = provider === 'stripe' ? '/api/stripe/checkout' : '/api/nowpayments/invoice';
+      const endpoint = provider === 'lava' ? '/api/lava/checkout' : '/api/nowpayments/invoice';
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -80,9 +133,9 @@ export default function BillingClient({ subscription }: BillingClientProps) {
       } else {
         throw new Error(data.error || 'Failed to create checkout session');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Checkout error:', error);
-      alert('Failed to start checkout. Please try again.');
+      alert(error?.message || 'Failed to start checkout. Please try again.');
       setLoadingCheckout(null);
     }
   };
@@ -107,6 +160,10 @@ export default function BillingClient({ subscription }: BillingClientProps) {
       setLoadingPortal(false);
     }
   };
+
+  if (loading || !subscription) {
+    return <BillingSkeleton />;
+  }
 
   const planOrder = ['FREE', 'PRO', 'ENTERPRISE', 'UNLIMITED'];
   const currentTierIndex = planOrder.indexOf(subscription.tier) >= 0 ? planOrder.indexOf(subscription.tier) : 0;
@@ -137,15 +194,17 @@ export default function BillingClient({ subscription }: BillingClientProps) {
 
         {subscription.tier !== 'FREE' && subscription.tier !== 'UNLIMITED' && (
           <div className="sm:ml-auto">
-            {subscription.hasStripeCustomer ? (
-              <button
-                onClick={handleStripePortal}
-                disabled={loadingPortal}
-                className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-medium text-white rounded-lg border border-white/10 transition-colors disabled:opacity-50"
-              >
-                {loadingPortal ? <Loader2 className="w-4 h-4 animate-spin" /> : <ExternalLink className="w-4 h-4" />}
-                Manage Billing (Stripe)
-              </button>
+            {subscription.hasLavaSubscription ? (
+              <div className="flex flex-col items-end gap-2 text-right">
+                <span className="text-xs text-slate-400">
+                  Subscription managed via <span className="text-cyan-400 font-bold">Lava.top</span>
+                </span>
+                {daysRemaining !== null && (
+                  <span className="text-xs text-slate-500">
+                    Next renewal: <span className="text-slate-400 font-medium">{new Date(subscription.periodEnd!).toLocaleDateString()}</span>
+                  </span>
+                )}
+              </div>
             ) : daysRemaining !== null ? (
               <div className="flex flex-col items-end gap-2">
                 <span className="text-xs text-slate-400">
@@ -246,7 +305,10 @@ export default function BillingClient({ subscription }: BillingClientProps) {
           className="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-white/8 bg-slate-900/40">
           <h3 className="text-xs sm:text-sm font-bold text-white mb-3 sm:mb-4">Current Usage — Free Plan</h3>
           <div className="space-y-3">
-            {[{ label: "Calculations", used: 1, max: 3 }, { label: "Team Members", used: 1, max: 1 }].map(({ label, used, max }) => (
+            {[
+              { label: "Calculations", used: subscription.usage?.calculations ?? 0, max: 3 },
+              { label: "Team Members", used: subscription.usage?.members ?? 0, max: 1 }
+            ].map(({ label, used, max }) => (
               <div key={label}>
                 <div className="flex justify-between text-xs text-slate-400 mb-1.5">
                   <span>{label}</span>
@@ -254,7 +316,7 @@ export default function BillingClient({ subscription }: BillingClientProps) {
                 </div>
                 <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
                   <motion.div
-                    initial={{ width: 0 }} animate={{ width: `${(used / max) * 100}%` }}
+                    initial={{ width: 0 }} animate={{ width: `${Math.min(100, (used / max) * 100)}%` }}
                     transition={{ delay: 0.5, duration: 0.6 }}
                     className={`h-full rounded-full ${used / max >= 1 ? "bg-rose-500" : "bg-cyan-500"}`}
                   />
@@ -281,32 +343,32 @@ export default function BillingClient({ subscription }: BillingClientProps) {
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-cyan-500/10 blur-[50px] rounded-full pointer-events-none" />
               <button 
                 onClick={() => setIsPaymentModalOpen(false)}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
               <div className="text-center mb-8 relative z-10">
-                <h3 className="text-2xl font-black text-white mb-2">Select Payment Method</h3>
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-2 pr-6 sm:pr-0">Select Payment Method</h3>
                 <p className="text-slate-400 text-sm font-medium">Choose how you'd like to pay for the {selectedPlan === "PRO" ? "Pro" : "Enterprise"} plan.</p>
               </div>
               <div className="space-y-4 relative z-10">
                 <button 
-                  onClick={() => handleCheckout('stripe')}
+                  onClick={() => handleCheckout('lava')}
                   disabled={loadingCheckout !== null}
                   className="w-full relative group overflow-hidden rounded-2xl bg-slate-900 border border-white/10 hover:border-cyan-500/50 p-4 flex items-center justify-between transition-all duration-300"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-cyan-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-12 h-12 rounded-xl bg-[#635BFF]/10 flex items-center justify-center border border-[#635BFF]/20 group-hover:border-[#635BFF]/40 transition-colors">
-                      <CreditCard className="w-6 h-6 text-[#635BFF]" />
+                    <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 group-hover:border-cyan-500/40 transition-colors">
+                      <CreditCard className="w-6 h-6 text-cyan-400" />
                     </div>
                     <div className="text-left">
-                      <div className="text-white font-bold text-lg">Pay with Card</div>
-                      <div className="text-slate-400 text-xs font-medium">Powered by Stripe</div>
+                      <div className="text-white font-bold text-lg">Pay with Card / CIS / Crypto</div>
+                      <div className="text-slate-400 text-xs font-medium">Powered by Lava.top</div>
                     </div>
                   </div>
                   <div className="relative z-10">
-                    {loadingCheckout === 'stripe' ? <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" /> : <ExternalLink className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />}
+                    {loadingCheckout === 'lava' ? <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" /> : <ExternalLink className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" />}
                   </div>
                 </button>
                 <button 

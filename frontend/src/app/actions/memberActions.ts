@@ -37,31 +37,33 @@ async function requireSession() {
 export async function getCompanyMembers(companyId: string): Promise<MemberRecord[]> {
   const userId = await requireSession();
 
-  // Only the company owner (or an Admin member) can list members
-  const company = await prisma.company.findUnique({
-    where: { id: companyId },
-    select: { user_id: true },
-  });
+  // Batch 1: fetch company ownership + caller's membership in parallel
+  const [company, membership] = await Promise.all([
+    prisma.company.findUnique({
+      where: { id: companyId },
+      select: { user_id: true },
+    }),
+    prisma.companyMember.findUnique({
+      where: { user_id_company_id: { user_id: userId, company_id: companyId } },
+      select: { role: true },
+    }),
+  ]);
 
   if (!company) return [];
 
   const isOwner = company.user_id === userId;
-  if (!isOwner) {
-    const membership = await prisma.companyMember.findUnique({
-      where: { user_id_company_id: { user_id: userId, company_id: companyId } },
-      select: { role: true },
-    });
-    if (!membership || membership.role !== 'Admin') return [];
-  }
+  if (!isOwner && (!membership || membership.role !== 'Admin')) return [];
 
-  const members = await prisma.companyMember.findMany({
-    where: { company_id: companyId },
-    include: { user: { select: { id: true, email: true, display_name: true } } },
-  });
-
-  const invites = await prisma.workspaceInvite.findMany({
-    where: { company_id: companyId },
-  });
+  // Batch 2: fetch members + pending invites in parallel
+  const [members, invites] = await Promise.all([
+    prisma.companyMember.findMany({
+      where: { company_id: companyId },
+      include: { user: { select: { id: true, email: true, display_name: true } } },
+    }),
+    prisma.workspaceInvite.findMany({
+      where: { company_id: companyId },
+    }),
+  ]);
 
   const activeRecords: MemberRecord[] = members.map((m) => ({
     id: m.id,
@@ -271,13 +273,19 @@ export async function removeMember(memberId: string) {
 
 // ── Accept Invite ──────────────────────────────────────────────────────────
 
-export async function acceptInvite(token: string) {
-  const session = await getServerSession(authOptions);
-  
-  if (!session || !(session.user as any)?.id) return { error: 'Not_Authenticated' };
-  
-  const userId = (session.user as any).id as string;
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+export async function acceptInvite(token: string, passedUserId?: string) {
+  // Accept an optional pre-verified userId from the Server Component (page.tsx).
+  // This is critical for production VPS where getServerSession() inside Server Actions
+  // can return null due to cookie forwarding issues with Next.js App Router.
+  let resolvedUserId = passedUserId;
+
+  if (!resolvedUserId) {
+    const session = await getServerSession(authOptions);
+    if (!(session?.user as any)?.id) return { error: 'Not_Authenticated' };
+    resolvedUserId = (session!.user as any).id as string;
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: resolvedUserId } });
   if (!user) return { error: 'User_Not_Found' };
 
   const invite = await prisma.workspaceInvite.findUnique({
@@ -286,23 +294,23 @@ export async function acceptInvite(token: string) {
   });
 
   if (!invite) return { error: 'Invalid_Token' };
-  
+
   if (user.email.toLowerCase() !== invite.email.toLowerCase()) {
-     return { error: 'Email_Mismatch', message: `This invite was sent to ${invite.email}, but you are logged in as ${user.email}.` };
+    return { error: 'Email_Mismatch', message: `This invite was sent to ${invite.email}, but you are logged in as ${user.email}.` };
   }
 
   if (invite.expires_at < new Date()) {
-     return { error: 'Token_Expired' };
+    return { error: 'Token_Expired' };
   }
 
   const existingMember = await prisma.companyMember.findUnique({
-    where: { user_id_company_id: { user_id: userId, company_id: invite.company_id } }
+    where: { user_id_company_id: { user_id: resolvedUserId, company_id: invite.company_id } }
   });
 
   if (!existingMember) {
     await prisma.companyMember.create({
       data: {
-        user_id: userId,
+        user_id: resolvedUserId,
         company_id: invite.company_id,
         role: invite.role,
         status: 'Active'
