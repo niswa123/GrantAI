@@ -94,13 +94,10 @@ export function SyncToast() {
                     Later
                   </button>
                   <button
-                    onClick={() => {
-                      stopSync();
-                      window.location.reload();
-                    }}
+                    onClick={stopSync}
                     className="py-2.5 px-4 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all"
                   >
-                    View Report
+                    View Reports
                   </button>
                 </div>
               </div>
