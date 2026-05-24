@@ -505,25 +505,25 @@ export default function ResultClient({ result: initialResult }: { result: ClaimR
               </div>
             </div>
             <div className="px-4 sm:px-5 py-4">
-              <AnimatePresence initial={false}>
-                <motion.div key={claimExpanded ? "exp" : "col"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                  <div className={`${!claimExpanded ? "max-h-40 sm:max-h-48 overflow-hidden relative" : ""}`}>
-                    {result.draftClaim
-                      ? <MarkdownRenderer content={result.draftClaim.replace(/\n\n<!-- GRANT_AI_METADATA:[\s\S]*?-->/g, "")} />
-                      : (
-                        <div className="text-center py-6">
-                          <FileText className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                          <p className="text-slate-500 text-sm">No draft claim generated.</p>
-                          <p className="text-slate-600 text-xs mt-1">Improve your project description and try again.</p>
-                        </div>
-                      )
-                    }
-                    {!claimExpanded && result.draftClaim && (
-                      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none" />
-                    )}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+              <motion.div
+                animate={{ height: claimExpanded ? "auto" : 180 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="overflow-hidden relative"
+              >
+                {result.draftClaim
+                  ? <MarkdownRenderer content={result.draftClaim.replace(/\n\n<!-- GRANT_AI_METADATA:[\s\S]*?-->/g, "")} />
+                  : (
+                    <div className="text-center py-6">
+                      <FileText className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                      <p className="text-slate-500 text-sm">No draft claim generated.</p>
+                      <p className="text-slate-600 text-xs mt-1">Improve your project description and try again.</p>
+                    </div>
+                  )
+                }
+                {!claimExpanded && result.draftClaim && (
+                  <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none" />
+                )}
+              </motion.div>
               {!claimExpanded && result.draftClaim && (
                 <button onClick={() => setClaimExpanded(true)} className="mt-3 text-xs text-violet-400 hover:text-violet-300 transition-colors font-semibold touch-manipulation">
                   Show full draft →
