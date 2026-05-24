@@ -22,7 +22,7 @@ function AnimatedCounter({ from, to, duration = 2, delay = 0, isDecimal = false 
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   const display = useTransform(count, (latest) => 
-    isDecimal ? Number(latest.toFixed(1)) : Math.round(latest)
+    isDecimal ? latest.toFixed(1) : Math.round(latest).toString()
   );
 
   useEffect(() => {
@@ -1057,7 +1057,7 @@ export default function Home() {
       {/* ============================================ */}
       {/* SECTION 2: STATS (Slides OVER Integrations — Stacking Cards) */}
       {/* ============================================ */}
-      <div className="relative z-30 w-full bg-slate-950 rounded-t-[24px] sm:rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-60px_100px_rgba(0,0,0,0.9)] border-t border-white/10">
+      <div className="relative z-30 w-full bg-slate-950 rounded-t-[24px] sm:rounded-t-[40px] md:rounded-t-[60px] shadow-[0_-60px_100px_rgba(0,0,0,0.9)] border-t border-white/10 overflow-hidden">
         <section className="py-16 sm:py-20 md:py-24 lg:py-32 container mx-auto px-4 relative overflow-hidden">
           <motion.div 
             className="glass-card rounded-[32px] sm:rounded-[40px] md:rounded-[48px] p-8 sm:p-10 md:p-12 lg:p-16 xl:p-24 relative overflow-hidden group border border-white/10 shadow-[inset_0_0_80px_rgba(255,255,255,0.02)]"
@@ -1565,10 +1565,6 @@ export default function Home() {
         </div>
 
         <div className="relative">
-          {/* Mobile Edge Fade Gradients */}
-          <div className="md:hidden absolute top-0 bottom-12 left-0 w-[5vw] bg-gradient-to-r from-slate-950 to-transparent pointer-events-none z-30" />
-          <div className="md:hidden absolute top-0 bottom-12 right-0 w-[5vw] bg-gradient-to-l from-slate-950 to-transparent pointer-events-none z-30" />
-
           <motion.div 
             ref={pricingCarouselRef}
             className="flex md:grid flex-row md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none gap-5 md:gap-8 lg:gap-10 max-w-7xl mx-auto items-center pb-8 md:pb-0 px-[7.5vw] md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"

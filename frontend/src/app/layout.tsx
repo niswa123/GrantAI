@@ -285,7 +285,7 @@ export default function RootLayout({
               <QueryProvider>
                 <SyncProvider>
                   <WorkspaceProvider>
-                    <div className="flex flex-col min-h-[100dvh] w-full relative">
+                    <div className="flex flex-col min-h-[100dvh] w-full relative overflow-x-hidden">
                       <Suspense fallback={null}>
                         <PostHogPageView />
                       </Suspense>
