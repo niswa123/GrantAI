@@ -28,7 +28,20 @@ export default async function ResultPage({ searchParams }: PageProps) {
   const claim = await getClaimById(id);
   if (!claim) notFound();
 
-  // Map DB fields → shape expected by ResultClient
+  let parsedMetadata: any = {};
+  const claimText = claim.claim_text ?? "";
+  const match = claimText.match(/<!-- GRANT_AI_METADATA: ([\s\S]*?) -->/);
+  if (match) {
+    try {
+      parsedMetadata = JSON.parse(match[1].trim());
+    } catch (e) {
+      console.error("[ResultPage] Failed to parse metadata comment:", e);
+    }
+  }
+
+  // Map DB fields → base shape expected by ResultClient.
+  // Rich fields (draftClaim, criteriaScores, chainOfThought etc.) may be
+  // hydrated client-side from sessionStorage when a fresh calculation redirects here.
   const result = {
     id: claim.id,
     date: claim.created_at.toISOString(),
@@ -44,10 +57,17 @@ export default async function ResultPage({ searchParams }: PageProps) {
         : "The project appears to be routine development with insufficient technical uncertainty for R&D classification.",
     estimatedRefund: Number(claim.estimated_rd_amount ?? 0),
     creditRate: 0.2,
-    draftClaim: claim.claim_text ?? "",
+    draftClaim: claimText,
     model: "KIE.AI Gemini Flash",
     status: claim.status,
     companyId: claim.company_id ?? undefined,
+    // Hydrated from metadata if available on reload
+    chainOfThought: parsedMetadata.chainOfThought,
+    criteriaScores: parsedMetadata.criteriaScores,
+    keyInnovations: parsedMetadata.keyInnovations,
+    disqualifyingFactors: parsedMetadata.disqualifyingFactors,
+    riskFlags: parsedMetadata.riskFlags,
+    recommendedEvidence: parsedMetadata.recommendedEvidence,
   };
 
   return (

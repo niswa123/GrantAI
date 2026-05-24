@@ -25,30 +25,36 @@ export async function POST(request: Request) {
   const webhookSecret = process.env.LINEAR_WEBHOOK_SECRET;
   const signatureHeader = request.headers.get("linear-signature");
 
-  if (webhookSecret) {
-    if (!signatureHeader) {
-      return NextResponse.json(
-        { error: "Missing Linear-Signature header" },
-        { status: 401 }
-      );
-    }
+  if (!webhookSecret) {
+    console.error("[Linear Webhook] LINEAR_WEBHOOK_SECRET is not configured");
+    return NextResponse.json(
+      { error: "Internal Server Configuration Error" },
+      { status: 500 }
+    );
+  }
 
-    const expectedSig = createHmac("sha256", webhookSecret)
-      .update(bodyText)
-      .digest("hex");
+  if (!signatureHeader) {
+    return NextResponse.json(
+      { error: "Missing Linear-Signature header" },
+      { status: 401 }
+    );
+  }
 
-    const sigBuffer = Buffer.from(signatureHeader);
-    const expectedBuffer = Buffer.from(expectedSig);
+  const expectedSig = createHmac("sha256", webhookSecret)
+    .update(bodyText)
+    .digest("hex");
 
-    if (
-      sigBuffer.length !== expectedBuffer.length ||
-      !timingSafeEqual(sigBuffer, expectedBuffer)
-    ) {
-      return NextResponse.json(
-        { error: "Invalid webhook signature" },
-        { status: 401 }
-      );
-    }
+  const sigBuffer = Buffer.from(signatureHeader);
+  const expectedBuffer = Buffer.from(expectedSig);
+
+  if (
+    sigBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(sigBuffer, expectedBuffer)
+  ) {
+    return NextResponse.json(
+      { error: "Invalid webhook signature" },
+      { status: 401 }
+    );
   }
 
   // ── Parse payload ────────────────────────────────────────────────────────────

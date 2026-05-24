@@ -18,7 +18,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { runRdPipeline } from "@/lib/rd-engine/pipeline";
+import { runRdPipeline, formatClaimForStorage } from "@/lib/rd-engine/pipeline";
 import { computeCredit } from "@/lib/rd-engine/credit-calculator";
 import { rateLimit, getClientIp } from "@/lib/rate-limiter";
 
@@ -263,44 +263,5 @@ function normalizeCountryToCode(countryName: string): string {
   return map[countryName.toLowerCase().trim()] ?? "DEFAULT";
 }
 
-/**
- * Serialize the LLM claim result into clean Markdown for DB storage and UI rendering.
- */
-function formatClaimForStorage(pipeline: Awaited<ReturnType<typeof runRdPipeline>>): string {
-  const ct = pipeline.claimText.claim_text;
-  const parts: string[] = [];
 
-  // Company Overview
-  if (ct.company_overview) {
-    parts.push(`## Company Overview\n\n${ct.company_overview}`);
-  }
-
-  // Project Descriptions
-  for (const p of (ct.project_descriptions || [])) {
-    const sections: string[] = [`## Project: ${p.project_title || "Unnamed Project"}`];
-    if (p.technological_baseline) sections.push(`**Technological Baseline**\n\n${p.technological_baseline}`);
-    if (p.objectives)             sections.push(`**Technical Objectives**\n\n${p.objectives}`);
-    if (p.technical_challenges)   sections.push(`**Technical Challenges**\n\n${p.technical_challenges}`);
-    if (p.methodology_and_iterations) sections.push(`**Methodology & Iterations**\n\n${p.methodology_and_iterations}`);
-    if (p.outcomes)               sections.push(`**Outcomes**\n\n${p.outcomes}`);
-    parts.push(sections.join("\n\n"));
-  }
-
-  // Technological Advancement
-  if (ct.technological_advancement_statement) {
-    parts.push(`## Technological Advancement\n\n${ct.technological_advancement_statement}`);
-  }
-
-  // Technological Uncertainty
-  if (ct.technological_uncertainty_statement) {
-    parts.push(`## Technological Uncertainty\n\n${ct.technological_uncertainty_statement}`);
-  }
-
-  // Expenditure Justification
-  if (ct.expenditure_justification) {
-    parts.push(`## Expenditure Justification\n\n${ct.expenditure_justification}`);
-  }
-
-  return parts.join("\n\n---\n\n");
-}
 

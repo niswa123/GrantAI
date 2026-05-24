@@ -374,3 +374,57 @@ function clampScore(value: unknown): number {
   if (isNaN(n)) return 0;
   return Math.round(Math.min(1.0, Math.max(0.0, n)) * 100) / 100;
 }
+
+/**
+ * Serialize the LLM claim result into clean Markdown with embedded rich metadata for DB storage and UI rendering.
+ */
+export function formatClaimForStorage(pipeline: PipelineResult): string {
+  const ct = pipeline.claimText?.claim_text;
+  const parts: string[] = [];
+
+  // Company Overview
+  if (ct?.company_overview) {
+    parts.push(`## Company Overview\n\n${ct.company_overview}`);
+  }
+
+  // Project Descriptions
+  for (const p of (ct?.project_descriptions || [])) {
+    const sections: string[] = [`## Project: ${p.project_title || "Unnamed Project"}`];
+    if (p.technological_baseline) sections.push(`**Technological Baseline**\n\n${p.technological_baseline}`);
+    if (p.objectives)             sections.push(`**Technical Objectives**\n\n${p.objectives}`);
+    if (p.technical_challenges)   sections.push(`**Technical Challenges**\n\n${p.technical_challenges}`);
+    if (p.methodology_and_iterations) sections.push(`**Methodology & Iterations**\n\n${p.methodology_and_iterations}`);
+    if (p.outcomes)               sections.push(`**Outcomes**\n\n${p.outcomes}`);
+    parts.push(sections.join("\n\n"));
+  }
+
+  // Technological Advancement
+  if (ct?.technological_advancement_statement) {
+    parts.push(`## Technological Advancement\n\n${ct.technological_advancement_statement}`);
+  }
+
+  // Technological Uncertainty
+  if (ct?.technological_uncertainty_statement) {
+    parts.push(`## Technological Uncertainty\n\n${ct.technological_uncertainty_statement}`);
+  }
+
+  // Expenditure Justification
+  if (ct?.expenditure_justification) {
+    parts.push(`## Expenditure Justification\n\n${ct.expenditure_justification}`);
+  }
+
+  const baseMarkdown = parts.join("\n\n---\n\n");
+
+  // Embed rich metadata as a hidden Markdown HTML comment
+  const metadata = {
+    chainOfThought: pipeline.classification?.step_by_step_analysis,
+    criteriaScores: pipeline.classification?.criteria_scores,
+    keyInnovations: pipeline.classification?.key_innovations,
+    disqualifyingFactors: pipeline.classification?.disqualifying_factors_found,
+    riskFlags: pipeline.classification?.risk_flags,
+    recommendedEvidence: pipeline.classification?.recommended_evidence,
+  };
+
+  return `${baseMarkdown}\n\n<!-- GRANT_AI_METADATA: ${JSON.stringify(metadata)} -->`;
+}
+

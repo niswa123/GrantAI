@@ -279,6 +279,14 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  events: {
+    async signOut(message) {
+      console.log("\n==================================================");
+      console.log("[SERVER DEBUG] 🔐 NextAuth SignOut Event triggered!");
+      console.log("[SERVER DEBUG] Message:", JSON.stringify(message));
+      console.log("==================================================\n");
+    }
+  },
   pages: {
     signIn: '/login',
   },

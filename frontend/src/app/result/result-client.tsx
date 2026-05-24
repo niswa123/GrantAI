@@ -6,7 +6,7 @@ import { motion, useMotionValue, useTransform, animate, AnimatePresence } from "
 import {
   CheckCircle2, XCircle, ChevronLeft, ChevronDown, ChevronUp,
   Copy, Check, Mail, Sparkles, TrendingUp, BarChart3, Shield,
-  ThumbsUp, ThumbsDown, Brain,
+  ThumbsUp, ThumbsDown, Brain, AlertTriangle, Lightbulb, FileText,
 } from "lucide-react";
 
 /** Lightweight Markdown renderer — no external deps. Handles: ## h2, **bold**, ---, paragraphs */
@@ -70,6 +70,13 @@ export interface ClaimResult {
   model: string;
   status: string;
   companyId?: string;
+  // Rich fields from sessionStorage (full API response)
+  chainOfThought?: Record<string, string>;
+  criteriaScores?: Record<string, { score: number; justification: string }>;
+  keyInnovations?: string[];
+  disqualifyingFactors?: string[];
+  riskFlags?: string[];
+  recommendedEvidence?: string[];
 }
 
 function useAnimatedNumber(target: number, duration = 2.0) {
@@ -92,20 +99,80 @@ function BreakdownRow({ label, value, highlight }: { label: string; value: strin
     </div>
   );
 }
+function AccordionItem({ title, content }: { title: string; content: string }) {
+  const [isOpen, setIsOpen] = useState(false);
 
-export default function ResultClient({ result }: { result: ClaimResult }) {
+  return (
+    <div className="border border-white/5 rounded-xl overflow-hidden bg-white/2 hover:bg-white/3 transition-colors duration-200">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex justify-between items-center px-4 py-3 text-left text-xs font-semibold text-slate-300 hover:text-white transition-colors select-none touch-manipulation"
+      >
+        <span>{title}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+          >
+            <div className="px-4 pb-4 pt-1 text-xs text-slate-400 leading-relaxed border-t border-white/5 bg-slate-950/20">
+              {content}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function ResultClient({ result: initialResult }: { result: ClaimResult }) {
+  const [result, setResult] = useState<ClaimResult>(initialResult);
   const [claimExpanded, setClaimExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [feedbackGiven, setFeedbackGiven] = useState<"rd" | "not_rd" | null>(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const animatedRefund = useAnimatedNumber(result.estimatedRefund, 2.0);
 
+  // Hydrate rich fields from sessionStorage (available on fresh calculation redirect)
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(`result:${initialResult.id}`);
+      if (cached) {
+        const api = JSON.parse(cached);
+        setResult((prev) => ({
+          ...prev,
+          draftClaim: api.draftClaim || prev.draftClaim,
+          classification: api.classification || prev.classification,
+          confidenceScore: api.confidenceScore ?? prev.confidenceScore,
+          estimatedRefund: api.estimatedRefund ?? prev.estimatedRefund,
+          chainOfThought: api.chainOfThought,
+          criteriaScores: api.criteriaScores,
+          keyInnovations: api.keyInnovations,
+          disqualifyingFactors: api.disqualifyingFactors,
+          riskFlags: api.riskFlags,
+          recommendedEvidence: api.recommendedEvidence,
+        }));
+        // Clear after use — it's single-use
+        sessionStorage.removeItem(`result:${initialResult.id}`);
+      }
+    } catch {
+      // sessionStorage unavailable — non-fatal
+    }
+  }, [initialResult.id]);
+
   const isRd = result.classification === "R&D";
   const confidencePct = Math.round((result.confidenceScore || 0) * 100);
   const creditRatePct = Math.round((result.creditRate || 0) * 100);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(result.draftClaim).then(() => {
+    const cleanClaim = result.draftClaim.replace(/\n\n<!-- GRANT_AI_METADATA:[\s\S]*?-->/g, "");
+    navigator.clipboard.writeText(cleanClaim).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     });
@@ -130,8 +197,9 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
 
   const handleContact = () => {
     const subject = encodeURIComponent("GrantAI — R&D Tax Credit Application");
+    const cleanClaim = result.draftClaim.replace(/\n\n<!-- GRANT_AI_METADATA:[\s\S]*?-->/g, "");
     const body = encodeURIComponent(
-      `Hello,\n\nI would like to proceed with my R&D tax credit application.\n\nEstimated refund: €${result.estimatedRefund.toFixed(2)}\n\nDraft claim:\n${result.draftClaim}`
+      `Hello,\n\nI would like to proceed with my R&D tax credit application.\n\nEstimated refund: €${result.estimatedRefund.toFixed(2)}\n\nDraft claim:\n${cleanClaim}`
     );
     window.location.href = `mailto:hello@grantai.com?subject=${subject}&body=${body}`;
   };
@@ -204,14 +272,92 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
             <BreakdownRow label="Estimated Refund" value={`€${(result.estimatedRefund || 0).toLocaleString("en-EU", { minimumFractionDigits: 2 })}`} highlight />
           </motion.div>
 
-          {/* AI explanation */}
+          {/* AI Analysis Dashboard */}
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-            className="rounded-xl sm:rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/8 p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-3">
+            className="rounded-xl sm:rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/8 p-4 sm:p-5 space-y-5">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/5">
               <TrendingUp className="w-4 h-4 text-cyan-400" />
-              <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">AI Analysis</h2>
+              <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">AI Technical Analysis</h2>
             </div>
+            
             <p className="text-slate-300 text-sm leading-relaxed">{result.explanation}</p>
+
+            {/* Criteria Scores Grid */}
+            {result.criteriaScores && Object.keys(result.criteriaScores).length > 0 && (
+              <div className="space-y-3 pt-2">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">R&D Core Eligibility Criteria</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {Object.entries(result.criteriaScores).map(([key, item]: [string, any]) => {
+                    const labelMap: Record<string, string> = {
+                      novelty: "Technological Novelty",
+                      technical_uncertainty: "Technological Uncertainty",
+                      systematic_approach: "Systematic Approach",
+                      transferability: "Transferability & Generality",
+                      creative_element: "Creative & Experimental Element"
+                    };
+                    const label = labelMap[key] || key.replace(/_/g, ' ');
+                    const pctScore = Math.round(item.score * 100);
+                    
+                    return (
+                      <div 
+                        key={key} 
+                        className="p-3 rounded-xl bg-white/3 border border-white/5 hover:border-white/10 hover:bg-white/5 transition-all duration-300 flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs font-semibold text-slate-300">{label}</span>
+                            <span className={`text-xs font-mono font-bold ${item.score >= 0.5 ? "text-cyan-400" : "text-rose-400"}`}>
+                              {pctScore}%
+                            </span>
+                          </div>
+                          
+                          {/* Progress bar container */}
+                          <div className="w-full h-1.5 bg-slate-950 rounded-full overflow-hidden mb-2">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pctScore}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              className={`h-full rounded-full ${item.score >= 0.5 ? "bg-cyan-500" : "bg-rose-500"}`}
+                            />
+                          </div>
+                        </div>
+                        
+                        <p className="text-[11px] text-slate-400 leading-normal line-clamp-2 hover:line-clamp-none transition-all duration-300 mt-1">
+                          {item.justification}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Chain of Thought Reasoning */}
+            {result.chainOfThought && Object.keys(result.chainOfThought).length > 0 && (
+              <div className="space-y-3 pt-3 border-t border-white/5">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Step-by-Step Technical Reasoning</h3>
+                
+                <div className="space-y-2">
+                  {Object.entries(result.chainOfThought).map(([key, val]: [string, any], index) => {
+                    const stepTitleMap: Record<string, string> = {
+                      "1_identify_baseline": "1. Industry Technological Baseline",
+                      "2_identify_advance": "2. Claimed Technological Advance",
+                      "3_identify_uncertainty": "3. Core Technological Uncertainty",
+                      "4_evaluate_methodology": "4. Systematic Investigation & Methodology",
+                      "identify_baseline": "1. Industry Technological Baseline",
+                      "identify_advance": "2. Claimed Technological Advance",
+                      "identify_uncertainty": "3. Core Technological Uncertainty",
+                      "evaluate_methodology": "4. Systematic Investigation & Methodology"
+                    };
+                    const label = stepTitleMap[key] || `Step ${index + 1}: ${key.replace(/_/g, ' ')}`;
+                    
+                    return (
+                      <AccordionItem key={key} title={label} content={val} />
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* Feedback block */}
@@ -237,7 +383,7 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
               ) : (
                 <motion.div key="buttons" initial={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <p className="text-xs text-slate-400 mb-3">
-                    Was the AI classification <strong className="text-white">"{result.classification}"</strong> correct?
+                    Was the AI classification <strong className="text-white">&quot;{result.classification}&quot;</strong> correct?
                   </p>
                   <div className="flex gap-3">
                     <button
@@ -262,8 +408,85 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
             </AnimatePresence>
           </motion.div>
 
+          {/* Key Innovations (R&D) or Disqualifying Factors (Not R&D) */}
+          {result.keyInnovations && result.keyInnovations.length > 0 && isRd && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.36 }}
+              className="rounded-xl sm:rounded-2xl bg-emerald-500/5 border border-emerald-500/15 p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="w-4 h-4 text-emerald-400" />
+                <h2 className="text-xs sm:text-sm font-bold text-emerald-300 uppercase tracking-wider">Key Innovations Identified</h2>
+              </div>
+              <ul className="space-y-2">
+                {result.keyInnovations.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
+          {result.disqualifyingFactors && result.disqualifyingFactors.length > 0 && !isRd && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.36 }}
+              className="rounded-xl sm:rounded-2xl bg-rose-500/5 border border-rose-500/15 p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <XCircle className="w-4 h-4 text-rose-400" />
+                <h2 className="text-xs sm:text-sm font-bold text-rose-300 uppercase tracking-wider">Why It Does Not Qualify</h2>
+              </div>
+              <ul className="space-y-2">
+                {result.disqualifyingFactors.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-rose-400 mt-0.5 shrink-0">✗</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
+          {/* Recommended Evidence */}
+          {result.recommendedEvidence && result.recommendedEvidence.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }}
+              className="rounded-xl sm:rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/8 p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="w-4 h-4 text-amber-400" />
+                <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">
+                  {isRd ? "Evidence to Prepare" : "What You Need to Strengthen the Claim"}
+                </h2>
+              </div>
+              <ul className="space-y-2">
+                {result.recommendedEvidence.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
+                    <span className="text-amber-400 mt-0.5 shrink-0">→</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
+          {/* Risk Flags */}
+          {result.riskFlags && result.riskFlags.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.40 }}
+              className="rounded-xl sm:rounded-2xl bg-amber-500/5 border border-amber-500/15 p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle className="w-4 h-4 text-amber-400" />
+                <h2 className="text-xs sm:text-sm font-bold text-slate-300 uppercase tracking-wider">Risk Flags</h2>
+              </div>
+              <ul className="space-y-2">
+                {result.riskFlags.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-400">
+                    <span className="text-amber-400 mt-0.5 shrink-0">⚠</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
+
           {/* Draft claim */}
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }}
             className="rounded-xl sm:rounded-2xl bg-slate-900/50 backdrop-blur-xl border border-white/8 overflow-hidden">
             <div className="flex items-center justify-between p-4 sm:p-5 pb-0">
               <div className="flex items-center gap-2">
@@ -286,8 +509,14 @@ export default function ResultClient({ result }: { result: ClaimResult }) {
                 <motion.div key={claimExpanded ? "exp" : "col"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
                   <div className={`${!claimExpanded ? "max-h-40 sm:max-h-48 overflow-hidden relative" : ""}`}>
                     {result.draftClaim
-                      ? <MarkdownRenderer content={result.draftClaim} />
-                      : <p className="text-slate-500 text-sm italic">No draft claim generated.</p>
+                      ? <MarkdownRenderer content={result.draftClaim.replace(/\n\n<!-- GRANT_AI_METADATA:[\s\S]*?-->/g, "")} />
+                      : (
+                        <div className="text-center py-6">
+                          <FileText className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                          <p className="text-slate-500 text-sm">No draft claim generated.</p>
+                          <p className="text-slate-600 text-xs mt-1">Improve your project description and try again.</p>
+                        </div>
+                      )
                     }
                     {!claimExpanded && result.draftClaim && (
                       <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-slate-900/90 to-transparent pointer-events-none" />

@@ -511,7 +511,7 @@ export default function Home() {
           <div className="w-full max-w-6xl mx-auto z-20 px-4 md:px-6">
             {/* Title Block without slop gradient, clean editorial typographic header */}
             <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
-              <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 mb-3 tracking-wider uppercase">
+              <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[9px] sm:text-xs text-slate-400 mb-3 tracking-wider uppercase whitespace-nowrap">
                 [ CONNECTIVITY & NORMALIZATION ENGINE ]
               </div>
               <motion.h2 

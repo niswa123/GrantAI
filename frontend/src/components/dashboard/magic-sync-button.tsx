@@ -79,7 +79,6 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
     );
 
     startSync(companyId, async () => {
-      // Use fetch to API route instead of Server Action to avoid timeout
       const res = await fetch('/api/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -92,20 +91,72 @@ export function MagicSyncButton({ companyId, onSuccess, fullWidth = false }: Mag
       });
 
       if (!res.ok) {
+        // Non-SSE error (auth, validation, etc.)
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.error || `Server error (${res.status})`);
       }
 
-      const data = await res.json();
-
-      // Always refresh dashboard if any claims were created
-      if (data.claimsCreated > 0) {
-        onSuccess();
+      // Check if it's actually SSE
+      const contentType = res.headers.get('content-type') ?? '';
+      if (!contentType.includes('text/event-stream')) {
+        // Fallback: plain JSON response
+        const data = await res.json();
+        if (data.claimsCreated > 0) onSuccess();
+        if (!data.success && data.claimsCreated === 0) {
+          throw new Error(data.error || "Sync failed");
+        }
+        return;
       }
 
-      // Only throw if zero claims and there's an error
-      if (!data.success && data.claimsCreated === 0) {
-        throw new Error(data.error || "Sync failed");
+      // Read SSE stream
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalResult: any = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Parse SSE events from buffer
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // Keep incomplete last line
+
+        let currentEvent = '';
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            currentEvent = line.slice(7).trim();
+          } else if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (currentEvent === 'done') {
+                finalResult = parsed;
+              }
+              // 'status' events are just heartbeat/progress — ignored on client
+              // (SyncContext already cycles its own messages)
+            } catch {
+              // Ignore parse errors on partial data
+            }
+            currentEvent = '';
+          }
+          // Ignore heartbeat comments (lines starting with ':')
+        }
+      }
+
+      if (finalResult) {
+        if (finalResult.claimsCreated > 0) {
+          onSuccess();
+        }
+        if (!finalResult.success && finalResult.claimsCreated === 0) {
+          throw new Error(finalResult.error || "Sync failed");
+        }
+      } else {
+        throw new Error('Sync stream ended without a result. Try again.');
       }
     });
   };

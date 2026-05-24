@@ -25,30 +25,36 @@ export async function POST(request: Request) {
   const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
   const signatureHeader = request.headers.get("x-hub-signature-256");
 
-  if (webhookSecret) {
-    if (!signatureHeader) {
-      return NextResponse.json(
-        { error: "Missing X-Hub-Signature-256 header" },
-        { status: 401 }
-      );
-    }
+  if (!webhookSecret) {
+    console.error("[GitHub Webhook] GITHUB_WEBHOOK_SECRET is not configured");
+    return NextResponse.json(
+      { error: "Internal Server Configuration Error" },
+      { status: 500 }
+    );
+  }
 
-    const expectedSignature =
-      "sha256=" +
-      createHmac("sha256", webhookSecret).update(bodyText).digest("hex");
+  if (!signatureHeader) {
+    return NextResponse.json(
+      { error: "Missing X-Hub-Signature-256 header" },
+      { status: 401 }
+    );
+  }
 
-    const sigBuffer = Buffer.from(signatureHeader);
-    const expectedBuffer = Buffer.from(expectedSignature);
+  const expectedSignature =
+    "sha256=" +
+    createHmac("sha256", webhookSecret).update(bodyText).digest("hex");
 
-    if (
-      sigBuffer.length !== expectedBuffer.length ||
-      !timingSafeEqual(sigBuffer, expectedBuffer)
-    ) {
-      return NextResponse.json(
-        { error: "Invalid webhook signature" },
-        { status: 401 }
-      );
-    }
+  const sigBuffer = Buffer.from(signatureHeader);
+  const expectedBuffer = Buffer.from(expectedSignature);
+
+  if (
+    sigBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(sigBuffer, expectedBuffer)
+  ) {
+    return NextResponse.json(
+      { error: "Invalid webhook signature" },
+      { status: 401 }
+    );
   }
 
   // ── Parse and validate event headers ───────────────────────────────────────

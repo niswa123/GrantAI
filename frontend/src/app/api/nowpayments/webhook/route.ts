@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { loopsOnSubscriptionActivated } from '@/lib/loops';
@@ -72,7 +72,13 @@ export async function POST(request: Request) {
     .update(sortedBody)
     .digest('hex');
 
-  if (expectedSig !== signature) {
+  const sigBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSig);
+
+  if (
+    sigBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(sigBuffer, expectedBuffer)
+  ) {
     console.warn('[NOWPayments Webhook] Signature mismatch');
     return NextResponse.json(
       { error: 'Invalid webhook signature' },

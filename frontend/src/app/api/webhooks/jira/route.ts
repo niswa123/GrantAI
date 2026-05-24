@@ -21,12 +21,18 @@ import type { JiraWebhookPayload } from "@/lib/integrations/types";
 export async function POST(request: Request) {
   // ── Token-based auth (URL param) ────────────────────────────────────────────
   const webhookSecret = process.env.JIRA_WEBHOOK_SECRET;
-  if (webhookSecret) {
-    const { searchParams } = new URL(request.url);
-    const token = searchParams.get("token");
-    if (!token || token !== webhookSecret) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  if (!webhookSecret) {
+    console.error("[Jira Webhook] JIRA_WEBHOOK_SECRET is not configured");
+    return NextResponse.json(
+      { error: "Internal Server Configuration Error" },
+      { status: 500 }
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+  const token = searchParams.get("token");
+  if (!token || token !== webhookSecret) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // ── Parse payload ────────────────────────────────────────────────────────────

@@ -316,11 +316,31 @@ function UserMenu() {
               <div className="border-t border-white/5 my-1" />
               <button
                 onClick={async () => {
-                  await signOut({ redirect: false });
-                  // Force a hard navigation to bypass mobile browser bfcache.
-                  // Using window.location prevents the browser from restoring
-                  // a cached version of the previous protected page.
-                  window.location.href = "/";
+                  console.log("%c[DEBUG LOGOUT] 🚀 Logout button clicked!", "color: #ff00ff; font-weight: bold; font-size: 14px;");
+                  console.log("[DEBUG LOGOUT] Current URL:", window.location.href);
+                  console.log("[DEBUG LOGOUT] Initial cookies:", document.cookie);
+
+                  try {
+                    console.log("[DEBUG LOGOUT] 🧹 Clearing legacy token cookies...");
+                    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure";
+                    console.log("[DEBUG LOGOUT] Cookies after clearing token:", document.cookie);
+                  } catch (e) {
+                    console.error("[DEBUG LOGOUT] ❌ Error clearing cookies:", e);
+                  }
+                  
+                  try {
+                    console.log("[DEBUG LOGOUT] 🔐 Calling NextAuth signOut({ redirect: false })...");
+                    const result = await signOut({ redirect: false });
+                    console.log("%c[DEBUG LOGOUT] ✅ NextAuth signOut complete. Result:", "color: #00ff00; font-weight: bold;", result);
+                  } catch (err) {
+                    console.error("%c[DEBUG LOGOUT] ❌ NextAuth signOut failed with error:", "color: #ff0000; font-weight: bold;", err);
+                  }
+                  
+                  console.log("[DEBUG LOGOUT] Cookies before redirect:", document.cookie);
+                  console.log("%c[DEBUG LOGOUT] 🔄 FORCING HARD REDIRECT TO LANDING PAGE: https://grantai.su", "color: #00ffff; font-weight: bold; font-size: 12px;");
+                  
+                  window.location.replace("https://grantai.su");
                 }}
                 className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
               >

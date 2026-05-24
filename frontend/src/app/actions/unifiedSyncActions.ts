@@ -6,7 +6,7 @@ import prisma from '@/lib/prisma';
 import { runGithubSync } from '@/lib/integrations/github-sync';
 import { runLinearSync } from '@/lib/integrations/linear-sync';
 import { runJiraSync } from '@/lib/integrations/jira-sync';
-import { runRdPipeline } from '@/lib/rd-engine/pipeline';
+import { runRdPipeline, formatClaimForStorage } from '@/lib/rd-engine/pipeline';
 import { computeCredit } from '@/lib/rd-engine/credit-calculator';
 
 export interface SyncSource {
@@ -182,7 +182,7 @@ export async function runUnifiedSync(params: {
           total_dev_cost: dev,
           estimated_rd_amount: credit.creditAmount,
           rd_score: pipeline.classification.rd_score,
-          claim_text: '', // populated separately if needed
+          claim_text: formatClaimForStorage(pipeline),
           status: 'Draft',
           company_id: companyId,
         },

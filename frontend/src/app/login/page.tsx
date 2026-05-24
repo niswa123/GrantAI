@@ -42,7 +42,19 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState("");
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    console.log("%c[DEBUG LOGIN] 📱 Login Page Mounted!", "color: #3b82f6; font-weight: bold;");
+    
+    // Periodically check if values are filled by browser autofill
+    const interval = setInterval(() => {
+      const emailInput = document.getElementById("email") as HTMLInputElement;
+      if (emailInput && emailInput.value) {
+        console.log("%c[DEBUG LOGIN] 📝 Autofill value detected in DOM input! Email:", "color: #a855f7;", emailInput.value);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -66,6 +78,11 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("%c[DEBUG LOGIN] 🚀 handleSubmit triggered!", "color: #eab308; font-weight: bold; font-size: 14px;");
+    console.log("[DEBUG LOGIN] Submit isTrusted (Human Click?):", e.isTrusted);
+    console.log("[DEBUG LOGIN] Submitted Email:", email);
+    console.log("[DEBUG LOGIN] Submitted Password Length:", password ? password.length : 0);
+
     setLoading(true);
     setError("");
 
@@ -75,9 +92,12 @@ export default function LoginPage() {
         payload.twoFactorCode = twoFactorCode;
       }
 
+      console.log("[DEBUG LOGIN] 🔐 Calling NextAuth signIn('credentials')...");
       const res = await signIn("credentials", payload);
+      console.log("[DEBUG LOGIN] NextAuth signIn response:", res);
       
       if (res?.error) {
+        console.error("[DEBUG LOGIN] ❌ NextAuth signIn returned error:", res.error);
         if (res.error === "2FA_REQUIRED") {
           setTwoFactorRequired(true);
           setLoading(false);
@@ -91,9 +111,11 @@ export default function LoginPage() {
         setError(res.error);
         setLoading(false);
       } else {
+        console.log("%c[DEBUG LOGIN] ✅ Sign-in successful! Redirecting to /dashboard...", "color: #22c55e; font-weight: bold;");
         window.location.href = "/dashboard";
       }
-    } catch {
+    } catch (err) {
+      console.error("[DEBUG LOGIN] ❌ Exception during signIn:", err);
       setError("An unexpected error occurred.");
       setLoading(false);
     }

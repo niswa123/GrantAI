@@ -110,7 +110,15 @@ export default function InputPage() {
         throw new Error(data.error || "Calculation failed. Please try again.");
       }
 
-      // Data is persisted in DB by the API route — redirect directly
+      // Cache the full API response in sessionStorage so result page can
+      // display rich data (draftClaim, criteriaScores, chainOfThought) without
+      // losing it after a DB read that only stores a subset of fields.
+      try {
+        sessionStorage.setItem(`result:${data.id}`, JSON.stringify(data));
+      } catch {
+        // sessionStorage may be unavailable (private mode etc.) — non-fatal
+      }
+
       router.push(`/result?id=${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
