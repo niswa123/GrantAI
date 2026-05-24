@@ -40,7 +40,7 @@ export function SyncToast() {
                 </div>
                 
                 <h3 className="text-white font-bold text-base tracking-tight mb-1">
-                  Синхронизация данных
+                  Data Synchronization
                 </h3>
                 
                 <p className="text-xs text-slate-400 max-w-[240px] min-h-[32px] mb-6 line-clamp-2">
@@ -57,7 +57,7 @@ export function SyncToast() {
                     />
                   </div>
                   <div className="flex justify-between text-[10px] font-mono text-slate-500">
-                    <span>АНАЛИЗ И СБОР ДАННЫХ</span>
+                    <span>ANALYZING & COLLECTING DATA</span>
                     <span>{Math.round(progress)}%</span>
                   </div>
                 </div>
@@ -66,7 +66,7 @@ export function SyncToast() {
                   onClick={stopSync}
                   className="mt-2 text-xs font-bold text-slate-400 hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-all"
                 >
-                  Позже (в фоне)
+                  Run in Background
                 </button>
               </div>
             )}
@@ -79,11 +79,11 @@ export function SyncToast() {
                 </div>
 
                 <h3 className="text-white font-bold text-base tracking-tight mb-2">
-                  Синхронизация завершена
+                  Sync Complete
                 </h3>
 
                 <p className="text-xs text-slate-400 max-w-[260px] mb-6">
-                  Все инженерные логи успешно импортированы и проанализированы. Отчеты готовы к просмотру.
+                  All engineering logs have been successfully imported and analyzed. Your reports are ready for review.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -91,7 +91,7 @@ export function SyncToast() {
                     onClick={stopSync}
                     className="py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 border border-white/5 text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
                   >
-                    Позже
+                    Later
                   </button>
                   <button
                     onClick={() => {
@@ -100,7 +100,7 @@ export function SyncToast() {
                     }}
                     className="py-2.5 px-4 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all"
                   >
-                    Посмотреть
+                    View Report
                   </button>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export function SyncToast() {
                 </div>
 
                 <h3 className="text-white font-bold text-base tracking-tight mb-2">
-                  Ошибка синхронизации
+                  Sync Failed
                 </h3>
 
                 <p className="text-xs text-rose-300/90 max-w-[260px] mb-6 break-words">
@@ -125,7 +125,7 @@ export function SyncToast() {
                   onClick={stopSync}
                   className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 border border-white/5 text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
                 >
-                  Закрыть
+                  Close
                 </button>
               </div>
             )}
