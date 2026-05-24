@@ -70,3 +70,18 @@ export async function deleteClaim(claimId: string) {
     return { error: err.message };
   }
 }
+
+export async function getLatestClaimId(companyId: string): Promise<string | null> {
+  if (!companyId || !UUID_REGEX.test(companyId)) return null;
+
+  try {
+    const claim = await prisma.claim.findFirst({
+      where: { company_id: companyId },
+      orderBy: { created_at: 'desc' },
+      select: { id: true },
+    });
+    return claim?.id ?? null;
+  } catch {
+    return null;
+  }
+}

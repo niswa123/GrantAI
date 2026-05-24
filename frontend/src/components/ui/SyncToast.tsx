@@ -3,10 +3,26 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, AlertCircle, Loader2 } from "lucide-react";
 import { useSyncContext } from "@/contexts/SyncContext";
+import { getLatestClaimId } from "@/app/actions/claimActions";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function SyncToast() {
-  const { isSyncing, statusMessage, progress, stopSync, error } = useSyncContext();
+  const { isSyncing, statusMessage, progress, stopSync, error, companyId } = useSyncContext();
   const isDone = progress === 100 && !error;
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleViewReport = async () => {
+    if (!companyId) { stopSync(); return; }
+    setIsNavigating(true);
+    const claimId = await getLatestClaimId(companyId);
+    stopSync();
+    if (claimId) {
+      router.push(`/result?id=${claimId}`);
+    }
+    setIsNavigating(false);
+  };
 
   return (
     <AnimatePresence>
@@ -94,10 +110,12 @@ export function SyncToast() {
                     Later
                   </button>
                   <button
-                    onClick={stopSync}
-                    className="py-2.5 px-4 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all"
+                    onClick={handleViewReport}
+                    disabled={isNavigating}
+                    className="py-2.5 px-4 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                   >
-                    View Reports
+                    {isNavigating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    View Report
                   </button>
                 </div>
               </div>
