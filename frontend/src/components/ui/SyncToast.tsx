@@ -1,9 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, X, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { X, Check, AlertCircle, Loader2 } from "lucide-react";
 import { useSyncContext } from "@/contexts/SyncContext";
-import { useEffect, useState } from "react";
 
 export function SyncToast() {
   const { isSyncing, statusMessage, progress, stopSync, error } = useSyncContext();
@@ -12,137 +11,126 @@ export function SyncToast() {
   return (
     <AnimatePresence>
       {isSyncing && (
-        <motion.div
-          initial={{ opacity: 0, y: 80, scale: 0.9 }}
-          animate={{ 
-            opacity: 1, 
-            y: 0, 
-            scale: isDone ? [1, 1.04, 1] : 1,
-            boxShadow: isDone 
-              ? "0 20px 60px rgba(16, 185, 129, 0.25), 0 0 40px rgba(16, 185, 129, 0.15), 0 0 0 1px rgba(16, 185, 129, 0.3)" 
-              : "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(6,182,212,0.15)"
-          }}
-          exit={{ opacity: 0, y: 80, scale: 0.9 }}
-          transition={{ 
-            type: "spring", 
-            damping: 20, 
-            stiffness: 250,
-            scale: { duration: 0.5, ease: "easeOut" } 
-          }}
-          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 z-[200] sm:w-80 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 overflow-hidden"
-        >
-          {/* Neon Shockwave Pulse on completion */}
-          {isDone && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0.5 }}
-              animate={{ scale: 1.4, opacity: 0 }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              className="absolute inset-0 rounded-2xl border-2 border-emerald-500 pointer-events-none"
-            />
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md">
+          {/* Backdrop click to close only if sync is done or failed */}
+          {(isDone || error) && (
+            <div className="absolute inset-0" onClick={stopSync} />
           )}
 
-          {/* High-speed Laser Sweep on completion */}
-          {isDone && (
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: "200%" }}
-              transition={{ duration: 1.5, ease: "easeInOut", delay: 0.1 }}
-              className="absolute top-0 bottom-0 w-1/3 bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent skew-x-12 pointer-events-none z-10"
-            />
-          )}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ type: "spring", damping: 25, stiffness: 350 }}
+            className="relative w-full max-w-sm bg-slate-900/90 border border-white/10 rounded-2xl p-6 shadow-[0_30px_70px_rgba(0,0,0,0.6)] overflow-hidden"
+          >
+            {/* Close button in top-right */}
+            <button
+              onClick={stopSync}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300 transition-colors p-1.5 rounded-lg hover:bg-white/5"
+            >
+              <X className="w-4 h-4" />
+            </button>
 
-          {/* Floating Sparkles Burst on completion */}
-          {isDone && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ x: 80 + i * 35, y: 50, scale: 0, opacity: 0 }}
-                  animate={{ 
-                    y: [-10, -60], 
-                    x: [80 + i * 35, 80 + i * 35 + (Math.random() * 40 - 20)],
-                    scale: [0.5, 1, 0], 
-                    opacity: [0, 1, 0] 
-                  }}
-                  transition={{ duration: 1.2 + Math.random() * 0.6, delay: i * 0.12, ease: "easeOut" }}
-                  className="absolute"
+            {/* Syncing State */}
+            {!isDone && !error && (
+              <div className="flex flex-col items-center text-center py-4">
+                <div className="w-12 h-12 rounded-full border border-violet-500/20 flex items-center justify-center mb-4 relative">
+                  <Loader2 className="w-6 h-6 text-violet-400 animate-spin" />
+                </div>
+                
+                <h3 className="text-white font-bold text-base tracking-tight mb-1">
+                  Синхронизация данных
+                </h3>
+                
+                <p className="text-xs text-slate-400 max-w-[240px] min-h-[32px] mb-6 line-clamp-2">
+                  {statusMessage}
+                </p>
+
+                {/* Elegant Minimal Progress Bar */}
+                <div className="w-full space-y-2 mb-4">
+                  <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-violet-500 rounded-full"
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.5, ease: "easeOut" }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono text-slate-500">
+                    <span>АНАЛИЗ И СБОР ДАННЫХ</span>
+                    <span>{Math.round(progress)}%</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={stopSync}
+                  className="mt-2 text-xs font-bold text-slate-400 hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-all"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-emerald-400/80" />
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-3 relative z-20">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden transition-all duration-500 ${error ? 'bg-rose-500/10 border border-rose-500/30' : isDone ? 'bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'bg-cyan-500/10 border border-cyan-500/30'}`}>
-              
-              {/* Success Background Pulse */}
-              {isDone && (
-                <motion.div
-                  animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute inset-0 bg-emerald-500/20 rounded-full"
-                />
-              )}
-
-              {error ? (
-                <AlertCircle className="w-5 h-5 text-rose-400" />
-              ) : isDone ? (
-                <motion.div
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                >
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                </motion.div>
-              ) : (
-                <Zap className="w-5 h-5 text-cyan-400 animate-pulse" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold text-white">
-                {error ? "Sync Failed" : isDone ? (
-                  <span className="text-emerald-400 flex items-center gap-1.5 font-black">
-                    Sync Complete! <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                  </span>
-                ) : "Magic Sync"}
+                  Позже (в фоне)
+                </button>
               </div>
-              <motion.div
-                key={statusMessage}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={`text-xs text-slate-400 mt-0.5 ${error ? "whitespace-normal break-words" : "truncate"}`}
-              >
-                {statusMessage}
-              </motion.div>
-            </div>
-            {!isDone && (
-              <button
-                onClick={stopSync}
-                className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5"
-              >
-                <X className="w-4 h-4" />
-              </button>
             )}
-          </div>
 
-          {/* Progress bar */}
-          <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden relative">
-            <motion.div
-              className={`h-full rounded-full ${error ? 'bg-rose-500' : isDone ? 'bg-gradient-to-r from-emerald-500 to-cyan-400' : 'bg-cyan-500'}`}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
-          <div className="flex justify-between mt-1.5">
-            <span className={`text-[10px] ${error ? 'text-rose-400/80' : isDone ? 'text-emerald-400/80 font-bold' : 'text-slate-600'}`}>
-              {error ? 'Error' : isDone ? 'Deterministic claim sealed' : 'AI Analysis'}
-            </span>
-            <span className={`text-[10px] font-mono ${isDone ? 'text-emerald-400 font-bold' : 'text-slate-500'}`}>{error ? 'FAILED' : `${Math.round(progress)}%`}</span>
-          </div>
-        </motion.div>
+            {/* Success State */}
+            {isDone && (
+              <div className="flex flex-col items-center text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
+                  <Check className="w-6 h-6 text-emerald-400" />
+                </div>
+
+                <h3 className="text-white font-bold text-base tracking-tight mb-2">
+                  Синхронизация завершена
+                </h3>
+
+                <p className="text-xs text-slate-400 max-w-[260px] mb-6">
+                  Все инженерные логи успешно импортированы и проанализированы. Отчеты готовы к просмотру.
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 w-full">
+                  <button
+                    onClick={stopSync}
+                    className="py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 border border-white/5 text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
+                  >
+                    Позже
+                  </button>
+                  <button
+                    onClick={() => {
+                      stopSync();
+                      window.location.reload();
+                    }}
+                    className="py-2.5 px-4 rounded-xl text-xs font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-[0_4px_20px_rgba(124,58,237,0.25)] transition-all"
+                  >
+                    Посмотреть
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="flex flex-col items-center text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center mb-4">
+                  <AlertCircle className="w-6 h-6 text-rose-400" />
+                </div>
+
+                <h3 className="text-white font-bold text-base tracking-tight mb-2">
+                  Ошибка синхронизации
+                </h3>
+
+                <p className="text-xs text-rose-300/90 max-w-[260px] mb-6 break-words">
+                  {error}
+                </p>
+
+                <button
+                  onClick={stopSync}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-slate-800 border border-white/5 text-slate-300 hover:text-white hover:bg-slate-700 transition-all"
+                >
+                  Закрыть
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

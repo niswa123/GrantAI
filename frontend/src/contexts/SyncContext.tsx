@@ -75,9 +75,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
           statusMessage: "Sync complete!",
           progress: 100,
         }));
-        setTimeout(() => {
-          setState({ isSyncing: false, statusMessage: "", progress: 0, companyId: null, error: null });
-        }, 3000);
       })
       .catch((err) => {
         if (intervalRef.current) clearInterval(intervalRef.current);
@@ -87,10 +84,6 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
           error: err?.message || "Sync failed",
           progress: 100, // Freeze progress
         }));
-        // Leave the error toast visible much longer so user can read it
-        setTimeout(() => {
-          setState({ isSyncing: false, statusMessage: "", progress: 0, companyId: null, error: null });
-        }, 15000);
       });
   }, []);
 
