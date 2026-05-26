@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plug, CheckCircle2, AlertCircle, Loader2, Trash2, ExternalLink } from "lucide-react";
+import { Plug, CheckCircle2, AlertCircle, Loader2, Trash2, ExternalLink, Search, GitBranch, Lock, Globe, ChevronDown, ChevronUp } from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
 import { useSearchParams } from "next/navigation";
+import { getAvailableGitHubRepos, updateGitHubSelectedRepos, type AvailableRepo } from "@/app/actions/integrationActions";
 
 interface Integration {
   id: string;
@@ -56,10 +57,18 @@ function IntegrationsContent() {
   const searchParams = useSearchParams();
   
   const [integrations, setIntegrations] = useState<Integration[]>([]);
-  const [initialLoad, setInitialLoad] = useState(true); // true only on first mount
+  const [initialLoad, setInitialLoad] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  // Repo selection state
+  const [repos, setRepos] = useState<AvailableRepo[]>([]);
+  const [reposLoading, setReposLoading] = useState(false);
+  const [repoSearch, setRepoSearch] = useState("");
+  const [reposExpanded, setReposExpanded] = useState(true);
+  const [savingRepos, setSavingRepos] = useState<Set<string>>(new Set());
+  const [selectedRepos, setSelectedRepos] = useState<string[]>([]);
+  const [repoSaveTimeout, setRepoSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   // Ready only when we have a real workspace loaded from DB
   const workspaceReady = !workspaceLoading && !!activeWorkspace;
@@ -99,6 +108,59 @@ function IntegrationsContent() {
 
     fetchIntegrations();
   }, [activeWorkspace?.id, workspaceLoading]);
+
+  // Load repos when GitHub is connected
+  const loadRepos = useCallback(async () => {
+    if (!activeWorkspace?.id) return;
+    const githubConnected = integrations.some(i => i.provider === 'github');
+    if (!githubConnected) return;
+    setReposLoading(true);
+    try {
+      const { repos: fetchedRepos, selectedRepos: sel } = await getAvailableGitHubRepos(activeWorkspace.id);
+      setRepos(fetchedRepos);
+      setSelectedRepos(sel);
+    } catch (err) {
+      console.error('Failed to load repos', err);
+    } finally {
+      setReposLoading(false);
+    }
+  }, [activeWorkspace?.id, integrations]);
+
+  useEffect(() => {
+    loadRepos();
+  }, [loadRepos]);
+
+  const handleToggleRepo = useCallback(async (repoName: string) => {
+    if (!activeWorkspace?.id) return;
+
+    // Optimistically update UI
+    const newSelected = selectedRepos.includes(repoName)
+      ? selectedRepos.filter(r => r !== repoName)
+      : [...selectedRepos, repoName];
+    setSelectedRepos(newSelected);
+    setRepos(prev => prev.map(r => r.name === repoName ? { ...r, isSelected: !r.isSelected } : r));
+
+    setSavingRepos(prev => new Set([...prev, repoName]));
+
+    // Debounce the save — fire after 500ms of no further changes
+    if (repoSaveTimeout) clearTimeout(repoSaveTimeout);
+    const timeout = setTimeout(async () => {
+      try {
+        await updateGitHubSelectedRepos(activeWorkspace.id, newSelected);
+      } catch (err) {
+        console.error('Failed to save repo selection', err);
+        setMessage({ type: 'error', text: 'Failed to save repository selection. Please try again.' });
+      } finally {
+        setSavingRepos(new Set());
+      }
+    }, 500);
+    setRepoSaveTimeout(timeout);
+  }, [activeWorkspace?.id, selectedRepos, repoSaveTimeout]);
+
+  const filteredRepos = repos.filter(r =>
+    r.name.toLowerCase().includes(repoSearch.toLowerCase()) ||
+    (r.description ?? '').toLowerCase().includes(repoSearch.toLowerCase())
+  );
 
   const handleConnect = (providerId: string) => {
     if (!workspaceReady || !activeWorkspace) return;
@@ -241,6 +303,137 @@ function IntegrationsContent() {
           );
         })}
       </div>
+
+      {/* GitHub Repo Selection */}
+      <AnimatePresence>
+        {!initialLoad && integrations.some(i => i.provider === 'github') && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-4 rounded-xl sm:rounded-2xl border border-cyan-500/20 bg-slate-900/60 overflow-hidden"
+          >
+            {/* Header */}
+            <button
+              onClick={() => setReposExpanded(v => !v)}
+              className="w-full flex items-center justify-between px-4 sm:px-6 py-4 hover:bg-white/3 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                  <GitBranch className="w-3.5 h-3.5 text-cyan-400" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-white">Repository Selection</p>
+                  <p className="text-xs text-slate-400">
+                    {selectedRepos.length === 0
+                      ? 'No repositories selected — Magic Sync is paused'
+                      : `${selectedRepos.length} ${selectedRepos.length === 1 ? 'repository' : 'repositories'} selected for Magic Sync`
+                    }
+                  </p>
+                </div>
+              </div>
+              {reposExpanded ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+            </button>
+
+            <AnimatePresence>
+              {reposExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="border-t border-white/5 px-4 sm:px-6 py-4 space-y-4">
+                    {/* Search */}
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+                      <input
+                        type="text"
+                        placeholder="Search repositories..."
+                        value={repoSearch}
+                        onChange={e => setRepoSearch(e.target.value)}
+                        className="w-full bg-slate-950/60 border border-white/8 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/40 transition-colors"
+                      />
+                    </div>
+
+                    {/* Repo list */}
+                    {reposLoading ? (
+                      <div className="flex items-center justify-center py-8 gap-3 text-slate-500">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Loading repositories...</span>
+                      </div>
+                    ) : filteredRepos.length === 0 ? (
+                      <div className="text-center py-8 text-slate-500 text-sm">
+                        {repoSearch ? 'No repositories match your search.' : 'No repositories found in your GitHub account.'}
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                        {filteredRepos.map((repo) => {
+                          const isSaving = savingRepos.has(repo.name);
+                          return (
+                            <div
+                              key={repo.name}
+                              className={`flex items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                                repo.isSelected
+                                  ? 'border-cyan-500/30 bg-cyan-500/5'
+                                  : 'border-white/5 bg-slate-950/40 hover:bg-slate-950/60'
+                              }`}
+                              onClick={() => handleToggleRepo(repo.name)}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                {repo.isPrivate
+                                  ? <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                                  : <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                                }
+                                <div className="min-w-0">
+                                  <p className="text-sm font-semibold text-white truncate">{repo.name}</p>
+                                  {repo.description && (
+                                    <p className="text-xs text-slate-500 truncate">{repo.description}</p>
+                                  )}
+                                </div>
+                                {repo.language && (
+                                  <span className="text-[10px] font-medium text-slate-500 bg-white/5 px-2 py-0.5 rounded-full shrink-0">
+                                    {repo.language}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="shrink-0" onClick={e => { e.stopPropagation(); handleToggleRepo(repo.name); }}>
+                                {isSaving ? (
+                                  <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                                ) : (
+                                  <div className={`w-9 h-5 rounded-full transition-colors relative ${
+                                    repo.isSelected ? 'bg-cyan-500' : 'bg-slate-700'
+                                  }`}>
+                                    <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                                      repo.isSelected ? 'translate-x-4' : 'translate-x-0.5'
+                                    }`} />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {selectedRepos.length === 0 && !reposLoading && (
+                      <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/8 border border-amber-500/20">
+                        <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-xs text-amber-300">
+                          Magic Sync is paused until you select at least one repository above.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

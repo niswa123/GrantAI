@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
 import {
-  getCompanyMembers, inviteMember, updateMemberRole, removeMember,
+  getCompanyMembers, inviteMember, updateMemberRole, removeMember, updateMemberRate,
   type MemberRecord, type MemberRole,
 } from "@/app/actions/memberActions";
 
@@ -28,6 +28,72 @@ const STATUS_CFG: Record<"Active" | "Pending", { color: string; bg: string; bord
   Active: { color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30", icon: CheckCircle2 },
   Pending: { color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30", icon: Clock },
 };
+
+function RateCell({
+  member,
+  onSave,
+  defaultRate,
+}: {
+  member: MemberRecord;
+  onSave: (memberId: string, rate: number | null) => Promise<void>;
+  defaultRate: number;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [value, setValue] = useState<string>(member.hourlyRate ? member.hourlyRate.toString() : "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setIsEditing(false);
+    const parsed = value.trim() === "" ? null : parseFloat(value);
+    if (parsed === member.hourlyRate) return;
+    setSaving(true);
+    try {
+      await onSave(member.id, parsed);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (member.isInvite) {
+    return <span className="text-slate-600 text-xs">—</span>;
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center justify-center">
+        <input
+          type="number"
+          autoFocus
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSave();
+            if (e.key === "Escape") setIsEditing(false);
+          }}
+          className="w-20 px-2 py-1 rounded bg-slate-950 border border-cyan-500/50 text-white text-xs font-bold text-center focus:outline-none focus:ring-1 focus:ring-cyan-500/30"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      onClick={() => setIsEditing(true)}
+      className="cursor-pointer group flex items-center justify-center gap-1 text-xs font-bold"
+    >
+      {saving ? (
+        <Loader2 className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+      ) : member.hourlyRate ? (
+        <span className="text-white group-hover:text-cyan-400 transition-colors">€{member.hourlyRate}/h</span>
+      ) : (
+        <span className="text-slate-500 group-hover:text-cyan-400/80 transition-colors">Default (€{defaultRate}/h)</span>
+      )}
+    </div>
+  );
+}
 
 // ── Sub-components ────────────────────────────────────────────────────────
 
@@ -439,6 +505,11 @@ export default function MembersPage() {
     });
   };
 
+  const handleRateChange = async (memberId: string, rate: number | null) => {
+    setMembers((m) => m.map((mem) => (mem.id === memberId ? { ...mem, hourlyRate: rate } : mem)));
+    await updateMemberRate(memberId, rate);
+  };
+
   const handleRemoveConfirm = async () => {
     if (!deletingMember) return;
     const memberId = deletingMember.id;
@@ -547,6 +618,7 @@ export default function MembersPage() {
                   <tr className="border-b border-white/8 bg-slate-900/60">
                     <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">Member</th>
                     <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Email</th>
+                    <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Rate</th>
                     <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Role</th>
                     <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider text-center">Status</th>
                     <th className="px-5 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:table-cell">Joined</th>
@@ -581,6 +653,13 @@ export default function MembersPage() {
                             </div>
                           </td>
                           <td className="px-5 py-4 text-sm text-slate-400 hidden sm:table-cell font-medium">{member.email}</td>
+                          <td className="px-5 py-4 text-center">
+                            <RateCell 
+                              member={member} 
+                              onSave={handleRateChange} 
+                              defaultRate={activeWorkspace?.defaultHourlyRate || 50} 
+                            />
+                          </td>
                           <td className="px-5 py-4 text-center">
                             <RoleDropdown role={member.role} onChange={(r) => handleRoleChange(member.id, r)} />
                           </td>

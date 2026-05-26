@@ -13,6 +13,7 @@ export interface Workspace {
   logoUrl?: string;
   defaultHourlyRate?: number;
   taxCreditRate?: number;
+  taxScheme?: string;
 }
 
 interface WorkspaceContextType {
@@ -104,7 +105,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
 
   const updateWorkspace = useCallback(async (id: string, data: Partial<Workspace>) => {
     if (status !== "authenticated") return;
-    const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate, data.logoUrl);
+    const res = await updateCompany(id, data.name || "", data.country || "", data.defaultHourlyRate, data.taxCreditRate, data.logoUrl, data.taxScheme);
     if (res.success && res.company) {
       setWorkspaces((prev) => prev.map(w => w.id === id ? res.company! : w));
       setActiveWorkspaceState((prev) => prev?.id === id ? res.company! : prev);

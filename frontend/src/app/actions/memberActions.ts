@@ -22,6 +22,7 @@ export interface MemberRecord {
   status: MemberStatus;
   joinedAt: string;    // ISO date string
   isInvite?: boolean;
+  hourlyRate?: number | null;
 }
 
 // ── Auth helper ───────────────────────────────────────────────────────────
@@ -74,6 +75,7 @@ export async function getCompanyMembers(companyId: string): Promise<MemberRecord
     status: m.status as MemberStatus,
     joinedAt: m.created_at.toISOString(),
     isInvite: false,
+    hourlyRate: m.hourly_rate ? Number(m.hourly_rate) : null,
   }));
 
   const inviteRecords: MemberRecord[] = invites.map((inv) => ({
@@ -321,4 +323,35 @@ export async function acceptInvite(token: string, passedUserId?: string) {
   await prisma.workspaceInvite.delete({ where: { id: invite.id } });
 
   return { success: true, companyId: invite.company_id };
+}
+
+export async function updateMemberRate(memberId: string, hourlyRate: number | null) {
+  const actorId = await requireSession();
+
+  // Load the target member
+  const member = await prisma.companyMember.findUnique({
+    where: { id: memberId },
+    include: { company: { select: { user_id: true } } },
+  });
+
+  if (!member) return { error: 'Member not found' };
+
+  // Verify that the actor is Owner or Admin
+  const isOwner = member.company.user_id === actorId;
+  if (!isOwner) {
+    const myRole = await prisma.companyMember.findUnique({
+      where: { user_id_company_id: { user_id: actorId, company_id: member.company_id } },
+      select: { role: true },
+    });
+    if (!myRole || myRole.role !== 'Admin') return { error: 'Unauthorized' };
+  }
+
+  // Update
+  await prisma.companyMember.update({
+    where: { id: memberId },
+    data: { hourly_rate: hourlyRate },
+  });
+
+  revalidatePath('/settings/members');
+  return { success: true };
 }

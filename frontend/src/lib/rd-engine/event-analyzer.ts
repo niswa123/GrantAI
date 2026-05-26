@@ -10,6 +10,7 @@
 
 import prisma from "@/lib/prisma";
 import { classifyWorkLog, type LlmClassificationResult } from "@/lib/llm/classifier";
+import { calculateTaxBenefit, getJurisdictionByCountry } from "./tax-engine";
 
 // Default daily rate for value calculation — will come from company settings later
 const DEFAULT_DAILY_RATE = 800;
@@ -121,7 +122,61 @@ export async function analyzeEngineeringEvent(
   const confidenceScore = llmResult.confidenceScore;
   const complexityWeight = deriveComplexityWeight(llmResult);
   const justification = llmResult.explanation;
-  const calculatedValue = calculateEventValue(isRd, confidenceScore, complexityWeight);
+
+  let calculatedValue = 0;
+
+  if (isRd) {
+    // Load company/member rate & tax settings
+    const company = await prisma.company.findUnique({
+      where: { id: event.company_id },
+      select: {
+        default_hourly_rate: true,
+        tax_credit_rate: true,
+        country: true,
+        tax_scheme: true,
+      },
+    });
+
+    let hourlyRate = company?.default_hourly_rate.toNumber() || 50;
+    if (event.author_email) {
+      const user = await prisma.user.findUnique({
+        where: { email: event.author_email },
+        select: { id: true },
+      });
+      if (user) {
+        const member = await prisma.companyMember.findUnique({
+          where: {
+            user_id_company_id: {
+              user_id: user.id,
+              company_id: event.company_id,
+            },
+          },
+        });
+        if (member && member.hourly_rate) {
+          hourlyRate = member.hourly_rate.toNumber();
+        }
+      }
+    }
+
+    const dailyRate = hourlyRate * 8;
+    const rdCost = dailyRate * complexityWeight * confidenceScore;
+
+    const jurisdiction = getJurisdictionByCountry(company?.country || 'Other');
+    const jurisdictionCode = jurisdiction?.code || 'MANUAL';
+    let scheme = company?.tax_scheme || 'AUTO';
+    if (scheme === 'AUTO') {
+      scheme = jurisdiction?.schemes[0]?.code || 'MANUAL';
+    }
+
+    calculatedValue = calculateTaxBenefit({
+      jurisdictionCode,
+      scheme,
+      rdCostEur: rdCost,
+      isStartup: false,
+      isProfitable: true,
+      taxCreditRateFallback: company?.tax_credit_rate.toNumber() || 0.14,
+    });
+  }
 
   // 5. Persist AnalyzedLog + update event status in a transaction
   const analyzedLog = await prisma.$transaction(async (tx) => {

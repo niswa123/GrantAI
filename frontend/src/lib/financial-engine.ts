@@ -1,10 +1,12 @@
 import prisma from '@/lib/prisma';
 import { EngineeringEvent, AnalyzedLog } from '@prisma/client';
+import { calculateTaxBenefit, getJurisdictionByCountry } from '@/lib/rd-engine/tax-engine';
 
 export class FinancialEngine {
   /**
    * Calculates the financial value of an engineering event.
-   * Formula: (Затраченное время / Вес задачи) * Часовая ставка * Confidence Score * Коэффициент налоговой льготы
+   * Formula: calculateTaxBenefit({ jurisdiction, scheme, rdCost })
+   * where rdCost = (Time / Complexity) * Hourly Rate * Confidence
    * @param event The engineering event
    * @param log The analyzed log for the event
    * @param companyId The ID of the company
@@ -21,13 +23,17 @@ export class FinancialEngine {
     // Get company settings
     const company = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { default_hourly_rate: true, tax_credit_rate: true },
+      select: { 
+        default_hourly_rate: true, 
+        tax_credit_rate: true, 
+        country: true, 
+        tax_scheme: true 
+      },
     });
 
     if (!company) throw new Error('Company not found');
 
     let hourlyRate = company.default_hourly_rate.toNumber();
-    const taxRate = company.tax_credit_rate.toNumber();
 
     // Check if the author is a company member with a specific rate
     if (event.author_email) {
@@ -51,11 +57,27 @@ export class FinancialEngine {
       }
     }
 
-    // Formula: (Time / Complexity) * Hourly Rate * Confidence * Tax Rate
-    // Wait, the formula says "(Затраченное время / Вес задачи)", meaning if task is complex, value is lower? 
-    // Usually "Вес задачи" (complexity_weight) would multiply, but let's follow the prompt exactly:
+    // Formula for R&D Cost: (Time / Complexity) * Hourly Rate * Confidence
     const baseHours = timeSpentHours / (log.complexity_weight || 1);
-    const value = baseHours * hourlyRate * log.confidence_score * taxRate;
+    const rdCost = baseHours * hourlyRate * log.confidence_score;
+
+    // Determine jurisdiction & scheme
+    const jurisdiction = getJurisdictionByCountry(company.country);
+    const jurisdictionCode = jurisdiction?.code || 'MANUAL';
+    
+    let scheme = company.tax_scheme || 'AUTO';
+    if (scheme === 'AUTO') {
+      scheme = jurisdiction?.schemes[0]?.code || 'MANUAL';
+    }
+
+    const value = calculateTaxBenefit({
+      jurisdictionCode,
+      scheme,
+      rdCostEur: rdCost,
+      isStartup: false,
+      isProfitable: true,
+      taxCreditRateFallback: company.tax_credit_rate.toNumber(),
+    });
 
     return Number(value.toFixed(2));
   }

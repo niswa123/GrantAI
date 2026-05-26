@@ -109,6 +109,7 @@ model Company {
   address             String?  @db.Text
   default_hourly_rate Decimal  @default(50.0) @db.Decimal
   tax_credit_rate     Decimal  @default(0.14) @db.Decimal
+  tax_scheme          String   @default("AUTO") @db.VarChar
   estimated_salaries  Decimal? @db.Decimal // Saved from last Magic Sync
   estimated_dev_costs Decimal? @db.Decimal // Saved from last Magic Sync
   last_sync_at        DateTime? // Timestamp of last successful sync

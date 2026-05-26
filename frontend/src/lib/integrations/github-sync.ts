@@ -35,7 +35,7 @@ export async function runGithubSync(
 
   const integration = await prisma.integration.findFirst({
     where: { company_id: companyId, provider: 'github', status: 'active' },
-    select: { access_token: true },
+    select: { access_token: true, config: true },
   });
 
   if (!integration?.access_token) throw new Error('GitHub not connected');
@@ -53,9 +53,24 @@ export async function runGithubSync(
     'X-GitHub-Api-Version': '2022-11-28',
   };
 
+  // Get selected repos from integration config
+  const config = integration.config as { selectedRepos?: string[] } | null;
+  const selectedRepoNames = config?.selectedRepos ?? [];
+
+  // If user hasn't selected any repos, surface a clear message instead of scanning everything
+  if (selectedRepoNames.length === 0) {
+    return {
+      repos: [],
+      commits: [],
+      summary: 'No repositories selected for Magic Sync. Please go to Settings → Integrations to choose which repositories to track.',
+      scannedSince: since ?? '',
+      error: 'NO_REPOS_SELECTED',
+    };
+  }
+
   // Fetch repos
   const reposRes = await fetch(
-    'https://api.github.com/user/repos?sort=pushed&per_page=30&type=owner',
+    'https://api.github.com/user/repos?sort=pushed&per_page=100&type=owner',
     { headers: ghHeaders }
   );
 
@@ -65,7 +80,11 @@ export async function runGithubSync(
   }
 
   const rawRepos = await reposRes.json();
-  const repos: GithubSyncResult['repos'] = rawRepos.map((r: any) => ({
+
+  // Filter to only selected repos
+  const filteredRawRepos = rawRepos.filter((r: any) => selectedRepoNames.includes(r.name));
+
+  const repos: GithubSyncResult['repos'] = filteredRawRepos.map((r: any) => ({
     name: r.name,
     full_name: r.full_name,
     language: r.language ?? null,
@@ -73,14 +92,14 @@ export async function runGithubSync(
   }));
 
   if (repos.length === 0) {
-    return { repos: [], commits: [], summary: 'No repositories found.', scannedSince: since ?? '' };
+    return { repos: [], commits: [], summary: 'None of the selected repositories were found in your GitHub account.', scannedSince: since ?? '' };
   }
 
   const sinceDate = since ?? new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
   const allCommits: GithubSyncResult['commits'] = [];
 
   await Promise.allSettled(
-    rawRepos.slice(0, 10).map(async (repo: any) => {
+    filteredRawRepos.map(async (repo: any) => {
       try {
         const commitsRes = await fetch(
           `https://api.github.com/repos/${repo.full_name}/commits?since=${sinceDate}&per_page=50`,

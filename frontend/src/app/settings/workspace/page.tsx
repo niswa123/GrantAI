@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Save, CheckCircle2, AlertCircle, ChevronDown, Upload, RefreshCcw } from "lucide-react";
+import { 
+  Building2, Save, CheckCircle2, AlertCircle, ChevronDown, Upload, 
+  RefreshCcw, Calculator, Globe, ChevronRight, ShieldCheck 
+} from "lucide-react";
 import { useWorkspace } from "@/providers/workspace-provider";
+import { 
+  JURISDICTION_REGISTRY, 
+  calculateTaxBenefit, 
+  getJurisdictionByCountry 
+} from "@/lib/rd-engine/tax-engine";
 
-const COUNTRIES = [
-  "Netherlands", "Germany", "France", "United Kingdom", "Belgium",
-  "Sweden", "Denmark", "Finland", "Norway", "Spain", "Portugal",
-  "Italy", "Austria", "Switzerland", "Poland", "Estonia", "Latvia",
-  "Lithuania", "Czech Republic", "Slovakia", "Hungary", "Romania",
-  "Ireland", "Luxembourg", "United States", "Canada", "Australia",
-  "Other",
-];
+const COUNTRIES = JURISDICTION_REGISTRY.map(j => j.country);
 
 interface WorkspaceData {
   legalName: string;
@@ -24,6 +25,7 @@ interface WorkspaceData {
   defaultHourlyRate: number;
   taxCreditRate: number;
   logoUrl: string;
+  taxScheme: string;
 }
 
 const STORAGE_KEY = "grantai_workspace";
@@ -72,11 +74,16 @@ export default function WorkspaceSettingsPage() {
     country: "Netherlands", city: "", address: "",
     defaultHourlyRate: 50.0, taxCreditRate: 0.14,
     logoUrl: "",
+    taxScheme: "AUTO",
   });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [countryOpen, setCountryOpen] = useState(false);
+  
+  // Live calculator R&D Cost test input state
+  const [calcCost, setCalcCost] = useState<number>(150000);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Sync with active workspace initially
   useEffect(() => {
@@ -87,6 +94,7 @@ export default function WorkspaceSettingsPage() {
       defaultHourlyRate: activeWorkspace?.defaultHourlyRate ?? 50.0,
       taxCreditRate: activeWorkspace?.taxCreditRate ?? 0.14,
       logoUrl: activeWorkspace?.logoUrl || "",
+      taxScheme: activeWorkspace?.taxScheme || "AUTO",
     }));
     
     // Merge any other local storage data we had for this workspace (optional)
@@ -98,10 +106,22 @@ export default function WorkspaceSettingsPage() {
         setData(prev => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
-  }, [activeWorkspace?.id, activeWorkspace?.name, activeWorkspace?.country]);
+  }, [activeWorkspace?.id, activeWorkspace?.name, activeWorkspace?.country, activeWorkspace?.defaultHourlyRate, activeWorkspace?.taxCreditRate, activeWorkspace?.logoUrl, activeWorkspace?.taxScheme]);
 
   const update = <K extends keyof WorkspaceData>(field: K) => (value: WorkspaceData[K]) => {
-    setData((d) => ({ ...d, [field]: value }));
+    setData((d) => {
+      const next = { ...d, [field]: value };
+      
+      // If country is updated, set default taxScheme to AUTO
+      if (field === "country") {
+        next.taxScheme = "AUTO";
+        const jur = getJurisdictionByCountry(value as string);
+        if (jur) {
+          next.taxCreditRate = jur.schemes[0] ? jur.schemes[0].ratePct / 100 : 0.14;
+        }
+      }
+      return next;
+    });
     setDirty(true);
     setSaved(false);
   };
@@ -139,21 +159,38 @@ export default function WorkspaceSettingsPage() {
     localStorage.setItem(`${STORAGE_KEY}_${activeWorkspace.id}`, JSON.stringify(data));
     
     // Update global state and DB for the fields the provider cares about
-    if (activeWorkspace?.id) {
-      await updateWorkspace(activeWorkspace.id, {
-        name: data.legalName,
-        country: data.country,
-        defaultHourlyRate: data.defaultHourlyRate,
-        taxCreditRate: data.taxCreditRate,
-        logoUrl: data.logoUrl,
-      });
-    }
+    await updateWorkspace(activeWorkspace.id, {
+      name: data.legalName,
+      country: data.country,
+      defaultHourlyRate: data.defaultHourlyRate,
+      taxCreditRate: data.taxCreditRate,
+      logoUrl: data.logoUrl,
+      taxScheme: data.taxScheme,
+    });
     
     setSaving(false);
     setSaved(true);
     setDirty(false);
     setTimeout(() => setSaved(false), 3000);
   };
+
+  // Find active jurisdiction and scheme details
+  const activeJur = getJurisdictionByCountry(data.country) || JURISDICTION_REGISTRY.find(j => j.code === "MANUAL")!;
+  const activeSchemes = activeJur.schemes;
+  const currentSchemeCode = data.taxScheme === "AUTO" ? activeSchemes[0]?.code || "MANUAL" : data.taxScheme;
+  const activeScheme = activeSchemes.find(s => s.code === currentSchemeCode) || activeSchemes[0];
+
+  // Dynamic Live Calculator Calculation
+  const estimatedBenefit = calculateTaxBenefit({
+    jurisdictionCode: activeJur.code,
+    scheme: currentSchemeCode,
+    rdCostEur: calcCost,
+    isStartup: false,
+    isProfitable: true,
+    taxCreditRateFallback: data.taxCreditRate,
+  });
+
+  const benefitPercentage = calcCost > 0 ? (estimatedBenefit / calcCost) * 100 : 0;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 sm:py-10">
@@ -165,7 +202,7 @@ export default function WorkspaceSettingsPage() {
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Workspace Settings</h1>
         </div>
-        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">Manage your legal entity information for R&amp;D claims.</p>
+        <p className="text-xs sm:text-sm text-slate-400 ml-11 sm:ml-12">Manage your legal entity information and R&amp;D tax configuration.</p>
       </motion.div>
 
       <motion.form
@@ -210,21 +247,24 @@ export default function WorkspaceSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField id="regNumber" label="Registration Number" value={data.registrationNumber}
               onChange={update("registrationNumber")} placeholder="KVK 12345678"
-              hint="Chamber of Commerce / company registration number" />
+              hint="Chamber of Commerce or business registration code" />
             <FormField id="vatNumber" label="VAT Number" value={data.vatNumber}
               onChange={update("vatNumber")} placeholder="NL123456789B01" />
           </div>
 
           {/* Country dropdown */}
           <div>
-            <label className="block text-sm font-semibold text-slate-300 mb-1.5">Country</label>
+            <label className="block text-sm font-semibold text-slate-300 mb-1.5">Country / Jurisdiction</label>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setCountryOpen((v) => !v)}
                 className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-white/8 text-white text-sm focus:outline-none focus:border-cyan-500/60 focus:ring-2 focus:ring-cyan-500/15 transition-all hover:border-white/15"
               >
-                {data.country || "Select country"}
+                <span className="flex items-center gap-2">
+                  <span className="text-lg">{activeJur.flag}</span>
+                  <span>{data.country}</span>
+                </span>
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${countryOpen ? "rotate-180" : ""}`} />
               </button>
               <AnimatePresence>
@@ -234,16 +274,17 @@ export default function WorkspaceSettingsPage() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.97 }}
                     transition={{ duration: 0.12 }}
-                    className="absolute top-full mt-1.5 left-0 right-0 z-30 bg-slate-900 border border-white/10 rounded-xl shadow-2xl max-h-52 overflow-y-auto"
+                    className="absolute top-full mt-1.5 left-0 right-0 z-30 bg-slate-900 border border-white/10 rounded-xl shadow-2xl max-h-56 overflow-y-auto"
                   >
-                    {COUNTRIES.map((c) => (
+                    {JURISDICTION_REGISTRY.map((j) => (
                       <button
-                        key={c}
+                        key={j.code}
                         type="button"
-                        onClick={() => { update("country")(c); setCountryOpen(false); }}
-                        className={`w-full text-left px-4 py-2 text-sm transition-colors hover:bg-white/5 ${c === data.country ? "text-cyan-400 font-semibold" : "text-slate-300"}`}
+                        onClick={() => { update("country")(j.country); setCountryOpen(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-white/5 flex items-center gap-2.5 ${j.country === data.country ? "text-cyan-400 font-semibold" : "text-slate-300"}`}
                       >
-                        {c}
+                        <span className="text-lg">{j.flag}</span>
+                        <span>{j.country}</span>
                       </button>
                     ))}
                   </motion.div>
@@ -269,27 +310,152 @@ export default function WorkspaceSettingsPage() {
           </div>
         </Section>
 
-        {/* Financial Settings */}
-        <Section title="Financial Settings" description="Default rates used for calculating R&D claim value.">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField 
-              id="defaultHourlyRate" 
-              label="Default Hourly Rate (€)" 
-              type="number"
-              value={data.defaultHourlyRate.toString()} 
-              onChange={(v) => update("defaultHourlyRate")(parseFloat(v) || 0)} 
-              placeholder="50" 
-              hint="Average cost per engineering hour" 
-            />
-            <FormField 
-              id="taxCreditRate" 
-              label="Tax Credit Rate" 
-              type="number"
-              value={data.taxCreditRate.toString()} 
-              onChange={(v) => update("taxCreditRate")(parseFloat(v) || 0)} 
-              placeholder="0.14" 
-              hint="E.g. 0.14 for WBSO (14%) or 0.32 for UK SME" 
-            />
+        {/* R&D Jurisdiction & Tax Scheme Selector */}
+        <Section title="R&D Tax Calculator & Scheme" description="Configure active tax credits and qualified deductions.">
+          <div className="p-5 rounded-2xl bg-slate-950/40 border border-white/5 space-y-5">
+            {/* Active Jurisdiction Info */}
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-white/8 flex items-center justify-center text-2xl flex-shrink-0">
+                {activeJur.flag}
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-bold text-white">{activeJur.country} Jurisdiction</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Tax schemes and calculations are automatically loaded according to standard national regulations.
+                </p>
+              </div>
+            </div>
+
+            {/* Scheme selector (if more than 1 scheme) */}
+            {activeSchemes.length > 1 && (
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-400">Available Tax Schemes</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => update("taxScheme")("AUTO")}
+                    className={`px-4 py-3 rounded-xl border text-left transition-all ${data.taxScheme === "AUTO" ? "bg-cyan-500/10 border-cyan-500/50 text-white font-semibold" : "bg-slate-900/50 border-white/5 text-slate-400 hover:border-white/10"}`}
+                  >
+                    <div className="text-xs font-bold text-cyan-400 mb-0.5">AUTO</div>
+                    <div className="text-xs truncate">{activeSchemes[0]?.name} (Default)</div>
+                  </button>
+                  {activeSchemes.map((scheme) => (
+                    <button
+                      key={scheme.code}
+                      type="button"
+                      onClick={() => update("taxScheme")(scheme.code)}
+                      className={`px-4 py-3 rounded-xl border text-left transition-all ${data.taxScheme === scheme.code ? "bg-cyan-500/10 border-cyan-500/50 text-white font-semibold" : "bg-slate-900/50 border-white/5 text-slate-400 hover:border-white/10"}`}
+                    >
+                      <div className="text-xs font-bold text-cyan-400 mb-0.5">{scheme.code}</div>
+                      <div className="text-xs truncate">{scheme.name}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Scheme Details */}
+            {activeScheme && (
+              <div className="p-4 rounded-xl bg-slate-900/60 border border-white/5 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">{activeScheme.name}</span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">{activeScheme.description}</p>
+                <div className="text-[11px] font-semibold text-cyan-400/80">
+                  Formula: {activeScheme.formulaDescription}
+                </div>
+              </div>
+            )}
+
+            {/* Live Interactive R&D Benefit Calculator */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-slate-950 to-slate-900 border border-cyan-500/15 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Calculator className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">Live Tax Benefit Estimator</span>
+                </div>
+                <span className="text-[10px] text-cyan-500 bg-cyan-500/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Instant Preview</span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs text-slate-400 font-semibold">Qualifying R&D Expenses</label>
+                  <span className="text-xs text-slate-200 font-bold">€{calcCost.toLocaleString()}</span>
+                </div>
+                <input
+                  type="range"
+                  min="10000"
+                  max="1000000"
+                  step="5000"
+                  value={calcCost}
+                  onChange={(e) => setCalcCost(parseInt(e.target.value))}
+                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                />
+              </div>
+
+              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Estimated Benefit</div>
+                  <div className="text-lg font-black text-cyan-400">
+                    €{estimatedBenefit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+                <div className="text-right space-y-0.5">
+                  <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Effective Benefit %</div>
+                  <div className="text-sm font-bold text-slate-300">
+                    {benefitPercentage.toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Advanced rates collapsible */}
+          <div className="border border-white/5 rounded-2xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full flex items-center justify-between px-5 py-4 bg-slate-900/40 hover:bg-slate-900/60 transition-all text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-slate-400" />
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Advanced Financial Rates</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
+            </button>
+            <AnimatePresence>
+              {showAdvanced && (
+                <motion.div
+                  initial={{ height: 0 }}
+                  animate={{ height: "auto" }}
+                  exit={{ height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="p-5 bg-slate-950/20 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                      id="defaultHourlyRate"
+                      label="Default Hourly Rate (€)"
+                      type="number"
+                      value={data.defaultHourlyRate.toString()}
+                      onChange={(v) => update("defaultHourlyRate")(parseFloat(v) || 0)}
+                      placeholder="50"
+                      hint="Default fallback rate per engineering hour"
+                    />
+                    <FormField
+                      id="taxCreditRate"
+                      label="Manual Tax Credit Rate"
+                      type="number"
+                      value={data.taxCreditRate.toString()}
+                      onChange={(v) => update("taxCreditRate")(parseFloat(v) || 0)}
+                      placeholder="0.14"
+                      hint="Fallback multiplier (used in manual mode)"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </Section>
 

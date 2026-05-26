@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, Brain, Activity, ShieldCheck, FileCheck, Sparkles, GitBranch, GitCommit, Search, RefreshCw, Cpu, Layers } from "lucide-react";
 
 /**
  * APPLE-STYLE STICKY SCROLL - PREMIUM PROCESS WORKSPACE REDESIGN
  * Modelled after the high-fidelity laboratory dashboard design in process_redesign.png.
  * Consolidates the 3 steps into a unified, widescreen Cockpit Workstation.
- * Scrolling or clicking highlights specific modules with active indicators and springs.
+ *
+ * FIX: Uses a direct window scroll listener instead of Framer Motion useScroll.
+ * Framer Motion's useScroll misses synthetic scroll events dispatched by Lenis,
+ * causing the sticky scroll animation to never trigger. The direct listener
+ * reads scrollY and calculates progress from getBoundingClientRect, which always
+ * returns the correct value regardless of the scroll driver being used.
  */
 
 interface Commit {
@@ -46,42 +51,41 @@ export function AppleStyleStickyScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  // Direct scroll listener — works correctly with Lenis which dispatches
+  // synthetic scroll events that Framer Motion's useScroll does not receive.
+  const updateStep = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const containerHeight = containerRef.current.offsetHeight;
+    const viewportHeight = window.innerHeight;
+    // How far we've scrolled through the container (0 → 1)
+    const scrolled = -rect.top;
+    const scrollable = containerHeight - viewportHeight;
+    if (scrollable <= 0) return;
+    const progress = Math.max(0, Math.min(1, scrolled / scrollable));
+    const step = Math.min(Math.floor(progress * 3), 2);
+    setActiveStep(step);
+  }, []);
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 70,
-    damping: 24,
-    restDelta: 0.001
-  });
-
-  // Map scroll progress to the active workflow step (0, 1, or 2)
   useEffect(() => {
-    const unsubscribe = smoothProgress.on("change", (latest) => {
-      const step = Math.min(Math.floor(latest * 3), 2);
-      setActiveStep(Math.max(0, step));
-    });
-    return unsubscribe;
-  }, [smoothProgress]);
+    window.addEventListener("scroll", updateStep, { passive: true });
+    updateStep(); // run once on mount
+    return () => window.removeEventListener("scroll", updateStep);
+  }, [updateStep]);
 
   const handleTabClick = (index: number) => {
     if (!containerRef.current) return;
-    const elementHeight = containerRef.current.clientHeight;
-    // Calculate precise target scroll position based on step bounds
-    const targetScrollTop = containerRef.current.offsetTop + (index / 3) * elementHeight + 40;
-
-    window.scrollTo({
-      top: targetScrollTop,
-      behavior: "smooth"
-    });
+    const containerHeight = containerRef.current.offsetHeight;
+    const viewportHeight = window.innerHeight;
+    const scrollable = containerHeight - viewportHeight;
+    const targetScrollTop = containerRef.current.offsetTop + (index / 3) * scrollable;
+    window.scrollTo({ top: targetScrollTop, behavior: "smooth" });
   };
 
   return (
     <>
       {/* ========== DESKTOP: Widescreen Sticky Cockpit Workspace ========== */}
-      <div ref={containerRef} className="hidden md:block relative bg-[#04060d]" style={{ height: "300vh" }}>
+      <div ref={containerRef} className="hidden md:block relative bg-[#04060d]" style={{ height: "250vh" }}>
         <div className="sticky top-0 h-screen flex flex-col justify-between py-8 overflow-hidden select-none">
 
           <div className="container mx-auto px-6 max-w-7xl flex flex-col h-full justify-between gap-6">

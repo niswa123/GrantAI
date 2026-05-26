@@ -32,6 +32,7 @@ export async function getUserCompanies() {
     color: 'bg-cyan-500', // Generate dynamically or use fixed color
     defaultHourlyRate: c.default_hourly_rate ? Number(c.default_hourly_rate) : 50.0,
     taxCreditRate: c.tax_credit_rate ? Number(c.tax_credit_rate) : 0.14,
+    taxScheme: c.tax_scheme,
   }));
 }
 
@@ -65,6 +66,7 @@ export async function createCompany(name: string, country: string, logoUrl?: str
         color: 'bg-cyan-500',
         defaultHourlyRate: company.default_hourly_rate ? Number(company.default_hourly_rate) : 50.0,
         taxCreditRate: company.tax_credit_rate ? Number(company.tax_credit_rate) : 0.14,
+        taxScheme: company.tax_scheme,
       }
     };
   } catch (err: any) {
@@ -72,7 +74,7 @@ export async function createCompany(name: string, country: string, logoUrl?: str
   }
 }
 
-export async function updateCompany(id: string, name: string, country: string, defaultHourlyRate?: number, taxCreditRate?: number, logoUrl?: string) {
+export async function updateCompany(id: string, name: string, country: string, defaultHourlyRate?: number, taxCreditRate?: number, logoUrl?: string, taxScheme?: string) {
   const session = await getServerSession(authOptions);
   
   if (!session || !(session.user as any)?.id) {
@@ -84,6 +86,7 @@ export async function updateCompany(id: string, name: string, country: string, d
     if (defaultHourlyRate !== undefined) dataToUpdate.default_hourly_rate = defaultHourlyRate;
     if (taxCreditRate !== undefined) dataToUpdate.tax_credit_rate = taxCreditRate;
     if (logoUrl !== undefined) dataToUpdate.logo_url = logoUrl;
+    if (taxScheme !== undefined) dataToUpdate.tax_scheme = taxScheme;
 
     const company = await prisma.company.update({
       where: { id, user_id: (session.user as any).id },
@@ -101,6 +104,7 @@ export async function updateCompany(id: string, name: string, country: string, d
         color: 'bg-cyan-500',
         defaultHourlyRate: company.default_hourly_rate ? Number(company.default_hourly_rate) : 50.0,
         taxCreditRate: company.tax_credit_rate ? Number(company.tax_credit_rate) : 0.14,
+        taxScheme: company.tax_scheme,
       }
     };
   } catch (err: any) {

@@ -25,48 +25,48 @@ export function ZoomThroughTransition() {
   // Massive scale transformation - from tiny to huge
   const scale = useTransform(
     scrollYProgress,
-    [0, 0.3, 0.5, 0.7, 1],
-    [0.1, 1, 15, 25, 30]
+    [0, 0.4, 0.7, 1],
+    [0.2, 1, 10, 18]
   );
 
   // Screen opacity - fades out as we "enter" it
   const screenOpacity = useTransform(
     scrollYProgress,
-    [0, 0.3, 0.5, 0.6],
-    [1, 1, 0.5, 0]
+    [0, 0.4, 0.65, 0.75],
+    [1, 1, 0.4, 0]
   );
 
   // Border radius - becomes 0 as screen fills viewport
   const borderRadius = useTransform(
     scrollYProgress,
-    [0, 0.3, 0.5],
+    [0, 0.4, 0.65],
     [32, 32, 0]
   );
 
   // Content that appears after zoom
   const contentOpacity = useTransform(
     scrollYProgress,
-    [0.5, 0.65, 0.8],
+    [0.6, 0.72, 0.85],
     [0, 0, 1]
   );
 
   const contentY = useTransform(
     scrollYProgress,
-    [0.5, 0.65, 0.8],
-    [100, 50, 0]
+    [0.6, 0.72, 0.85],
+    [60, 30, 0]
   );
 
   // Background blur effect
   const backdropBlur = useTransform(
     scrollYProgress,
-    [0, 0.3, 0.5],
-    [0, 5, 20]
+    [0, 0.4, 0.65],
+    [0, 4, 16]
   );
 
   return (
     <>
       {/* ========== DESKTOP: Zoom Effect ========== */}
-      <div ref={containerRef} className="hidden md:block relative bg-slate-950" style={{ height: "300vh" }}>
+      <div ref={containerRef} className="hidden md:block relative bg-slate-950" style={{ height: "150vh" }}>
         <div className="sticky top-0 h-screen flex items-center justify-center overflow-hidden">
         
           {/* Background with blur effect */}
