@@ -512,7 +512,7 @@ export default function Home() {
             {/* Title Block without slop gradient, clean editorial typographic header */}
             <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
               <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[9px] sm:text-xs text-slate-400 mb-3 tracking-wider uppercase whitespace-nowrap">
-                [ CONNECTIVITY & NORMALIZATION ENGINE ]
+                [ AST INGESTION ENGINE ]
               </div>
               <motion.h2 
                 initial={{ opacity: 0, y: 20 }}
@@ -521,7 +521,7 @@ export default function Home() {
                 transition={{ duration: 0.8 }}
                 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white mb-2 tracking-tighter"
               >
-                Growing library of <span className="text-cyan-400 font-black">integrations</span>
+                Direct <span className="text-cyan-400 font-black">codebase integration.</span>
               </motion.h2>
               <motion.p 
                 initial={{ opacity: 0, y: 15 }}
@@ -530,7 +530,7 @@ export default function Home() {
                 transition={{ duration: 0.8, delay: 0.1 }}
                 className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto"
               >
-                Synchronize raw repository metadata, issue logs, and cloud resource metrics directly into the deterministic tax valuation engine.
+                Ingest metadata from GitHub, GitLab, and Jira. GrantAI parses code differentials and pipelines, automatically filtering out routine CRUD, styling, and basic API work.
               </motion.p>
             </div>
 
@@ -1083,18 +1083,18 @@ export default function Home() {
                 variants={itemVariants}
                 className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 mb-6 sm:mb-8 tracking-wider uppercase backdrop-blur-md"
               >
-                [ LIVE SYNC ACTIVE ]
+                [ REAL-TIME COMPLIANCE ]
               </motion.div>
 
               <motion.h2 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl font-black mb-5 sm:mb-8 text-white tracking-tighter leading-[1.05]">
-                Measure engineering <br className="hidden sm:block" />
+                Track qualifying R&D <br className="hidden sm:block" />
                 <span className="text-cyan-400 drop-shadow-sm">
-                  value in real time.
+                  as it happens.
                 </span>
               </motion.h2>
 
               <motion.p variants={itemVariants} className="text-slate-400 text-lg sm:text-xl mb-10 sm:mb-12 leading-relaxed font-medium">
-                Every day, your engineers create R&D value that goes unmeasured. GrantAI captures it the moment it happens — turning daily work logs into a continuous financial signal.
+                Stop waiting until the end of the year to build your claim. GrantAI continuously quantifies R&D expenditures, building an audit-ready tax claim log with zero manual intervention.
               </motion.p>
               
               <motion.div variants={itemVariants} className="border border-white/15 rounded-md bg-white/[0.01] divide-y divide-white/5 pt-2">
@@ -1102,7 +1102,7 @@ export default function Home() {
                 <div className="p-6 sm:p-8 flex items-center justify-between font-mono">
                   <div className="text-left">
                     <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Metric 01 // Value Flow</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight mt-1">Qualified daily R&D expenses</h4>
+                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight mt-1">Active Qualifying R&D Asset</h4>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl sm:text-4xl font-mono font-black text-white tracking-tight flex items-baseline justify-end gap-1">
@@ -1116,7 +1116,7 @@ export default function Home() {
                 <div className="p-6 sm:p-8 flex items-center justify-between font-mono">
                   <div className="text-left">
                     <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Metric 02 // Neural Parser</span>
-                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight mt-1">AST Compliance Confidence</h4>
+                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight mt-1">Frascati Compliance Index</h4>
                   </div>
                   <div className="text-right">
                     <div className="text-3xl sm:text-4xl font-mono font-black text-white tracking-tight flex items-baseline justify-end gap-1">
@@ -1278,7 +1278,7 @@ export default function Home() {
           >
             <p className="text-slate-600 text-xs font-bold uppercase tracking-[0.4em] mb-4">How It Works</p>
             <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-800">
-              The Automated Pipeline
+              The 6-Step Autonomous Pipeline
             </h2>
           </motion.div>
         </div>
@@ -1296,7 +1296,7 @@ export default function Home() {
       {/* ============================================ */}
       {/* SECTION 4: HOW IT WORKS - PIPELINE */}
       {/* ============================================ */}
-      <section className="py-20 sm:py-24 md:py-28 lg:py-32 container mx-auto px-4 relative overflow-hidden bg-slate-950">
+      <section className="py-20 sm:py-24 md:py-28 lg:py-32 container mx-auto px-4 relative z-10 overflow-hidden bg-slate-950">
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1308,10 +1308,10 @@ export default function Home() {
             [ HOW IT WORKS ]
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 sm:mb-6 tracking-tighter text-white px-4">
-            The <span className="text-cyan-400 drop-shadow-sm">Automated</span> Pipeline.
+            The <span className="text-cyan-400 drop-shadow-sm">6-Step Autonomous</span> Pipeline.
           </h2>
           <p className="text-slate-400 text-base sm:text-lg md:text-xl max-w-2xl mx-auto font-medium px-4">
-            Watch how raw engineering data transforms into a fully compliant tax claim.
+            See how raw developer commits are analyzed, challenged, and compiled into a secure, audit-proof tax claim.
           </p>
           </motion.div>
 
@@ -1363,13 +1363,13 @@ export default function Home() {
               {/* Content Side */}
               <div className="w-full lg:w-1/2 text-left">
                 <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-3 block">
-                  Phase 01 // Data Ingestion
+                  Phase 01 // Codebase Analysis & Ingestion
                 </span>
                 <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-4 leading-none">
-                  Log activity without administrative overhead.
+                  Zero-disruption ingestion and tracking.
                 </h3>
                 <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
-                  Simply write your regular engineering notes or connect standard codebases. GrantAI streams Jira tickets, GitHub commits, and pipeline metadata directly in real-time, matching active tasks against strict tax rules.
+                  Connect GitHub, GitLab, or Jira in 30 seconds. GrantAI streams pull request logs, code diffs, and issue metadata, automatically filtering out routine operations and UI styling.
                 </p>
                 <div className="flex gap-4 items-center">
                   <div className="flex -space-x-2">
@@ -1426,16 +1426,16 @@ export default function Home() {
               {/* Content Side */}
               <div className="w-full lg:w-1/2 text-left">
                 <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-3 block">
-                  Phase 02 // Cognitive Compliance
+                  Phase 02 // The Two-Pass Review
                 </span>
                 <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-4 leading-none">
-                  Two-pass cognitive verification engine.
+                  Two-pass compliance validation.
                 </h3>
                 <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
-                  Our dual-engine model processes raw activity data. The first pass maps tasks directly to strict Frascati Manual standards, and the second pass executes logical verification of technical uncertainty, producing audit-proof justifications.
+                  Our dual-agent AI first acts as a strict R&D Director evaluating your work against Frascati tax rules, and then passes it to a highly skeptical Devil's Advocate (Tax Inspector) who aggressively checks for routine software engineering.
                 </p>
                 <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[10px] sm:text-xs text-slate-400 tracking-wider uppercase">
-                  [ ACCURACY CONFIDENCE SCORE: 99.8% ]
+                  [ 100% AUDIT-PROOF GUARANTEE ]
                 </div>
               </div>
 
@@ -1480,13 +1480,13 @@ export default function Home() {
               {/* Content Side */}
               <div className="w-full lg:w-1/2 text-left">
                 <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-cyan-400/80 mb-3 block">
-                  Phase 03 // Deterministic Core
+                  Phase 03 // Hallucination-Free Ledger
                 </span>
                 <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tighter mb-4 leading-none">
-                  Deterministic math ledger processing.
+                  Deterministic tax calculations.
                 </h3>
                 <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-6">
-                  No guesswork or fuzzy estimations. Qualified hours and R&D capital are computed with a deterministic ledger math engine, generating an audit-ready tax claim compliant with local government guidelines.
+                  No AI guesswork or numeric hallucinations. Qualified hours and capital expenditures are processed strictly via deterministic tax rules. Calculations are locked in a cryptographically sealed financial ledger.
                 </p>
                 <div className="flex gap-4 items-center">
                   <ShieldCheck className="w-5 h-5 text-emerald-400" />
@@ -1555,11 +1555,11 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter">
-              Transparent <span className="text-cyan-400 drop-shadow-sm">Pricing.</span>
+            <h2 className="text-5xl md:text-6xl font-black text-white mb-6 tracking-tighter leading-[1.1] py-1">
+              Predictable <span className="text-cyan-400 drop-shadow-sm">Flat-Rate Pricing.</span>
             </h2>
             <p className="text-slate-400 text-xl max-w-xl mx-auto font-medium">
-              No hidden fees. Scale as you grow and completely automate your compliance.
+              Ditch success-fee consultants. Keep 100% of your claim value with transparent flat-rate subscriptions.
             </p>
           </motion.div>
         </div>
@@ -1576,13 +1576,13 @@ export default function Home() {
               visible: { transition: { staggerChildren: 0.2 } }
             }}
           >
-            {/* Plan 1: Manual / Free */}
+            {/* Plan 1: Starter / Free */}
             <motion.div 
               variants={itemVariants} 
               whileHover={{ y: -10 }}
               className="w-[85vw] max-w-[340px] md:w-auto shrink-0 snap-center glass-card p-8 sm:p-10 lg:p-12 rounded-[32px] sm:rounded-[40px] border border-white/5 hover:border-white/10 transition-all duration-500 bg-slate-900/40 relative z-10 opacity-80 hover:opacity-100"
             >
-              <div className="text-xs sm:text-sm font-bold text-slate-500 mb-3 uppercase tracking-widest">Manual / Free</div>
+              <div className="text-xs sm:text-sm font-bold text-slate-500 mb-3 uppercase tracking-widest">Starter / Free</div>
               <div className="text-5xl sm:text-6xl font-black mb-8 text-white">$0<span className="text-xl sm:text-2xl text-slate-500 font-medium">/mo</span></div>
               <ul className="space-y-4 sm:space-y-5 text-slate-400 mb-10 sm:mb-12 font-medium text-sm sm:text-base">
                 <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-slate-600 rounded-full shrink-0"/> Basic project tracking</li>
@@ -1594,7 +1594,7 @@ export default function Home() {
               </button>
             </motion.div>
 
-            {/* Plan 2: SaaS Subscription (PRO) */}
+            {/* Plan 2: Growth Suite (PRO) */}
             <motion.div 
               variants={itemVariants} 
               whileHover={{ y: -10 }}
@@ -1606,23 +1606,23 @@ export default function Home() {
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute top-0 right-0 px-4 sm:px-6 py-1.5 sm:py-2 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white text-xs sm:text-sm font-black tracking-widest rounded-bl-[20px] sm:rounded-bl-3xl shadow-[0_0_20px_rgba(6,182,212,0.5)] border-b border-l border-white/20 uppercase"
               >
-                Popular
+                Best for Startups
               </motion.div>
               <div className="absolute top-0 right-0 w-48 sm:w-64 h-48 sm:h-64 bg-cyan-500/10 blur-[60px] sm:blur-[80px] rounded-full -z-10 group-hover:bg-cyan-500/20 transition-all duration-500" />
-              <div className="text-xs sm:text-sm font-bold text-cyan-400 mb-3 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">SaaS Subscription</div>
+              <div className="text-xs sm:text-sm font-bold text-cyan-400 mb-3 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(6,182,212,0.5)]">Growth Suite</div>
               <div className="text-5xl sm:text-6xl font-black mb-6 sm:mb-8 text-white">$29<span className="text-xl sm:text-2xl text-slate-500 font-medium">/mo</span></div>
               <div className="text-xs sm:text-sm text-slate-400 mb-6 sm:mb-8 font-medium -mt-2 sm:-mt-4">Per team, up to 10 engineers</div>
               <ul className="space-y-4 sm:space-y-5 text-slate-300 mb-10 sm:mb-12 font-medium text-sm sm:text-base">
-                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> Unlimited daily logs </li>
-                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> Real-time value Dashboard</li>
-                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> Priority email support</li>
+                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> Unlimited developer tracking</li>
+                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> Real-time R&D Asset Ledger</li>
+                <li className="flex items-center gap-3 sm:gap-4"><div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_#06b6d4] shrink-0"/> HMRC/EU compliance checklists</li>
               </ul>
               <button onClick={() => handlePlanSelect("pro")} className="w-full py-3.5 sm:py-4 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold transition-all border border-cyan-500/20 group-hover:border-cyan-400 text-sm sm:text-base">
-                Start Tracking
+                Get Started
               </button>
             </motion.div>
 
-            {/* Plan 3: AI ENTERPRISE (The WOW effect) */}
+            {/* Plan 3: Enterprise Autopilot (The WOW effect) */}
             <motion.div 
               variants={itemVariants} 
               className="w-[85vw] max-w-[340px] md:w-auto shrink-0 snap-center relative p-[2px] rounded-[34px] sm:rounded-[42px] overflow-hidden group shadow-[0_0_40px_rgba(6,182,212,0.15)] md:shadow-[0_0_80px_rgba(6,182,212,0.2)] md:scale-[1.05] z-20"
@@ -1638,14 +1638,14 @@ export default function Home() {
                 
                 <div>
                   <div className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-white mb-3 uppercase tracking-widest flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" /> AI Enterprise
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400" /> Enterprise Autopilot
                   </div>
                   <div className="text-5xl sm:text-6xl font-black mb-8 text-white drop-shadow-md">$99<span className="text-xl sm:text-2xl text-cyan-400/80 font-medium">/claim</span></div>
                   
                   <ul className="space-y-4 sm:space-y-6 text-white mb-10 sm:mb-12 font-medium text-sm sm:text-base">
-                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Automated claim filing</motion.li>
-                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Unlimited daily users</motion.li>
-                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Audit Defense Guarantee</motion.li>
+                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Full R&D Report Generation</motion.li>
+                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Unlimited repositories and teams</motion.li>
+                    <motion.li whileHover={{ x: 5 }} className="flex items-center gap-3 sm:gap-4 transition-transform"><div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-cyan-400 rounded-sm shadow-[0_0_12px_#22d3ee] rotate-45 shrink-0"/> Big 4 Audit-Defense Guarantee</motion.li>
                   </ul>
                 </div>
                 
@@ -1780,7 +1780,7 @@ export default function Home() {
 
             <div className="text-center mb-8 relative z-10">
               <h3 className="text-2xl font-black text-white mb-2">Select Payment Method</h3>
-              <p className="text-slate-400 text-sm font-medium">Choose how you'd like to pay for the {selectedPlan === "pro" ? "SaaS Subscription" : "AI Enterprise"} plan.</p>
+              <p className="text-slate-400 text-sm font-medium">Choose how you'd like to pay for the {selectedPlan === "pro" ? "Growth Suite" : "Enterprise Autopilot"} plan.</p>
             </div>
 
             <div className="space-y-4 relative z-10">

@@ -10,7 +10,7 @@
 
 import prisma from "@/lib/prisma";
 import { classifyWorkLog, type LlmClassificationResult } from "@/lib/llm/classifier";
-import { calculateTaxBenefit, getJurisdictionByCountry } from "./tax-engine";
+import { calculateTaxBenefit, getJurisdictionByCountry } from '@/lib/rd-engine/tax-engine';
 
 // Default daily rate for value calculation — will come from company settings later
 const DEFAULT_DAILY_RATE = 800;

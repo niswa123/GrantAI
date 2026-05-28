@@ -27,23 +27,23 @@ interface CardData {
 
 const cards: CardData[] = [
   {
-    title: "For Engineers",
-    subtitle: "TRACK R&D IMPACT DAILY",
-    description: "Log what you built today in 30 seconds. Our AI scores R&D eligibility instantly, so you can see how your work translates into financial value.",
+    title: "Tech Leads",
+    subtitle: "ZERO DEVELOPER DISRUPTION",
+    description: "Zero Developer Disruption. Write your code as usual. Our AI automatically parses AST code differentials and PRs to build a compliant technical R&D ledger. No timesheets, no surveys, no grueling interviews.",
     icon: Code2,
     accentColor: "cyan"
   },
   {
-    title: "For CTOs",
-    subtitle: "REAL-TIME ENGINEERING CAPITAL",
-    description: "See your team's R&D output as a financial metric. Know exactly how much qualifying R&D value your engineers produce, every single day.",
+    title: "CTOs",
+    subtitle: "CODEBASE TO ASSET CONVERSION",
+    description: "Quantify your team's R&D output with mathematical authority. Track research milestones and baseline-to-advance transitions in real time, converting code into high-fidelity financial assets.",
     icon: BarChart3,
     accentColor: "emerald"
   },
   {
-    title: "For Finance",
-    subtitle: "CONTINUOUS COMPLIANCE DATA",
-    description: "No more end-of-year scramble. R&D tax credit documentation builds itself daily. When it's time to file, everything is already there.",
+    title: "CFOs",
+    subtitle: "KEEP 100% OF YOUR CLAIM",
+    description: "Eliminate legacy tax consultancies charging 25% success fees. Get continuous, audit-ready compliance data for a transparent flat fee, saving tens of thousands of dollars on filing.",
     icon: Banknote,
     accentColor: "amber"
   },
@@ -108,8 +108,8 @@ export function HorizontalScrollSection() {
   return (
     <>
       {/* ========== DESKTOP: Horizontal Scroll ========== */}
-      <div ref={containerRef} className="hidden md:block relative bg-[#03050c]" style={{ height: "240vh" }}>
-        <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
+      <div ref={containerRef} className="hidden md:block relative z-20 isolate bg-[#03050c]" style={{ height: "240vh" }}>
+        <div className="sticky top-0 h-screen flex flex-col justify-center pt-20 z-20">
         
           {/* Header */}
           <div className="container mx-auto px-4 mb-12 relative z-10">
@@ -121,16 +121,16 @@ export function HorizontalScrollSection() {
               className="text-center"
             >
               <div className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-xs text-slate-400 mb-6 tracking-wider uppercase">
-                [ BUILT FOR EVERY ROLE ]
+                [ EXPERT ROLES ENGAGED ]
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter">
-                Who it&apos;s{" "}
+              <h2 className="text-5xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-[1.1] py-1">
+                Engineered for your{" "}
                 <span className="text-cyan-400 drop-shadow-sm">
-                  built for.
+                  entire team.
                 </span>
               </h2>
               <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                From daily logging to annual compliance, every role benefits from real-time R&D value tracking
+                Direct git integration extracts compliant claims for engineers, leaders, and finance officers
               </p>
             </motion.div>
           </div>
@@ -174,7 +174,7 @@ export function HorizontalScrollSection() {
             viewport={{ once: true }}
             className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[10px] text-slate-400 mb-4 tracking-wider uppercase"
           >
-            [ BUILT FOR EVERY ROLE ]
+            [ EXPERT ROLES ENGAGED ]
           </motion.div>
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
@@ -183,8 +183,8 @@ export function HorizontalScrollSection() {
             transition={{ delay: 0.1 }}
             className="text-4xl font-black text-white mb-4 tracking-tight leading-[1.1]"
           >
-            Who it&apos;s{" "}
-            <span className="text-cyan-400">built for</span>
+            Engineered for your{" "}
+            <span className="text-cyan-400">entire team</span>
           </motion.h2>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -193,7 +193,7 @@ export function HorizontalScrollSection() {
             transition={{ delay: 0.2 }}
             className="text-sm text-slate-400 max-w-xs mx-auto font-medium"
           >
-            From daily logging to annual compliance, every role benefits from real-time R&D value tracking
+            Direct git integration extracts compliant claims for engineers, leaders, and finance officers
           </motion.p>
         </div>
 
@@ -472,22 +472,22 @@ function ComplianceWidget() {
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold">[✓]</span>
           <span className="text-slate-300 uppercase tracking-wider text-[8px]">Novelty</span>
-          <span className="text-slate-600">— prior art analyzed</span>
+          <span className="text-slate-600">(prior art analyzed)</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold">[✓]</span>
           <span className="text-slate-300 uppercase tracking-wider text-[8px]">Creativity</span>
-          <span className="text-slate-600">— hypothesis tested</span>
+          <span className="text-slate-600">(hypothesis tested)</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold">[✓]</span>
           <span className="text-slate-300 uppercase tracking-wider text-[8px]">Uncertainty</span>
-          <span className="text-slate-600">— limitation documented</span>
+          <span className="text-slate-600">(limitation documented)</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-emerald-400 font-bold">[✓]</span>
           <span className="text-slate-300 uppercase tracking-wider text-[8px]">Systematic</span>
-          <span className="text-slate-600">— logs fully archived</span>
+          <span className="text-slate-600">(logs fully archived)</span>
         </div>
       </div>
 

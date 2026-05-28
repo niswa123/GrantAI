@@ -37,7 +37,7 @@ export function Hero() {
           transition={{ duration: 0.6 }}
           className="inline-block px-3 py-1 bg-slate-900 border border-white/10 rounded font-mono text-[10px] sm:text-xs text-slate-400 mb-4 sm:mb-8 tracking-wider uppercase"
         >
-          [ COMPLIANCE ENGINE // V2.0.DETERMINISTIC ]
+          [ NO 25% SUCCESS FEES. ZERO DEVELOPER DISRUPTION. 100% AUDIT-PROOF. ]
         </motion.div>
         
         {/* Main Title */}
@@ -48,9 +48,9 @@ export function Hero() {
           className="text-4xl leading-[1.1] sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter mb-4 sm:mb-8 text-white max-w-5xl mx-auto px-4 sm:px-6 break-words"
           style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Turn Code into<br />
+          Stop leaving cash<br />
           <span className="text-cyan-400">
-            Financial Capital.
+            on the table.
           </span>
         </motion.h1>
         
@@ -62,7 +62,7 @@ export function Hero() {
           className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-400 max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed font-medium px-4 sm:px-6"
           style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
         >
-          Continuous OECD Frascati R&D valuation. Turn your engineering logs into a verified, audit-ready financial asset.
+          Your engineering team is creating highly valuable R&D assets every single day. We extract, quantify, and justify those assets directly from your git commits. Connect GitHub, build a compliant tax ledger in 15 minutes, and keep 100% of your claim.
         </motion.p>
         
         {/* Buttons */}
@@ -78,7 +78,7 @@ export function Hero() {
               onClick={() => posthog?.capture('Clicked Start Tracking', { location: 'hero' })}
               className="group w-full px-5 sm:px-8 py-3.5 sm:py-5 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-sm bg-white hover:bg-slate-100 text-black border border-white transition-all shadow-[0_4px_20px_rgba(255,255,255,0.08)] whitespace-nowrap"
             >
-              Start Tracking
+              Calculate R&D Tax Credit
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform" />
             </Button>
           </motion.div>
@@ -89,7 +89,7 @@ export function Hero() {
               onClick={() => posthog?.capture('Clicked How it Works', { location: 'hero' })}
               className="w-full px-5 sm:px-8 py-3.5 sm:py-5 text-xs sm:text-sm font-bold uppercase tracking-wider rounded-sm border border-white/10 bg-slate-900/50 hover:bg-slate-800 transition-all whitespace-nowrap"
             >
-              How it Works
+              See Flat-Rate Pricing
             </Button>
           </motion.div>
         </motion.div>
@@ -111,10 +111,10 @@ export function Hero() {
                   <Cpu className="w-4 h-4" />
                 </div>
                 <div className="text-left font-mono">
-                  <div className="text-white font-bold text-xs sm:text-sm tracking-tight uppercase">Claims Inspector</div>
+                  <div className="text-white font-bold text-xs sm:text-sm tracking-tight uppercase">Autonomous R&D Compliance Console</div>
                   <div className="text-cyan-400 text-[10px] sm:text-xs font-semibold flex items-center gap-2 mt-0.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" /> 
-                    <span>Sync Mode: ACTIVE // Tracking repository streams</span>
+                    <span>Sync: ACTIVE // Continuous AST differential tracking</span>
                   </div>
                 </div>
               </div>
@@ -164,14 +164,14 @@ export function Hero() {
                   <div className="space-y-3 text-left">
                     <div className="flex items-baseline justify-between">
                       <span className="text-xs text-slate-400">Total Capital Tracked</span>
-                      <span className="text-lg font-mono font-black text-white">€1,240.00</span>
+                      <span className="text-lg font-mono font-black text-white">€142,500.00</span>
                     </div>
                     <div className="w-full bg-white/5 h-[3px] rounded-full overflow-hidden">
                       <div className="bg-cyan-400 w-[73%] h-full" />
                     </div>
                     <div className="flex items-baseline justify-between">
                       <span className="text-xs text-slate-400">Tax Credit Qualified</span>
-                      <span className="text-sm font-mono font-bold text-emerald-400">€533.20</span>
+                      <span className="text-sm font-mono font-bold text-emerald-400">€45,600.00</span>
                     </div>
                   </div>
                 </div>

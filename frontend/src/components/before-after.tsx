@@ -53,9 +53,9 @@ function BeforeAfterMobile() {
           transition={{ delay: 0.1 }}
           className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-white leading-[1.1]"
         >
-          Transform your <br/>
+          Ditch the 25% success fee. <br/>
           <span className="text-cyan-400 drop-shadow-sm">
-            Engineering Capital.
+            Claim R&D autonomously.
           </span>
         </motion.h2>
       </div>
@@ -102,21 +102,21 @@ function BeforeAfterMobile() {
               </div>
               <div>
                 <h3 className="text-2xl font-black text-white tracking-tight">The Old Way</h3>
-                <p className="text-slate-500 font-bold uppercase tracking-[0.15em] text-[10px]">Blind & Unquantified</p>
+                <p className="text-slate-500 font-bold uppercase tracking-[0.15em] text-[10px]">Opaque & Manual</p>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 mt-auto">
               {[
-                { icon: FileText, text: "No visibility into daily R&D capital" },
-                { icon: Clock, text: "Code is seen as a cost center" },
-                { icon: AlertCircle, text: "Impossible to prove value" }
+                { icon: FileText, text: "Grueling interviews: hours wasted on surveys with non-technical accountants" },
+                { icon: Clock, text: "25% success fees: thousands of dollars lost to legacy consultancies" },
+                { icon: AlertCircle, text: "Audit exposure: weak, manual documentation that tax inspectors easily challenge" }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 border border-white/5">
                   <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
                     <item.icon className="w-4 h-4 text-slate-400" />
                   </div>
-                  <span className="text-slate-300 font-medium text-sm leading-tight">{item.text}</span>
+                  <span className="text-slate-300 font-medium text-xs leading-tight text-left">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -153,27 +153,27 @@ function BeforeAfterMobile() {
               <div>
                 <h3 className="text-2xl font-black text-white tracking-tight drop-shadow-md">With GrantAI</h3>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="relative flex h-2 w-2">
+                  <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
                   </span>
-                  <p className="text-cyan-400 font-bold uppercase tracking-[0.15em] text-[10px]">Daily Transparency</p>
+                  <p className="text-cyan-400 font-bold uppercase tracking-[0.15em] text-[10px]">Code-Level Authority</p>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-col gap-3 mt-auto">
               {[
-                { icon: Cpu, text: "AI quantifies value instantly" },
-                { icon: ShieldCheck, text: "Real-time dashboard of R&D" },
-                { icon: FileText, text: "100% compliance-ready" }
+                { icon: Cpu, text: "Code-level extraction: R&D mapped automatically from commits and PRs" },
+                { icon: ShieldCheck, text: "Fixed-fee subscription: keep 100% of your tax credit with zero success fees" },
+                { icon: FileText, text: "Audit-proof defense: cryptographically signed reports with full evidence chains" }
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-slate-900/80 border border-cyan-500/20 shadow-[inset_0_0_10px_rgba(6,182,212,0.05)] relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                   <div className="w-10 h-10 rounded-full bg-cyan-950 flex items-center justify-center shrink-0 border border-cyan-500/40 shadow-[0_0_10px_rgba(6,182,212,0.2)]">
                     <item.icon className="w-4 h-4 text-cyan-400" />
                   </div>
-                  <span className="text-white font-semibold text-sm leading-tight">{item.text}</span>
+                  <span className="text-white font-semibold text-xs leading-tight text-left">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -228,9 +228,9 @@ function BeforeAfterDesktop() {
             transition={{ delay: 0.1 }}
             className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-white leading-[1.1]"
           >
-            Transform your <br className="md:hidden"/>
+            Ditch the 25% success fee. <br className="md:hidden"/>
             <span className="text-cyan-400 drop-shadow-sm">
-              Engineering Capital.
+              Claim R&D autonomously.
             </span>
           </motion.h2>
         </div>
@@ -254,14 +254,14 @@ function BeforeAfterDesktop() {
                     </div>
                   </div>
                   <h3 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2">The Old Way</h3>
-                  <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-sm">Blind & Unquantified</p>
+                  <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-sm">Opaque & Manual</p>
                 </div>
 
                 <div className="w-full md:w-2/3 flex flex-col gap-4 md:gap-5">
                   {[
-                    { icon: FileText, text: "No visibility into daily R&D capital accumulation" },
-                    { icon: Clock, text: "Code is seen as a cost center, not an asset" },
-                    { icon: AlertCircle, text: "Impossible to prove R&D value objectively" }
+                    { icon: FileText, text: "Grueling interviews: hours wasted on surveys with non-technical accountants" },
+                    { icon: Clock, text: "25% success fees: thousands of dollars lost to legacy consultancies" },
+                    { icon: AlertCircle, text: "Audit exposure: weak, manual documentation that tax inspectors easily challenge" }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-5 md:gap-6 p-5 md:p-6 rounded-2xl bg-slate-900/40 border border-white/5 hover:border-red-500/20 transition-colors backdrop-blur-md shadow-[inset_0_0_20px_rgba(255,255,255,0.01)] group w-full">
                       <div className="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center shrink-0 border border-white/5 group-hover:border-red-500/30 transition-colors">
@@ -296,15 +296,15 @@ function BeforeAfterDesktop() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500"></span>
                     </span>
-                    <p className="text-cyan-400 font-bold uppercase tracking-[0.2em] text-sm drop-shadow">Daily Transparency</p>
+                    <p className="text-cyan-400 font-bold uppercase tracking-[0.2em] text-sm drop-shadow">Code-Level Authority</p>
                   </div>
                 </div>
 
                 <div className="w-full md:w-2/3 flex flex-col gap-4 md:gap-5">
                   {[
-                    { icon: Cpu, text: "AI quantifies engineering value instantly" },
-                    { icon: ShieldCheck, text: "Real-time dashboard of your R&D capital" },
-                    { icon: FileText, text: "100% transparent and compliance-ready" }
+                    { icon: Cpu, text: "Code-level extraction: R&D mapped automatically from commits and PRs" },
+                    { icon: ShieldCheck, text: "Fixed-fee subscription: keep 100% of your tax credit with zero success fees" },
+                    { icon: FileText, text: "Audit-proof defense: cryptographically signed reports with full evidence chains" }
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-5 md:gap-6 p-5 md:p-6 rounded-2xl bg-gradient-to-r from-cyan-500/10 to-slate-900/60 border border-cyan-500/30 backdrop-blur-md shadow-[inset_0_0_20px_rgba(6,182,212,0.05),0_10px_30px_rgba(0,0,0,0.5)] relative overflow-hidden group w-full">
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
